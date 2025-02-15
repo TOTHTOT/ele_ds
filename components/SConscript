@@ -1,0 +1,27 @@
+# for module compiling
+import os
+Import('RTT_ROOT')
+from building import *
+ 
+cwd = GetCurrentDir()
+objs = []
+list = os.listdir(cwd)
+ 
+for d in list:
+    # 获取单个文件夹的路径
+    path = os.path.join(cwd, d)
+    # 判断是否是文件夹
+    if os.path.isdir(path):
+        # 查找这个文件夹下的所有.c文件夹
+        src = Glob(path + '\*.c')
+        # 设置当前的路径到 CPPPATH
+        CPPPATH = [path, str(Dir('#'))]
+        # 获取当前目录的文件名（不包括路径）
+        filename_without_path = os.path.basename(os.path.normpath(path))
+        # 创建新的组名，例如当前目录是 aes ，则组名为 Module_aes
+        group_name = 'Components'
+        print("group_name: " + group_name)
+        # 使用新的组名定义组，并添加进对象列表中
+        objs = objs + DefineGroup(group_name, src, depend=[], CPPPATH=CPPPATH)
+ 
+Return('objs')
