@@ -18,11 +18,14 @@
 
 /* defined the LED0 pin: PC0 */
 #define LED0_PIN    GET_PIN(C, 13)
+#define V3_3_PIN    GET_PIN(C, 8)
 
 int main(void)
 {
     /* set LED0 pin mode to output */
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
+    rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
+    rt_pin_write(V3_3_PIN, PIN_HIGH);
 
     while (1)
     {
