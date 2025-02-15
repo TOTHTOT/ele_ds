@@ -1,0 +1,12 @@
+[
+ {
+  "path": "/packages/peripherals/sensors/sht3x", 
+  "ver": "latest", 
+  "name": "SHT3X"
+ }, 
+ {
+  "path": "/packages/peripherals/i2c-tools", 
+  "ver": "latest", 
+  "name": "I2C_TOOLS"
+ }
+]

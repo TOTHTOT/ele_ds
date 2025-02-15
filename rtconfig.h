@@ -87,6 +87,8 @@
 #define RT_USING_SERIAL_V1
 #define RT_SERIAL_USING_DMA
 #define RT_SERIAL_RB_BUFSZ 64
+#define RT_USING_I2C
+#define RT_USING_I2C_BITOPS
 #define RT_USING_PIN
 
 /* Using USB */
@@ -111,6 +113,7 @@
 
 /* Socket is in the 'Network' category */
 
+#define RT_USING_CPLUSPLUS
 
 /* Network */
 
@@ -119,9 +122,6 @@
 
 
 /* Utilities */
-
-
-/* RT-Thread Utestcases */
 
 
 /* RT-Thread online packages */
@@ -192,14 +192,23 @@
 /* STM32 HAL & SDK Drivers */
 
 
+/* Infineon HAL Packages */
+
+
 /* Kendryte SDK */
 
 
 /* sensors drivers */
 
+#define PKG_USING_SHT3X
+#define PKG_USING_SHT3X_LATEST_VERSION
 
 /* touch drivers */
 
+#define PKG_USING_I2C_TOOLS
+#define I2C_TOOLS_USE_SW_I2C
+#define I2C_TOOLS_SW_ACK_TIMEOUT 100
+#define PKG_USING_I2C_TOOLS_LATEST_VERSION
 
 /* AI packages */
 
@@ -265,6 +274,9 @@
 #define BSP_USING_GPIO
 #define BSP_USING_UART
 #define BSP_USING_UART1
+#define BSP_USING_I2C1
+#define BSP_I2C1_SCL_PIN 22
+#define BSP_I2C1_SDA_PIN 23
 
 /* Board extended module Drivers */
 
