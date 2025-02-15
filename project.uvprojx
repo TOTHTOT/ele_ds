@@ -10,6 +10,7 @@
       <TargetName>rt-thread</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -503,7 +504,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -559,7 +560,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -615,7 +616,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -671,7 +672,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -727,7 +728,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -783,7 +784,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -839,7 +840,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -895,7 +896,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -951,7 +952,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1007,7 +1008,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1063,7 +1064,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1119,7 +1120,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1175,7 +1176,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1231,7 +1232,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_IPC_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1308,11 +1309,6 @@
           <GroupName>i2c-tools</GroupName>
           <Files>
             <File>
-              <FileName>i2c_utils.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>packages\i2c-tools-latest\src\i2c_utils.cpp</FilePath>
-            </File>
-            <File>
               <FileName>SoftwareI2C.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>packages\i2c-tools-latest\src\SoftwareI2C.cpp</FilePath>
@@ -1321,6 +1317,11 @@
               <FileName>i2c_tools.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_utils.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>packages\i2c-tools-latest\src\i2c_utils.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -1377,7 +1378,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1433,7 +1434,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1489,7 +1490,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1545,7 +1546,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1601,7 +1602,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1657,7 +1658,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1713,7 +1714,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1769,7 +1770,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1825,7 +1826,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1881,7 +1882,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1937,7 +1938,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -1993,7 +1994,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -2049,7 +2050,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -2105,7 +2106,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -2161,7 +2162,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
@@ -2217,7 +2218,7 @@
                       <MiscControls> </MiscControls>
                       <Define>__RT_KERNEL_SOURCE__</Define>
                       <Undefine> </Undefine>
-                      <IncludePath> </IncludePath>
+                      <IncludePath></IncludePath>
                     </VariousControls>
                   </Cads>
                 </FileArmAds>
