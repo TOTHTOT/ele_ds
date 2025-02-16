@@ -24,6 +24,7 @@
                 "e:\\Project\\stm\\project\\ele_ds\\packages\\i2c-tools-latest\\src",
                 "e:\\Project\\stm\\project\\ele_ds\\libraries\\STM32F1xx_HAL\\STM32F1xx_HAL_Driver\\Inc",
                 "e:\\Project\\stm\\project\\ele_ds\\rt-thread\\components\\finsh",
+                "e:\\Project\\stm\\project\\ele_ds\\packages\\sgp30-latest\\inc",
                 "e:\\Project\\stm\\project\\ele_ds\\rt-thread\\components\\libc\\posix\\ipc",
                 "e:\\Project\\stm\\project\\ele_ds\\libraries\\HAL_Drivers\\CMSIS\\Include",
                 "e:\\Project\\stm\\project\\ele_ds\\packages\\i2c-tools-latest",
@@ -44,7 +45,9 @@
                 "e:\\Project\\stm\\project\\ele_ds\\rt-thread\\src",
                 "e:\\Project\\stm\\project\\ele_ds\\rt-thread\\src\\klibc",
                 "e:\\Project\\stm\\project\\ele_ds\\libraries\\STM32F1xx_HAL\\STM32F1xx_HAL_Driver\\Src",
-                "e:\\Project\\stm\\project\\ele_ds\\libraries\\STM32F1xx_HAL\\CMSIS\\Device\\ST\\STM32F1xx\\Source\\Templates"
+                "e:\\Project\\stm\\project\\ele_ds\\libraries\\STM32F1xx_HAL\\CMSIS\\Device\\ST\\STM32F1xx\\Source\\Templates",
+                "e:\\Project\\stm\\project\\ele_ds\\packages\\sgp30-latest\\src",
+                "e:\\Project\\stm\\project\\ele_ds\\packages\\sgp30-latest\\examples"
             ],
             "defines": [
                 "__STDC_LIMIT_MACROS",

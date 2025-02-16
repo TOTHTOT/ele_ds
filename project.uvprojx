@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>__STDC_LIMIT_MACROS, RT_USING_ARMLIBC, STM32F103xE, USE_HAL_DRIVER, RT_USING_LIBC, __CLK_TCK=RT_TICK_PER_SECOND, __RTTHREAD__</Define>
               <Undefine></Undefine>
-              <IncludePath>rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;packages\sht3x-latest;components\gzp6816d_driver;applications\ele_ds;rt-thread\components\libc\cplusplus;board\CubeMX_Config\Inc;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\libcpu\arm\common;rt-thread\components\libc\compilers\common\extension\fcntl\octal;.;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;libraries\HAL_Drivers;rt-thread\include;rt-thread\components\drivers\include;packages\i2c-tools-latest\src;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;rt-thread\components\finsh;rt-thread\components\libc\posix\ipc;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\drivers\include;packages\i2c-tools-latest;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m3;applications;rt-thread\components\libc\posix\io\poll;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config</IncludePath>
+              <IncludePath>rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;packages\sht3x-latest;components\gzp6816d_driver;applications\ele_ds;rt-thread\components\libc\cplusplus;board\CubeMX_Config\Inc;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\libcpu\arm\common;rt-thread\components\libc\compilers\common\extension\fcntl\octal;.;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;libraries\HAL_Drivers;rt-thread\include;rt-thread\components\drivers\include;packages\i2c-tools-latest\src;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;rt-thread\components\finsh;packages\sgp30-latest\inc;rt-thread\components\libc\posix\ipc;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\drivers\include;packages\i2c-tools-latest;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m3;applications;rt-thread\components\libc\posix\io\poll;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2455,6 +2455,36 @@
               <FileName>stm32f1xx_hal_gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_gpio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>sgp30</GroupName>
+          <Files>
+            <File>
+              <FileName>sgp30.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\sgp30-latest\src\sgp30.c</FilePath>
+            </File>
+            <File>
+              <FileName>sgp30_sample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\sgp30-latest\examples\sgp30_sample.c</FilePath>
+            </File>
+            <File>
+              <FileName>sensor_sgp30_cmd_sample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\sgp30-latest\examples\sensor_sgp30_cmd_sample.c</FilePath>
+            </File>
+            <File>
+              <FileName>sensor_sensirion_sgp30.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\sgp30-latest\src\sensor_sensirion_sgp30.c</FilePath>
+            </File>
+            <File>
+              <FileName>sensor_sgp30_sample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\sgp30-latest\examples\sensor_sgp30_sample.c</FilePath>
             </File>
           </Files>
         </Group>

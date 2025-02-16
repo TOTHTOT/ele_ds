@@ -31,7 +31,7 @@ int main(void)
     gps6816d_data_t data = {0};
     while (1)
     {
-        ele_ds->ops.get_gps6816d_data(&data);
+        // ele_ds->ops.get_gps6816d_data(&data);
         rt_pin_write(LED0_PIN, PIN_HIGH);
         rt_thread_mdelay(500);
         rt_pin_write(LED0_PIN, PIN_LOW);
