@@ -89,6 +89,8 @@
 #define RT_SERIAL_RB_BUFSZ 64
 #define RT_USING_I2C
 #define RT_USING_I2C_BITOPS
+#define RT_USING_SENSOR
+#define RT_USING_SENSOR_CMD
 #define RT_USING_PIN
 
 /* Using USB */
@@ -233,7 +235,8 @@
 
 
 /* Sensors */
-
+#define PKG_USING_GZP6816D_SENSOR
+#define RT_GZP6818D_SENSOR_DEBUG
 
 /* Display */
 

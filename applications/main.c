@@ -45,3 +45,4 @@ static int ota_app_vtor_reconfig(void)
  return 0;
 }
 INIT_BOARD_EXPORT(ota_app_vtor_reconfig);
+

@@ -36,6 +36,7 @@
                 "e:\\Project\\stm\\project\\ele_ds\\rt-thread\\components\\drivers\\i2c",
                 "e:\\Project\\stm\\project\\ele_ds\\rt-thread\\components\\drivers\\ipc",
                 "e:\\Project\\stm\\project\\ele_ds\\rt-thread\\components\\drivers\\pin",
+                "e:\\Project\\stm\\project\\ele_ds\\rt-thread\\components\\drivers\\sensor\\v1",
                 "e:\\Project\\stm\\project\\ele_ds\\rt-thread\\components\\drivers\\serial",
                 "e:\\Project\\stm\\project\\ele_ds\\board\\CubeMX_Config\\Src",
                 "e:\\Project\\stm\\project\\ele_ds\\libraries\\STM32F1xx_HAL\\CMSIS\\Device\\ST\\STM32F1xx\\Source\\Templates\\arm",

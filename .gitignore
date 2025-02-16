@@ -53,3 +53,4 @@ dkms.conf
 /build
 JLinkLog.txt
 rtthread.bin
+/.vscode
