@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2018-11-27     balanceTWK   first version
- * 2023-12-03     Meco Man     support nano version
+ * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+ * @Date: 2025-02-15 18:01:01
+ * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+ * @LastEditTime: 2025-02-16 19:22:54
+ * @FilePath: \ele_ds\applications\main.c
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 
 #include <board.h>
@@ -16,19 +14,24 @@
 #include <rtdevice.h>
 #endif /* RT_USING_NANO */
 
-/* defined the LED0 pin: PC0 */
-#define LED0_PIN    GET_PIN(C, 13)
-#define V3_3_PIN    GET_PIN(C, 8)
+#include <ele_ds.h>
+
+#define DBG_TAG "main"
+#define DBG_LVL DBG_LOG
+#include <rtdbg.h>
 
 int main(void)
 {
-    /* set LED0 pin mode to output */
-    rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
-    rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
-    rt_pin_write(V3_3_PIN, PIN_HIGH);
-
+    ele_ds_t ele_ds =  devices_init();
+    if (ele_ds == NULL)
+    {
+        LOG_E("No memory for ele_ds");
+        return -RT_ERROR;
+    }
+    gps6816d_data_t data = {0};
     while (1)
     {
+        ele_ds->ops.get_gps6816d_data(&data);
         rt_pin_write(LED0_PIN, PIN_HIGH);
         rt_thread_mdelay(500);
         rt_pin_write(LED0_PIN, PIN_LOW);

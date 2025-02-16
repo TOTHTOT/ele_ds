@@ -54,3 +54,4 @@ dkms.conf
 JLinkLog.txt
 rtthread.bin
 /.vscode
+EventRecorderStub.scvd

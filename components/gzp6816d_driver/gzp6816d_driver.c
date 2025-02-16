@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 22:47:40
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-16 10:54:24
+ * @LastEditTime: 2025-02-16 17:50:13
  * @FilePath: \ele_ds\components\gzp6816d_driver\gzp6816d_driver.c
  * @Description: gzp6816d 气压驱动, 读数据时要根据测量频率间隔读数, 默认203ms
  */
@@ -61,25 +61,72 @@ static rt_err_t read_bytes(gzp6816d_device_t device, uint8_t * buf, uint8_t len)
     }
 }
 
+/**
+ * @description: 反转字节数组
+ * @param {void} *data 数据
+ * @param {size_t} length 数据长度
+ * @return {*}
+ */
+static inline void reverse_bytes(void *data, size_t length)
+{
+    uint8_t *byte_data = (uint8_t *)data;  // 将 void* 转换为 uint8_t* 类型
+    uint8_t temp;
+    size_t i = 0, j = length - 1;
+
+    // 反转字节数组
+    while (i < j)
+    {
+        temp = byte_data[i];
+        byte_data[i] = byte_data[j];
+        byte_data[j] = temp;
+
+        i++;
+        j--;
+    }
+}
+
+/**
+ * @description: 解析读取数据并回传到rawdata
+ * @param {uint8_t} *buf 数据缓冲区
+ * @param {gps6816d_data_t} *rawdata 回传的数据
+ * @return {rt_err_t} 函数执行结果，RT_EOK表示成功
+ */
 static rt_err_t cal_rawdata(uint8_t *buf, gps6816d_data_t *rawdata)
 {
     if (buf == NULL || rawdata == NULL)
     {
         return -RT_ERROR;
     }
-    memcpy(&rawdata->pressure, buf, 4);
-    memcpy(&rawdata->temperature, buf + 4, 2);
-    rawdata->pressure.value = CALC_PRESSURE(rawdata->pressure.value & GZP6816D_PRESSURE_VALUE_MASK);
-    rawdata->temperature.value = CALC_TEMPERATURE(rawdata->temperature.value);
-    LOG_I("pressure = %d, temperature = %d",
-          rawdata->pressure.value,
-          rawdata->temperature.value);
+#ifdef GZP6816D_CALTEST // 测试计算公式
+    char str[64] = {0x04, 0x9B, 0xB0, 0xC5, 0x56, 0xAA};
+    memcpy(buf, str, 6);
+    for (int i = 0; i < 6; i++)
+    {
+        LOG_I("buf[%d] = %02x", i, buf[i]);
+    }
+    memset(str, 0, sizeof(str));
+#endif /* GZP6816D_CALTEST */
+
+    memcpy(&rawdata->raw_pressure.data, buf, 4);
+    reverse_bytes(&rawdata->raw_pressure.data, 4);
+    memcpy(&rawdata->raw_temperature.data, buf + 4, 2);
+    reverse_bytes(&rawdata->raw_temperature.data, 2);
+    rawdata->pressure = CALC_PRESSURE(rawdata->raw_pressure.value & GZP6816D_PRESSURE_VALUE_MASK) * 1.0;
+    rawdata->temperature = CALC_TEMPERATURE(rawdata->raw_temperature.value) * 1.0;
+#ifdef GZP6816D_CALTEST
+    sprintf(str, "pressure = %d %f, temperature = %d %f",
+            rawdata->raw_pressure.value & GZP6816D_PRESSURE_VALUE_MASK, rawdata->pressure,
+            rawdata->raw_temperature.value, rawdata->temperature);
+    LOG_I("%s", str);
+#endif /* GZP6816D_CALTEST */
+    LOG_I("raw pressure = %d, raw temperature = %d", rawdata->raw_pressure.value & GZP6816D_PRESSURE_VALUE_MASK, rawdata->raw_temperature.value);
     return RT_EOK;
 }
 
 /**
  * @description: 读取一次数据
  * @param {gzp6816d_device_t} device 设备结构体实例
+ * @param {uint8_t} buf 读取到的数据
  * @return {rt_err_t} 函数执行结果，RT_EOK表示成功
  */
 rt_err_t gzp6816d_readsls(gzp6816d_device_t device, uint8_t buf[6])
@@ -107,6 +154,52 @@ rt_err_t gzp6816d_readsls(gzp6816d_device_t device, uint8_t buf[6])
 }
 
 /**
+ * @description: 读取数据
+ * @param {rt_sensor_device} *sensor 传感器设备
+ * @param {void} *buf 数据缓冲区
+ * @param {rt_size_t} len 数据长度
+ * @return {rt_ssize_t} 读取数据长度, < 0 表示读取失败
+ */
+rt_ssize_t gzp6816d_fetch_data(struct rt_sensor_device *sensor, void *buf, rt_size_t len)
+{
+    RT_ASSERT(sensor != NULL);
+    RT_ASSERT(buf != NULL);
+    RT_ASSERT(sensor->parent.user_data != NULL);
+
+    if (len < sizeof(gps6816d_data_t))
+    {
+        LOG_E("buf size is too small");
+        return -RT_ERROR;
+    }
+
+    gzp6816d_device_t device = (gzp6816d_device_t)sensor->parent.user_data;
+    uint8_t readbuf[6] = {0};
+    // 读取数据
+    rt_err_t ret = gzp6816d_readsls(device, readbuf);
+    // 没问题的话就解析数据
+    if (ret == RT_EOK)
+    {
+        gps6816d_data_t data = {0};
+        cal_rawdata(readbuf, &data);
+        memcpy(buf, &data, sizeof(gps6816d_data_t));
+        return sizeof(gps6816d_data_t);
+    }
+    else
+    {
+        return ret;
+    }
+}
+rt_err_t gzp6816d_control(struct rt_sensor_device *sensor, int cmd, void *arg)
+{
+    return RT_EOK;
+}
+static struct rt_sensor_ops sensor_ops =
+{
+    gzp6816d_fetch_data,
+    gzp6816d_control
+};
+
+/**
  * @description: 初始化设备
  * @param {char} *i2cname i2c名称
  * @param {uint8_t} addr 设备地址, 芯片地址 0x78
@@ -119,7 +212,7 @@ rt_err_t gzp6816d_init(const char *i2cname, uint8_t addr)
         LOG_E("No i2c name for gzp6816d");
         return -RT_ERROR;
     }
-    uint8_t buf[6] = {0};
+		rt_sensor_t sensor = NULL;
     gzp6816d_device_t device = NULL;
     device = rt_calloc(1, sizeof(gzp6816d_device_t));
     if (device == NULL)
@@ -135,11 +228,38 @@ rt_err_t gzp6816d_init(const char *i2cname, uint8_t addr)
         LOG_E("No i2c device %s", i2cname);
         goto __exit;
     }
+    
+    // 注册传感器设备
+		sensor = rt_calloc(1, sizeof(struct rt_sensor_device));
+    if (sensor == NULL)
+    {
+        LOG_E("No memory for sensor device");
+        goto __exit;
+    }
+    // 填写传感器信息
+    sensor->info.type = RT_SENSOR_CLASS_BARO;
+    sensor->info.vendor = RT_SENSOR_VENDOR_UNKNOWN;
+    sensor->info.model = "gzp6816d";
+    sensor->info.intf_type = RT_SENSOR_INTF_I2C;
+    sensor->info.unit = RT_SENSOR_UNIT_PA;
+    sensor->info.range_max = DMAX;
+    sensor->info.range_min = DMIN;
+    sensor->info.period_min = 203;
+    sensor->ops = &sensor_ops;
+    if (rt_hw_sensor_register(sensor, "gzp6816d", RT_DEVICE_FLAG_RDONLY, device) != RT_EOK)
+    {
+        LOG_E("gzp6816d register error");
+        goto __exit;
+    }
+
+#if 0 // 测试读取数据
+		uint8_t buf[6] = {0};
     if (gzp6816d_readsls(device, buf) == RT_EOK)
     {
         gps6816d_data_t data = {0};
         cal_rawdata(buf, &data);
     }
+#endif /* 0 */
     return RT_EOK;
 __exit:
     if (device->i2cname != NULL)
@@ -173,6 +293,6 @@ void gzp6816d_init_test(void)
 {
     gzp6816d_init("i2c1", GZP6816D_ADDR);
 }
-MSH_CMD_EXPORT_ALIAS(gzp6816d_init_test, gzp6816d, gzp6816d init test);
+INIT_DEVICE_EXPORT(gzp6816d_init_test);
 
 #endif /* PKG_USING_GZP6816D_SENSOR */

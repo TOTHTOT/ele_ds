@@ -236,7 +236,7 @@
 
 /* Sensors */
 #define PKG_USING_GZP6816D_SENSOR
-#define RT_GZP6818D_SENSOR_DEBUG
+// #define RT_GZP6818D_SENSOR_DEBUG
 
 /* Display */
 

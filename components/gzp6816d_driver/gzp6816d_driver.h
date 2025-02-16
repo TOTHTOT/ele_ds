@@ -52,9 +52,11 @@ typedef union
 
 typedef struct
 {
-    gzp6816d_pressure_t pressure;       // 气压
-    gzp6816d_temperature_t temperature; // 温度
-} gps6816d_data_t;                      // 数据
+    gzp6816d_pressure_t raw_pressure; // 气压
+    float pressure;
+    gzp6816d_temperature_t raw_temperature; // 温度
+    float temperature;
+} gps6816d_data_t; // 数据
 #pragma pack()
 typedef struct gzp6816d_device
 {
