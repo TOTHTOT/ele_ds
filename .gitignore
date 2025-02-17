@@ -55,3 +55,4 @@ JLinkLog.txt
 rtthread.bin
 /.vscode
 EventRecorderStub.scvd
+packages/sgp30-latest/

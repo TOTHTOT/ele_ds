@@ -88,10 +88,10 @@ static inline void reverse_bytes(void *data, size_t length)
 /**
  * @description: 解析读取数据并回传到rawdata
  * @param {uint8_t} *buf 数据缓冲区
- * @param {gps6816d_data_t} *rawdata 回传的数据
+ * @param {gzp6816d_data_t} *rawdata 回传的数据
  * @return {rt_err_t} 函数执行结果，RT_EOK表示成功
  */
-static rt_err_t cal_rawdata(uint8_t *buf, gps6816d_data_t *rawdata)
+static rt_err_t cal_rawdata(uint8_t *buf, gzp6816d_data_t *rawdata)
 {
     if (buf == NULL || rawdata == NULL)
     {
@@ -166,7 +166,7 @@ rt_ssize_t gzp6816d_fetch_data(struct rt_sensor_device *sensor, void *buf, rt_si
     RT_ASSERT(buf != NULL);
     RT_ASSERT(sensor->parent.user_data != NULL);
 
-    if (len < sizeof(gps6816d_data_t))
+    if (len < sizeof(gzp6816d_data_t))
     {
         LOG_E("buf size is too small");
         return -RT_ERROR;
@@ -179,10 +179,10 @@ rt_ssize_t gzp6816d_fetch_data(struct rt_sensor_device *sensor, void *buf, rt_si
     // 没问题的话就解析数据
     if (ret == RT_EOK)
     {
-        gps6816d_data_t data = {0};
+        gzp6816d_data_t data = {0};
         cal_rawdata(readbuf, &data);
-        memcpy(buf, &data, sizeof(gps6816d_data_t));
-        return sizeof(gps6816d_data_t);
+        memcpy(buf, &data, sizeof(gzp6816d_data_t));
+        return sizeof(gzp6816d_data_t);
     }
     else
     {
@@ -256,7 +256,7 @@ rt_err_t gzp6816d_init(const char *i2cname, uint8_t addr)
 		uint8_t buf[6] = {0};
     if (gzp6816d_readsls(device, buf) == RT_EOK)
     {
-        gps6816d_data_t data = {0};
+        gzp6816d_data_t data = {0};
         cal_rawdata(buf, &data);
     }
 #endif /* 0 */

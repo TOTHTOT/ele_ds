@@ -56,7 +56,7 @@ typedef struct
     float pressure;
     gzp6816d_temperature_t raw_temperature; // 温度
     float temperature;
-} gps6816d_data_t; // 数据
+} gzp6816d_data_t; // 数据
 #pragma pack()
 typedef struct gzp6816d_device
 {

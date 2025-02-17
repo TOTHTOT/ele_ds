@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-16 19:22:54
+ * @LastEditTime: 2025-02-17 14:46:50
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -28,10 +28,9 @@ int main(void)
         LOG_E("No memory for ele_ds");
         return -RT_ERROR;
     }
-    gps6816d_data_t data = {0};
     while (1)
     {
-        // ele_ds->ops.get_gps6816d_data(&data);
+        ele_ds->ops.get_gzp6816d_data(&ele_ds->sensor_data.gzp6816d);
         rt_pin_write(LED0_PIN, PIN_HIGH);
         rt_thread_mdelay(500);
         rt_pin_write(LED0_PIN, PIN_LOW);

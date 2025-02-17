@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:27
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-16 19:21:15
+ * @LastEditTime: 2025-02-17 14:55:43
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.h
  * @Description: 电子桌搭主要功能
  */
@@ -20,9 +20,10 @@
 #define LED0_PIN    GET_PIN(C, 13)
 #define V3_3_PIN    GET_PIN(C, 8)
 
+typedef rt_err_t (*get_sensor_data)(void *data);
 struct ele_ds_ops 
 {
-    rt_err_t (*get_gps6816d_data)(gps6816d_data_t *data);
+    get_sensor_data get_gzp6816d_data;
 };
 typedef struct ele_ds_ops ele_ds_ops_t;
 
@@ -32,6 +33,11 @@ typedef struct
     {
         rt_device_t gzp6816d_dev;
     }devices;
+    struct 
+    {
+        gzp6816d_data_t gzp6816d;
+    }sensor_data;
+    
     struct ele_ds_ops ops;
 }ele_ds;
 typedef ele_ds *ele_ds_t;
