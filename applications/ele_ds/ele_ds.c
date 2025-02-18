@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-17 15:04:59
+ * @LastEditTime: 2025-02-18 23:14:48
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -52,20 +52,75 @@ rt_err_t get_gzp6816d_data(void *para)
 }
 
 /**
+ * @description: 获取SHT30数据
+ * @param {void} *para 传入参数为两个float类型数组
+ * @return {*}
+ */
+rt_err_t get_sht30_data(void *para)
+{
+    RT_ASSERT(para != RT_NULL);
+    RT_ASSERT(g_ele_ds->devices.sht3x_dev != RT_NULL);
+
+    rt_err_t ret = RT_EOK;
+    float data[2] = {0}; // 温度和湿度
+    ret = sht3x_read_singleshot(g_ele_ds->devices.sht3x_dev);
+    if (ret == RT_EOK)
+    {
+        data[0] = g_ele_ds->devices.sht3x_dev->temperature;
+        data[1] = g_ele_ds->devices.sht3x_dev->humidity;
+        memcpy(para, data, sizeof(data));
+    }
+    return ret;
+}
+
+rt_err_t get_all_sensor_data(void *para)
+{
+    RT_ASSERT(para != RT_NULL);
+
+    ele_ds_t ele_ds = (ele_ds_t)para;
+    // 没有传感器
+    if (SENSOR_MAX == 0)
+        return -ENOENT;
+    // 传感器未初始化
+    if (ele_ds->init_flag == false)
+        return -EBUSY;
+
+#ifdef PKG_USING_GZP6816D_SENSOR
+    ele_ds->ops.sensor_data[SENSOR_GZP6816D_INDEX](&ele_ds->sensor_data.gzp6816d);
+#endif /* PKG_USING_GZP6816D_SENSOR */
+#ifdef PKG_USING_SHT3X
+    RT_ASSERT(ele_ds->devices.sht3x_dev != RT_NULL);
+    ele_ds->ops.sensor_data[SENSOR_SHT3X_INDEX](ele_ds->sensor_data.sht30);
+#endif /* PKG_USING_SHT3X */
+    return RT_EOK;
+}
+
+/**
  * @description: 打印设备状态
  * @return {*}
  */
 void ele_ds_print_status(void)
 {
     char str[64] = {0};
-    sprintf(str, "Pressure: %f, Temperature: %f", g_ele_ds->sensor_data.gzp6816d.pressure, g_ele_ds->sensor_data.gzp6816d.temperature);
+    memset(str, 0, sizeof(str));
+#ifdef PKG_USING_GZP6816D_SENSOR
+    sprintf(str, "[GZP6816D]Pressure: %f, Temperature: %f", g_ele_ds->sensor_data.gzp6816d.pressure, g_ele_ds->sensor_data.gzp6816d.temperature);
     rt_kprintf("%s\n", str);
+#endif /* PKG_USING_GZP6816D_SENSOR */
+
+#ifdef PKG_USING_SHT3X
+    memset(str, 0, sizeof(str));
+    sprintf(str, "[SHT30]Temperature: %f, Humidity: %f", g_ele_ds->sensor_data.sht30[0], g_ele_ds->sensor_data.sht30[1]);
+    rt_kprintf("%s\n", str);
+#endif /* PKG_USING_SHT3X */
 }
 MSH_CMD_EXPORT_ALIAS(ele_ds_print_status, status, ele_ds_print_status);
 
 ele_ds_ops_t ele_ds_ops = 
 {
-    .get_gzp6816d_data = get_gzp6816d_data,
+    .sensor_data[SENSOR_GZP6816D_INDEX] = get_gzp6816d_data,
+    .sensor_data[SENSOR_SHT3X_INDEX] = get_sht30_data,
+    .sensor_data[SENSOR_MAX] = get_all_sensor_data,
 };
 ele_ds_t devices_init(void)
 {
@@ -79,8 +134,9 @@ ele_ds_t devices_init(void)
         LOG_E("No memory for ele_ds");
         return NULL;
     }
-
+    ele_ds->devices.sht3x_dev = sht3x_init("i2c1", SHT3X_ADDR_PD);
     ele_ds->ops = ele_ds_ops;
+    ele_ds->init_flag = true;
     g_ele_ds = ele_ds;
     return ele_ds;
 }
