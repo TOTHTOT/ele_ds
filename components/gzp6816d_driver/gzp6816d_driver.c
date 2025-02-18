@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 22:47:40
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-16 17:50:13
+ * @LastEditTime: 2025-02-18 22:03:37
  * @FilePath: \ele_ds\components\gzp6816d_driver\gzp6816d_driver.c
  * @Description: gzp6816d 气压驱动, 读数据时要根据测量频率间隔读数, 默认203ms
  */
@@ -289,7 +289,7 @@ void gzp6816d_deinit(gzp6816d_device_t device)
  * @description: gzp6816d初始化测试函数
  * @return {*}
  */
-void gzp6816d_init_test(void)
+int gzp6816d_init_test(void)
 {
     gzp6816d_init("i2c1", GZP6816D_ADDR);
 }
