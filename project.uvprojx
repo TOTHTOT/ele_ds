@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>__STDC_LIMIT_MACROS, RT_USING_ARMLIBC, STM32F103xE, USE_HAL_DRIVER, RT_USING_LIBC, __CLK_TCK=RT_TICK_PER_SECOND, __RTTHREAD__</Define>
               <Undefine></Undefine>
-              <IncludePath>rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;packages\sht3x-latest;components\gzp6816d_driver;applications\ele_ds;rt-thread\components\libc\cplusplus;board\CubeMX_Config\Inc;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\libcpu\arm\common;rt-thread\components\libc\compilers\common\extension\fcntl\octal;.;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;libraries\HAL_Drivers;rt-thread\include;rt-thread\components\drivers\include;packages\i2c-tools-latest\src;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;rt-thread\components\finsh;packages\sgp30-latest\inc;rt-thread\components\libc\posix\ipc;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\drivers\include;packages\i2c-tools-latest;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m3;applications;rt-thread\components\libc\posix\io\poll;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config</IncludePath>
+              <IncludePath>rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;rt-thread\components\libc\posix\ipc;packages\sht3x-latest;rt-thread\components\drivers\include;components\epaper\driver;applications\ele_ds;rt-thread\components\libc\cplusplus;board\CubeMX_Config\Inc;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\libcpu\arm\common;rt-thread\components\libc\compilers\common\extension\fcntl\octal;components\epaper\gui;rt-thread\components\drivers\spi;.;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;components\epaper\fonts;components\gzp6816d_driver;rt-thread\include;rt-thread\components\drivers\include;packages\i2c-tools-latest\src;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;rt-thread\components\finsh;packages\sgp30-latest\inc;components\epaper\config;libraries\HAL_Drivers\CMSIS\Include;libraries\HAL_Drivers;rt-thread\components\drivers\include;packages\i2c-tools-latest;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m3;applications;rt-thread\components\libc\posix\io\poll;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -444,6 +444,56 @@
         <Group>
           <GroupName>Components</GroupName>
           <Files>
+            <File>
+              <FileName>DEV_Config.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>components\epaper\config\DEV_Config.c</FilePath>
+            </File>
+            <File>
+              <FileName>EPD_2in7b_V2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>components\epaper\driver\EPD_2in7b_V2.c</FilePath>
+            </File>
+            <File>
+              <FileName>font12.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>components\epaper\fonts\font12.c</FilePath>
+            </File>
+            <File>
+              <FileName>font12CN.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>components\epaper\fonts\font12CN.c</FilePath>
+            </File>
+            <File>
+              <FileName>font16.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>components\epaper\fonts\font16.c</FilePath>
+            </File>
+            <File>
+              <FileName>font20.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>components\epaper\fonts\font20.c</FilePath>
+            </File>
+            <File>
+              <FileName>font24.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>components\epaper\fonts\font24.c</FilePath>
+            </File>
+            <File>
+              <FileName>font24CN.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>components\epaper\fonts\font24CN.c</FilePath>
+            </File>
+            <File>
+              <FileName>font8.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>components\epaper\fonts\font8.c</FilePath>
+            </File>
+            <File>
+              <FileName>GUI_Paint.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>components\epaper\gui\GUI_Paint.c</FilePath>
+            </File>
             <File>
               <FileName>gzp6816d_driver.c</FileName>
               <FileType>1</FileType>
@@ -1365,6 +1415,118 @@
                 </FileArmAds>
               </FileOption>
             </File>
+            <File>
+              <FileName>spi_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\drivers\spi\spi_core.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>1</IncludeInBuild>
+                  <AlwaysBuild>0</AlwaysBuild>
+                  <GenerateAssemblyFile>0</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>0</AssembleAssemblyFile>
+                  <PublicsOnly>0</PublicsOnly>
+                  <StopOnExitCode>3</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>0</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <uC99>2</uC99>
+                    <uGnu>2</uGnu>
+                    <useXO>2</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>2</vShortEn>
+                    <vShortWch>2</vShortWch>
+                    <v6Lto>2</v6Lto>
+                    <v6WtE>2</v6WtE>
+                    <v6Rtti>2</v6Rtti>
+                    <VariousControls>
+                      <MiscControls> </MiscControls>
+                      <Define>__RT_IPC_SOURCE__</Define>
+                      <Undefine> </Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+            </File>
+            <File>
+              <FileName>spi_dev.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\drivers\spi\spi_dev.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>1</IncludeInBuild>
+                  <AlwaysBuild>0</AlwaysBuild>
+                  <GenerateAssemblyFile>0</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>0</AssembleAssemblyFile>
+                  <PublicsOnly>0</PublicsOnly>
+                  <StopOnExitCode>3</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>0</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <uC99>2</uC99>
+                    <uGnu>2</uGnu>
+                    <useXO>2</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>2</vShortEn>
+                    <vShortWch>2</vShortWch>
+                    <v6Lto>2</v6Lto>
+                    <v6WtE>2</v6WtE>
+                    <v6Rtti>2</v6Rtti>
+                    <VariousControls>
+                      <MiscControls> </MiscControls>
+                      <Define>__RT_IPC_SOURCE__</Define>
+                      <Undefine> </Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1389,6 +1551,11 @@
               <FileName>drv_soft_i2c.c</FileName>
               <FileType>1</FileType>
               <FilePath>libraries\HAL_Drivers\drivers\drv_soft_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>libraries\HAL_Drivers\drivers\drv_spi.c</FilePath>
             </File>
             <File>
               <FileName>drv_usart.c</FileName>
@@ -1436,11 +1603,6 @@
           <GroupName>i2c-tools</GroupName>
           <Files>
             <File>
-              <FileName>i2c_tools.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
-            </File>
-            <File>
               <FileName>SoftwareI2C.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>packages\i2c-tools-latest\src\SoftwareI2C.cpp</FilePath>
@@ -1449,6 +1611,11 @@
               <FileName>i2c_utils.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>packages\i2c-tools-latest\src\i2c_utils.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_tools.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -2392,9 +2559,19 @@
               <FilePath>libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_rcc_ex.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f1xx_ll_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Src\stm32f1xx_ll_spi.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32f1xx_hal_cortex.c</FileName>
               <FileType>1</FileType>
               <FilePath>libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_cortex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f1xx_hal_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_spi.c</FilePath>
             </File>
             <File>
               <FileName>stm32f1xx_hal_gpio_ex.c</FileName>
@@ -2462,21 +2639,6 @@
           <GroupName>sgp30</GroupName>
           <Files>
             <File>
-              <FileName>sgp30.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\sgp30-latest\src\sgp30.c</FilePath>
-            </File>
-            <File>
-              <FileName>sgp30_sample.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\sgp30-latest\examples\sgp30_sample.c</FilePath>
-            </File>
-            <File>
-              <FileName>sensor_sgp30_cmd_sample.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\sgp30-latest\examples\sensor_sgp30_cmd_sample.c</FilePath>
-            </File>
-            <File>
               <FileName>sensor_sensirion_sgp30.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\sgp30-latest\src\sensor_sensirion_sgp30.c</FilePath>
@@ -2485,6 +2647,21 @@
               <FileName>sensor_sgp30_sample.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\sgp30-latest\examples\sensor_sgp30_sample.c</FilePath>
+            </File>
+            <File>
+              <FileName>sensor_sgp30_cmd_sample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\sgp30-latest\examples\sensor_sgp30_cmd_sample.c</FilePath>
+            </File>
+            <File>
+              <FileName>sgp30_sample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\sgp30-latest\examples\sgp30_sample.c</FilePath>
+            </File>
+            <File>
+              <FileName>sgp30.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\sgp30-latest\src\sgp30.c</FilePath>
             </File>
           </Files>
         </Group>

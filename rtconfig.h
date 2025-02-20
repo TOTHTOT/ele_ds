@@ -89,6 +89,7 @@
 #define RT_SERIAL_RB_BUFSZ 64
 #define RT_USING_I2C
 #define RT_USING_I2C_BITOPS
+#define RT_USING_SPI
 #define RT_USING_SENSOR
 #define RT_USING_SENSOR_CMD
 #define RT_USING_PIN
@@ -200,6 +201,9 @@
 /* Kendryte SDK */
 
 
+/* WCH HAL & SDK Drivers */
+
+
 /* sensors drivers */
 
 #define PKG_USING_SGP30
@@ -285,6 +289,10 @@
 #define BSP_USING_GPIO
 #define BSP_USING_UART
 #define BSP_USING_UART1
+#define BSP_USING_SPI
+#define BSP_USING_SPI1
+#define BSP_SPI1_TX_USING_DMA
+#define BSP_SPI1_RX_USING_DMA
 #define BSP_USING_I2C1
 #define BSP_I2C1_SCL_PIN 22
 #define BSP_I2C1_SDA_PIN 23

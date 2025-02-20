@@ -56,3 +56,8 @@ rtthread.bin
 /.vscode
 EventRecorderStub.scvd
 packages/sgp30-latest/
+/res/芯片手册/E-Paper_code
+/board/CubeMX_Config/Drivers/CMSIS
+/board/CubeMX_Config/Drivers/STM32F1xx_HAL_Driver
+/board/CubeMX_Config/MDK-ARM
+board/CubeMX_Config/Src/main.c
