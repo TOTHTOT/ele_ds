@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-20 22:54:01
+ * @LastEditTime: 2025-02-21 09:15:37
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -125,12 +125,13 @@ ele_ds_ops_t ele_ds_ops =
 
 int EPD_test(void)
 {
-    printf("EPD_2IN7B_V2_test Demo\r\n");
+    LOG_D("EPD_2IN7B_V2_test Demo");
     if(DEV_Module_Init()!=0){
+        LOG_E("Module Init Failed");
         return -1;
     }
     
-    printf("e-Paper Init and Clear...\r\n");
+    LOG_D("e-Paper Init and Clear...");
     EPD_2IN7B_V2_Init();
 
     EPD_2IN7B_V2_Clear();
@@ -140,14 +141,14 @@ int EPD_test(void)
     UBYTE *BlackImage, *RedImage;
     UWORD Imagesize = ((EPD_2IN7B_V2_WIDTH % 8 == 0)? (EPD_2IN7B_V2_WIDTH / 8 ): (EPD_2IN7B_V2_WIDTH / 8 + 1)) * EPD_2IN7B_V2_HEIGHT;
     if((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
-        printf("Failed to apply for black memory...\r\n");
+        LOG_E("Failed to apply for black memory...");
         return -1;
     }
     if((RedImage = (UBYTE *)malloc(Imagesize)) == NULL) {
-        printf("Failed to apply for red memory...\r\n");
+        LOG_E("Failed to apply for red memory...");
         return -1;
     }
-    printf("NewImage:BlackImage and RedImage\r\n");
+    LOG_D("NewImage:BlackImage and RedImage");
     Paint_NewImage(BlackImage, EPD_2IN7B_V2_WIDTH, EPD_2IN7B_V2_HEIGHT, 270, WHITE);
     Paint_NewImage(RedImage, EPD_2IN7B_V2_WIDTH, EPD_2IN7B_V2_HEIGHT, 270, WHITE);
 
@@ -158,7 +159,7 @@ int EPD_test(void)
     Paint_Clear(WHITE);
 
 #if 0   // show image for array   
-    printf("show image for array\r\n");
+    LOG_D("show image for array");
     Paint_SelectImage(BlackImage);
     Paint_DrawBitMap(gImage_2in7b_Black);
     Paint_SelectImage(RedImage);
@@ -195,23 +196,22 @@ int EPD_test(void)
     Paint_DrawString_EN(10, 20, "hello world", &Font12, WHITE, BLACK);
     Paint_DrawNum(10, 33, 123456789, &Font12, BLACK, WHITE);
 
-    printf("EPD_Display\r\n");
+    LOG_D("EPD_Display");
     EPD_2IN7B_V2_Display(BlackImage, RedImage);
     DEV_Delay_ms(4000);
 #endif
 
-    printf("Clear...\r\n");
+    LOG_D("Clear...");
     EPD_2IN7B_V2_Clear();
 
-    printf("Goto Sleep...\r\n");
+    LOG_D("Goto Sleep...");
     EPD_2IN7B_V2_Sleep();
     free(BlackImage);
     BlackImage = NULL;
     DEV_Delay_ms(2000);//important, at least 2s
     // close 5V
-    printf("close 5V, Module enters 0 power consumption ...\r\n");
+    LOG_D("close 5V, Module enters 0 power consumption ...");
     DEV_Module_Exit(); 
-    EPD_test();
     return 0;
 }
 
@@ -245,6 +245,7 @@ rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
         return -err;
     }
     DEV_Module_Init();
+    EPD_test();
     return RT_EOK;
 }
 
@@ -262,7 +263,7 @@ ele_ds_t devices_init(void)
         return NULL;
     }
     ele_ds->devices.sht3x_dev = sht3x_init("i2c1", SHT3X_ADDR_PD);
-
+#if 0
     err = ele_ds_epaper_init(ele_ds);
     if (err != RT_EOK)
     {
@@ -270,7 +271,7 @@ ele_ds_t devices_init(void)
         return NULL;
     }
     spi_epaper = ele_ds->devices.epaper_dev;
-
+#endif
     ele_ds->ops = ele_ds_ops;
     ele_ds->init_flag = true;
     g_ele_ds = ele_ds;
