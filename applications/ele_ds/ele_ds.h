@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:27
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-20 22:55:06
+ * @LastEditTime: 2025-02-21 11:00:18
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.h
  * @Description: 电子桌搭主要功能
  */
@@ -18,6 +18,7 @@
 
 #include "gzp6816d_driver.h"
 #include "sht3x.h"
+#include "sgp30.h"
 #include "DEV_Config.h"
 #include "EPD_Test.h"
 #include "EPD_2in7b_V2.h"
@@ -36,6 +37,10 @@ typedef enum
 #ifdef PKG_USING_SHT3X
     SENSOR_SHT3X_INDEX,
 #endif /* PKG_USING_SHT3X */
+
+#ifdef PKG_USING_SGP30
+    SENSOR_SGP30_INDEX,
+#endif /* PKG_USING_SGP30 */
     SENSOR_MAX
 }sensor_index_t;
 struct ele_ds_ops 
@@ -55,6 +60,7 @@ typedef struct
     struct 
     {
         float sht30[2]; // 温湿度传感器数据, 0 温度, 1 湿度
+        int32_t sgp30[2]; // 空气质量传感器数据, 0 TVOC, 1 eCO2
         gzp6816d_data_t gzp6816d;
     }sensor_data; // 传感器数据
     bool init_flag; // 系统是否初始化成功, == true 表示初始化成功, == false 表示初始化失败

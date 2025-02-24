@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-21 09:15:37
+ * @LastEditTime: 2025-02-21 14:36:05
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -51,6 +51,52 @@ rt_err_t get_gzp6816d_data(void *para)
     }
 }
 
+rt_err_t get_sgp30_data(void *para)
+{
+    RT_ASSERT(para != RT_NULL);
+    rt_device_t tvoc_dev = RT_NULL, eco2_dev = RT_NULL;
+    struct rt_sensor_data sensor_data[2] = {0};
+
+    tvoc_dev = rt_device_find("tvoc_sg3");
+    eco2_dev = rt_device_find("eco2_sg3");
+
+    if (!tvoc_dev && !eco2_dev)
+    {
+        LOG_E("Can't find TVOC or eco2 device.\n");
+        return -RT_ERROR;
+    }
+    if (rt_device_open(tvoc_dev, RT_DEVICE_FLAG_RDWR))
+    {
+        LOG_E("Open TVOC device failed.\n");
+        return -RT_ERROR;
+    }
+    if (rt_device_open(eco2_dev, RT_DEVICE_FLAG_RDWR))
+    {
+        LOG_E("Open eco2 device failed.\n");
+        return -RT_ERROR;
+    }
+
+    if (1 != rt_device_read(tvoc_dev, 0, &sensor_data[0], 1))
+    {
+        LOG_E("Read TVOC data failed.\n");
+    }
+    if (1 != rt_device_read(eco2_dev, 0, &sensor_data[1], 1))
+    {
+        LOG_E("Read eco2 data failed.\n");
+    }
+    int32_t data[2] = {0};
+    data[0] = sensor_data[0].data.tvoc;
+    data[1] = sensor_data[1].data.eco2;
+
+    // 强制类型转换赋值回传数据
+    int32_t *para_data = (int32_t *)para;
+    para_data[0] = data[0];
+    para_data[1] = data[1];
+    LOG_D("TVOC: %d ppb, eCO2: %d ppm\n", *(int32_t *)para, *((int32_t *)para + 1));
+
+    return RT_EOK;
+}
+
 /**
  * @description: 获取SHT30数据
  * @param {void} *para 传入参数为两个float类型数组
@@ -92,6 +138,10 @@ rt_err_t get_all_sensor_data(void *para)
     RT_ASSERT(ele_ds->devices.sht3x_dev != RT_NULL);
     ele_ds->ops.sensor_data[SENSOR_SHT3X_INDEX](ele_ds->sensor_data.sht30);
 #endif /* PKG_USING_SHT3X */
+#ifdef PKG_USING_SGP30
+    RT_ASSERT(ele_ds->ops.sensor_data[SENSOR_SGP30_INDEX] != RT_NULL);
+    ele_ds->ops.sensor_data[SENSOR_SGP30_INDEX](ele_ds->sensor_data.sgp30);
+#endif /* PKG_USING_SGP30 */
     return RT_EOK;
 }
 
@@ -113,6 +163,10 @@ void ele_ds_print_status(void)
     sprintf(str, "[SHT30]Temperature: %f, Humidity: %f", g_ele_ds->sensor_data.sht30[0], g_ele_ds->sensor_data.sht30[1]);
     rt_kprintf("%s\n", str);
 #endif /* PKG_USING_SHT3X */
+
+#ifdef PKG_USING_SGP30
+    rt_kprintf("TVOC: %d ppb, eCO2: %d ppm\n", g_ele_ds->sensor_data.sgp30[0], g_ele_ds->sensor_data.sgp30[1]);
+#endif /* PKG_USING_SGP30 */
 }
 MSH_CMD_EXPORT_ALIAS(ele_ds_print_status, status, ele_ds_print_status);
 
@@ -120,6 +174,7 @@ ele_ds_ops_t ele_ds_ops =
 {
     .sensor_data[SENSOR_GZP6816D_INDEX] = get_gzp6816d_data,
     .sensor_data[SENSOR_SHT3X_INDEX] = get_sht30_data,
+    .sensor_data[SENSOR_SGP30_INDEX] = get_sgp30_data,
     .sensor_data[SENSOR_MAX] = get_all_sensor_data,
 };
 
@@ -278,4 +333,16 @@ ele_ds_t devices_init(void)
     return ele_ds;
 }
 
+static int rt_hw_sgp30_port(void)
+{
+    struct rt_sensor_config cfg;
+    
+    cfg.intf.type = RT_SENSOR_INTF_I2C;
+    cfg.intf.dev_name = "i2c1";
+    cfg.intf.user_data = (void *)PKG_USING_SGP30_I2C_ADDRESS;
+    rt_hw_sgp30_init("sg3", &cfg);
+    
+    return RT_EOK;
+}
+INIT_COMPONENT_EXPORT(rt_hw_sgp30_port);
 
