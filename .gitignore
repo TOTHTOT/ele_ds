@@ -61,3 +61,4 @@ packages/sgp30-latest/
 /board/CubeMX_Config/Drivers/STM32F1xx_HAL_Driver
 /board/CubeMX_Config/MDK-ARM
 board/CubeMX_Config/Src/main.c
+.vscode/keil-assistant.log

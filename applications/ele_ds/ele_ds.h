@@ -61,7 +61,9 @@ typedef struct
     {
         float sht30[2]; // 温湿度传感器数据, 0 温度, 1 湿度
         int32_t sgp30[2]; // 空气质量传感器数据, 0 TVOC, 1 eCO2
+#ifdef PKG_USING_GZP6816D_SENSOR
         gzp6816d_data_t gzp6816d;
+#endif 
     }sensor_data; // 传感器数据
     bool init_flag; // 系统是否初始化成功, == true 表示初始化成功, == false 表示初始化失败
     struct ele_ds_ops ops;

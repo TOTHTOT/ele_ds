@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-21 14:36:05
+ * @LastEditTime: 2025-02-25 10:00:20
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -15,6 +15,7 @@
 // 全局变量
 ele_ds_t g_ele_ds = RT_NULL; // 全局设备函数指针
 
+#ifdef PKG_USING_GZP6816D_SENSOR
 /**
  * @description: 获取传感器数据
  * @param {void} *para 回传数据
@@ -50,7 +51,9 @@ rt_err_t get_gzp6816d_data(void *para)
         return ret;
     }
 }
+#endif /* PKG_USING_GZP6816D_SENSOR */
 
+#ifdef PKG_USING_SGP30
 rt_err_t get_sgp30_data(void *para)
 {
     RT_ASSERT(para != RT_NULL);
@@ -60,7 +63,7 @@ rt_err_t get_sgp30_data(void *para)
     tvoc_dev = rt_device_find("tvoc_sg3");
     eco2_dev = rt_device_find("eco2_sg3");
 
-    if (!tvoc_dev && !eco2_dev)
+    if (tvoc_dev == NULL || eco2_dev == NULL)
     {
         LOG_E("Can't find TVOC or eco2 device.\n");
         return -RT_ERROR;
@@ -96,7 +99,9 @@ rt_err_t get_sgp30_data(void *para)
 
     return RT_EOK;
 }
+#endif /* PKG_USING_SGP30 */
 
+#ifdef PKG_USING_SHT3X
 /**
  * @description: 获取SHT30数据
  * @param {void} *para 传入参数为两个float类型数组
@@ -118,6 +123,7 @@ rt_err_t get_sht30_data(void *para)
     }
     return ret;
 }
+#endif /* PKG_USING_SHT3X */
 
 rt_err_t get_all_sensor_data(void *para)
 {
@@ -132,14 +138,17 @@ rt_err_t get_all_sensor_data(void *para)
         return -EBUSY;
 
 #ifdef PKG_USING_GZP6816D_SENSOR
+    LOG_D("Get gzp6816d data");
     ele_ds->ops.sensor_data[SENSOR_GZP6816D_INDEX](&ele_ds->sensor_data.gzp6816d);
 #endif /* PKG_USING_GZP6816D_SENSOR */
 #ifdef PKG_USING_SHT3X
     RT_ASSERT(ele_ds->devices.sht3x_dev != RT_NULL);
+    LOG_D("Get sht30 data");
     ele_ds->ops.sensor_data[SENSOR_SHT3X_INDEX](ele_ds->sensor_data.sht30);
 #endif /* PKG_USING_SHT3X */
 #ifdef PKG_USING_SGP30
     RT_ASSERT(ele_ds->ops.sensor_data[SENSOR_SGP30_INDEX] != RT_NULL);
+    LOG_D("Get sgp30 data");
     ele_ds->ops.sensor_data[SENSOR_SGP30_INDEX](ele_ds->sensor_data.sgp30);
 #endif /* PKG_USING_SGP30 */
     return RT_EOK;
@@ -170,12 +179,18 @@ void ele_ds_print_status(void)
 }
 MSH_CMD_EXPORT_ALIAS(ele_ds_print_status, status, ele_ds_print_status);
 
-ele_ds_ops_t ele_ds_ops = 
+ele_ds_ops_t ele_ds_ops =
 {
-    .sensor_data[SENSOR_GZP6816D_INDEX] = get_gzp6816d_data,
-    .sensor_data[SENSOR_SHT3X_INDEX] = get_sht30_data,
-    .sensor_data[SENSOR_SGP30_INDEX] = get_sgp30_data,
-    .sensor_data[SENSOR_MAX] = get_all_sensor_data,
+#ifdef PKG_USING_GZP6816D_SENSOR
+        .sensor_data[SENSOR_GZP6816D_INDEX] = get_gzp6816d_data,
+#endif /* PKG_USING_GZP6816D_SENSOR */
+#ifdef PKG_USING_SHT3X
+        .sensor_data[SENSOR_SHT3X_INDEX] = get_sht30_data,
+#endif /* PKG_USING_SHT3X */
+#ifdef PKG_USING_SGP30
+        .sensor_data[SENSOR_SGP30_INDEX] = get_sgp30_data,
+#endif /* PKG_USING_SGP30 */
+        .sensor_data[SENSOR_MAX] = get_all_sensor_data,
 };
 
 int EPD_test(void)
@@ -270,6 +285,20 @@ int EPD_test(void)
     return 0;
 }
 
+#ifdef PKG_USING_SGP30
+static int rt_hw_sgp30_port(void)
+{
+    struct rt_sensor_config cfg;
+    
+    cfg.intf.type = RT_SENSOR_INTF_I2C;
+    cfg.intf.dev_name = "i2c1";
+    cfg.intf.user_data = (void *)PKG_USING_SGP30_I2C_ADDRESS;
+    rt_hw_sgp30_init("sg3", &cfg);
+    
+    return RT_EOK;
+}
+// INIT_COMPONENT_EXPORT(rt_hw_sgp30_port);
+#endif /* PKG_USING_SGP30 */
 
 rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
 {
@@ -327,22 +356,13 @@ ele_ds_t devices_init(void)
     }
     spi_epaper = ele_ds->devices.epaper_dev;
 #endif
+#ifdef PKG_USING_SGP30
+    rt_hw_sgp30_port();
+#endif /* PKG_USING_SGP30 */
     ele_ds->ops = ele_ds_ops;
     ele_ds->init_flag = true;
     g_ele_ds = ele_ds;
     return ele_ds;
 }
 
-static int rt_hw_sgp30_port(void)
-{
-    struct rt_sensor_config cfg;
-    
-    cfg.intf.type = RT_SENSOR_INTF_I2C;
-    cfg.intf.dev_name = "i2c1";
-    cfg.intf.user_data = (void *)PKG_USING_SGP30_I2C_ADDRESS;
-    rt_hw_sgp30_init("sg3", &cfg);
-    
-    return RT_EOK;
-}
-INIT_COMPONENT_EXPORT(rt_hw_sgp30_port);
 

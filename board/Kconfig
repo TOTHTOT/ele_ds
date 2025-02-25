@@ -215,7 +215,6 @@ menu "Hardware Drivers Config"
     menu "Board extended module Drivers"
         config PKG_USING_GZP6816D_SENSOR
         bool "Enable GZP6816D sensor"
-        select PKG_USING_GZP6816D_SENSOR
         default n
         if PKG_USING_GZP6816D_SENSOR
             config RT_GZP6818D_SENSOR_DEBUG

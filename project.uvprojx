@@ -1014,9 +1014,9 @@
           <GroupName>i2c-tools</GroupName>
           <Files>
             <File>
-              <FileName>SoftwareI2C.cpp</FileName>
+              <FileName>i2c_tools.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>packages\i2c-tools-latest\src\SoftwareI2C.cpp</FilePath>
+              <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
             </File>
           </Files>
           <Files>
@@ -1028,9 +1028,9 @@
           </Files>
           <Files>
             <File>
-              <FileName>i2c_tools.cpp</FileName>
+              <FileName>SoftwareI2C.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
+              <FilePath>packages\i2c-tools-latest\src\SoftwareI2C.cpp</FilePath>
             </File>
           </Files>
         </Group>
