@@ -17,7 +17,9 @@
 #include<stdbool.h>
 
 #include "gzp6816d_driver.h"
+#ifdef PKG_USING_SHT3X
 #include "sht3x.h"
+#endif /* PKG_USING_SHT3X */
 #include "sgp30.h"
 #include "DEV_Config.h"
 #include "EPD_Test.h"
@@ -54,7 +56,9 @@ typedef struct
     struct
     {
         rt_device_t gzp6816d_dev;
+			#ifdef PKG_USING_SHT3X
         sht3x_device_t sht3x_dev;
+			#endif /* PKG_USING_SHT3X */
         struct rt_spi_device *epaper_dev;
     }devices; // 设备
     struct 

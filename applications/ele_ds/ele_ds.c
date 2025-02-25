@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-25 10:00:20
+ * @LastEditTime: 2025-02-25 13:31:06
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -96,7 +96,8 @@ rt_err_t get_sgp30_data(void *para)
     para_data[0] = data[0];
     para_data[1] = data[1];
     LOG_D("TVOC: %d ppb, eCO2: %d ppm\n", *(int32_t *)para, *((int32_t *)para + 1));
-
+    rt_device_close(tvoc_dev);
+    rt_device_close(eco2_dev);
     return RT_EOK;
 }
 #endif /* PKG_USING_SGP30 */
@@ -297,7 +298,7 @@ static int rt_hw_sgp30_port(void)
     
     return RT_EOK;
 }
-// INIT_COMPONENT_EXPORT(rt_hw_sgp30_port);
+INIT_COMPONENT_EXPORT(rt_hw_sgp30_port);
 #endif /* PKG_USING_SGP30 */
 
 rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
@@ -346,7 +347,10 @@ ele_ds_t devices_init(void)
         LOG_E("No memory for ele_ds");
         return NULL;
     }
+#ifdef PKG_USING_SHT3X
     ele_ds->devices.sht3x_dev = sht3x_init("i2c1", SHT3X_ADDR_PD);
+#endif /* PKG_USING_SHT3X */
+
 #if 0
     err = ele_ds_epaper_init(ele_ds);
     if (err != RT_EOK)
@@ -356,7 +360,7 @@ ele_ds_t devices_init(void)
     }
     spi_epaper = ele_ds->devices.epaper_dev;
 #endif
-#ifdef PKG_USING_SGP30
+#ifdef 0
     rt_hw_sgp30_port();
 #endif /* PKG_USING_SGP30 */
     ele_ds->ops = ele_ds_ops;

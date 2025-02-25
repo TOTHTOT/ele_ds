@@ -362,7 +362,7 @@
               <MiscControls />
               <Define>__STDC_LIMIT_MACROS, RT_USING_ARMLIBC, STM32F103xE, USE_HAL_DRIVER, RT_USING_LIBC, __CLK_TCK=RT_TICK_PER_SECOND, __RTTHREAD__</Define>
               <Undefine />
-              <IncludePath>rt-thread\components\drivers\spi;rt-thread\include;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config;rt-thread\libcpu\arm\common;applications\ele_ds;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;components\gzp6816d_driver;rt-thread\components\drivers\include;libraries\HAL_Drivers;packages\i2c-tools-latest;packages\sgp30-latest\inc;rt-thread\components\drivers\include;packages\i2c-tools-latest\src;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;components\epaper\config;rt-thread\components\finsh;packages\sht3x-latest;rt-thread\components\libc\posix\ipc;components\epaper\fonts;board\CubeMX_Config\Inc;rt-thread\components\drivers\include;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\libc\posix\io\poll;.;rt-thread\components\drivers\include;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\libc\cplusplus;applications;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;components\epaper\gui;rt-thread\libcpu\arm\cortex-m3;rt-thread\components\drivers\include;rt-thread\components\libc\compilers\common\extension;components\epaper\driver;rt-thread\components\libc\compilers\common\extension\fcntl\octal</IncludePath>
+              <IncludePath>rt-thread\components\drivers\spi;rt-thread\include;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config;rt-thread\libcpu\arm\common;applications\ele_ds;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;components\gzp6816d_driver;rt-thread\components\drivers\include;libraries\HAL_Drivers;packages\i2c-tools-latest;packages\sgp30-latest\inc;rt-thread\components\drivers\include;packages\i2c-tools-latest\src;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;components\epaper\config;rt-thread\components\finsh;rt-thread\components\libc\posix\ipc;components\epaper\fonts;board\CubeMX_Config\Inc;rt-thread\components\drivers\include;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\libc\posix\io\poll;.;rt-thread\components\drivers\include;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\libc\cplusplus;applications;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;components\epaper\gui;rt-thread\libcpu\arm\cortex-m3;rt-thread\components\drivers\include;rt-thread\components\libc\compilers\common\extension;components\epaper\driver;rt-thread\components\libc\compilers\common\extension\fcntl\octal</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1014,9 +1014,9 @@
           <GroupName>i2c-tools</GroupName>
           <Files>
             <File>
-              <FileName>i2c_tools.cpp</FileName>
+              <FileName>SoftwareI2C.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
+              <FilePath>packages\i2c-tools-latest\src\SoftwareI2C.cpp</FilePath>
             </File>
           </Files>
           <Files>
@@ -1028,9 +1028,9 @@
           </Files>
           <Files>
             <File>
-              <FileName>SoftwareI2C.cpp</FileName>
+              <FileName>i2c_tools.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>packages\i2c-tools-latest\src\SoftwareI2C.cpp</FilePath>
+              <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -1508,16 +1508,6 @@
               <FileName>sensor_sensirion_sgp30.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\sgp30-latest\src\sensor_sensirion_sgp30.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>sht3x</GroupName>
-          <Files>
-            <File>
-              <FileName>sht3x.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\sht3x-latest\sht3x.c</FilePath>
             </File>
           </Files>
         </Group>
