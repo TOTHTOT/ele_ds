@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-03-29 13:32:42
+ * @LastEditTime: 2025-03-29 13:47:47
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -34,9 +34,9 @@ int main(void)
     {
         ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
         rt_pin_write(LED0_PIN, PIN_HIGH);
-        rt_thread_mdelay(500);
+        rt_thread_mdelay(1500);
         rt_pin_write(LED0_PIN, PIN_LOW);
-        rt_thread_mdelay(500);
+        rt_thread_mdelay(1500);
     }
 }
 static int ota_app_vtor_reconfig(void)

@@ -298,5 +298,6 @@
 
 /* Board extended module Drivers */
 
+#define PKG_USING_GZP6816D_SENSOR
 
 #endif

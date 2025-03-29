@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-03-29 13:38:55
+ * @LastEditTime: 2025-03-29 13:46:03
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -127,6 +127,11 @@ rt_err_t get_sht30_data(void *para)
 }
 #endif /* PKG_USING_SHT3X */
 
+/**
+ * @description: 获取所有传感器数据
+ * @param {void} *para 传入参数为ele_ds_t类型
+ * @return {rt_err_t} 函数执行结果，RT_EOK表示成功
+ */
 rt_err_t get_all_sensor_data(void *para)
 {
     RT_ASSERT(para != RT_NULL);
@@ -140,9 +145,17 @@ rt_err_t get_all_sensor_data(void *para)
         return -EBUSY;
     int32_t ret = RT_EOK;
 #ifdef PKG_USING_GZP6816D_SENSOR
-    LOG_D("Get gzp6816d data");
-    ele_ds->ops.sensor_data[SENSOR_GZP6816D_INDEX](&ele_ds->sensor_data.gzp6816d);
+    ret = ele_ds->ops.sensor_data[SENSOR_GZP6816D_INDEX](&ele_ds->sensor_data.gzp6816d);
+    if (ret != RT_EOK)
+    {
+        LOG_E("get_gzp6816d_data() failed, ret = %d", ret);
+    }
+    else
+    {
+        LOG_D("gzp6816d: pressure: %d, temperature: %d", (int32_t)ele_ds->sensor_data.gzp6816d.pressure, (int32_t)ele_ds->sensor_data.gzp6816d.temperature);
+    }
 #endif /* PKG_USING_GZP6816D_SENSOR */
+
 #ifdef PKG_USING_SHT3X
     RT_ASSERT(ele_ds->devices.sht3x_dev != RT_NULL);
     ret = ele_ds->ops.sensor_data[SENSOR_SHT3X_INDEX](ele_ds->devices.sht3x_dev);
@@ -157,6 +170,7 @@ rt_err_t get_all_sensor_data(void *para)
         LOG_D("sht30: temperature: %d, humidity: %d", ele_ds->sensor_data.sgp30[0], ele_ds->sensor_data.sgp30[1]);
     }
 #endif /* PKG_USING_SHT3X */
+
 #ifdef PKG_USING_SGP30
     RT_ASSERT(ele_ds->ops.sensor_data[SENSOR_SGP30_INDEX] != RT_NULL);
     ret = ele_ds->ops.sensor_data[SENSOR_SGP30_INDEX](ele_ds->sensor_data.sgp30);

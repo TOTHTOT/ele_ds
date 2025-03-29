@@ -339,7 +339,7 @@ void gzp6816d_deinit(gzp6816d_device_t device)
  */
 int gzp6816d_init_test(void)
 {
-    gzp6816d_init("i2c1", GZP6816D_ADDR);
+	return gzp6816d_init("i2c1", GZP6816D_ADDR);
 }
 // INIT_DEVICE_EXPORT(gzp6816d_init_test);
 
