@@ -65,3 +65,4 @@ board/CubeMX_Config/Src/main.c
 /rt-thread/tools
 *.pyc
 /.vscode
+/.vscode

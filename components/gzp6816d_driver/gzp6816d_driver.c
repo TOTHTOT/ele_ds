@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 22:47:40
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-18 22:03:37
+ * @LastEditTime: 2025-03-29 09:40:48
  * @FilePath: \ele_ds\components\gzp6816d_driver\gzp6816d_driver.c
  * @Description: gzp6816d 气压驱动, 读数据时要根据测量频率间隔读数, 默认203ms
  */
@@ -11,7 +11,6 @@
 #include "board.h"
 
 #ifdef PKG_USING_GZP6816D_SENSOR
-
 #define DBG_TAG "gzp6x"
 #ifdef RT_GZP6818D_SENSOR_DEBUG
 #define DBG_LVL DBG_INFO
@@ -20,25 +19,42 @@
 #endif
 #include <rtdbg.h>
 
-static rt_err_t write_cmd(gzp6816d_device_t device, uint8_t cmd)
+static rt_err_t write_cmd(gzp6816d_device_t device, struct rt_i2c_bus_device *bus, uint8_t cmd)
 {
     RT_ASSERT(device != NULL);
-    RT_ASSERT(device->i2cdev != NULL);
+    RT_ASSERT(bus != NULL);
+#if 1
     struct rt_i2c_msg msgs;
-    rt_uint8_t buf[2] ;
-    buf[0] = cmd ;
+    rt_uint8_t buf[2];
+    buf[0] = cmd;
 
     msgs.addr = device->addr;
     msgs.flags = RT_I2C_WR;
     msgs.buf = buf;
     msgs.len = 1;
 
+    // if (rt_i2c_transfer(bus, &msgs, 1) == 1)
     if (rt_i2c_transfer(device->i2cdev, &msgs, 1) == 1)
         return RT_EOK;
     else
         return -RT_ERROR;
+#else
+    struct rt_i2c_bus_device *bus1 = rt_i2c_bus_device_find("i2c1");
+    if (bus1 == RT_NULL)
+    {
+        LOG_E("Can't find i2c1 device");
+        return -RT_ERROR;
+    }
+    if (rt_i2c_master_send(bus1, device->addr, RT_I2C_WR, &cmd, 1) == 1)
+    {
+        return RT_EOK;
+    }
+    else
+    {
+        return -RT_ERROR;
+    }
+#endif
 }
-
 
 /**
  * @description: 读取数据
@@ -51,7 +67,13 @@ static rt_err_t read_bytes(gzp6816d_device_t device, uint8_t * buf, uint8_t len)
 {
     RT_ASSERT(device != NULL);
     RT_ASSERT(device->i2cdev != NULL);
-    if (rt_i2c_master_recv(device->i2cdev, device->addr, RT_I2C_RD, buf, len) == len)
+    struct rt_i2c_bus_device *bus1 = rt_i2c_bus_device_find("i2c1");
+    if (bus1 == RT_NULL)
+    {
+        LOG_E("Can't find i2c1 device");
+        return -RT_ERROR;
+    }
+    if (rt_i2c_master_recv(bus1, device->addr, RT_I2C_RD, buf, len) == len)
     {
         return RT_EOK;
     }
@@ -129,12 +151,12 @@ static rt_err_t cal_rawdata(uint8_t *buf, gzp6816d_data_t *rawdata)
  * @param {uint8_t} buf 读取到的数据
  * @return {rt_err_t} 函数执行结果，RT_EOK表示成功
  */
-rt_err_t gzp6816d_readsls(gzp6816d_device_t device, uint8_t buf[6])
+rt_err_t gzp6816d_readsls(gzp6816d_device_t device, uint8_t buf[])
 {
     RT_ASSERT(device != NULL);
     RT_ASSERT(device->i2cdev != NULL);
 
-    if (write_cmd(device, 0xac) == RT_EOK)
+    if (write_cmd(device, device->i2cdev, 0xac) == RT_EOK)
     {
         rt_thread_mdelay(250);
         if (read_bytes(device, buf, 6) != RT_EOK)
@@ -175,7 +197,8 @@ rt_ssize_t gzp6816d_fetch_data(struct rt_sensor_device *sensor, void *buf, rt_si
     gzp6816d_device_t device = (gzp6816d_device_t)sensor->parent.user_data;
     uint8_t readbuf[6] = {0};
     // 读取数据
-    rt_err_t ret = gzp6816d_readsls(device, readbuf);
+    rt_err_t ret = RT_ERROR;
+    ret = gzp6816d_readsls(device, readbuf);
     // 没问题的话就解析数据
     if (ret == RT_EOK)
     {
@@ -212,8 +235,16 @@ rt_err_t gzp6816d_init(const char *i2cname, uint8_t addr)
         LOG_E("No i2c name for gzp6816d");
         return -RT_ERROR;
     }
-		rt_sensor_t sensor = NULL;
+	rt_sensor_t sensor = NULL;
     gzp6816d_device_t device = NULL;
+    // struct rt_sensor_module *module = RT_NULL;
+    // module = rt_calloc(1, sizeof(struct rt_sensor_module));
+    // if (module == RT_NULL)
+    // {
+    //     LOG_E("No memory for sensor module");
+    //     return -RT_ENOMEM;
+    // }
+
     device = rt_calloc(1, sizeof(gzp6816d_device_t));
     if (device == NULL)
     {
@@ -230,7 +261,7 @@ rt_err_t gzp6816d_init(const char *i2cname, uint8_t addr)
     }
     
     // 注册传感器设备
-		sensor = rt_calloc(1, sizeof(struct rt_sensor_device));
+	sensor = rt_calloc(1, sizeof(struct rt_sensor_device));
     if (sensor == NULL)
     {
         LOG_E("No memory for sensor device");
@@ -246,12 +277,21 @@ rt_err_t gzp6816d_init(const char *i2cname, uint8_t addr)
     sensor->info.range_min = DMIN;
     sensor->info.period_min = 203;
     sensor->ops = &sensor_ops;
-    if (rt_hw_sensor_register(sensor, "gzp6816d", RT_DEVICE_FLAG_RDONLY, device) != RT_EOK)
+    // sensor->module = module;
+    // struct rt_sensor_config cfg;
+    
+    // cfg.intf.type = RT_SENSOR_INTF_I2C;
+    // cfg.intf.dev_name = "i2c1";
+    // cfg.intf.user_data = (void *)GZP6816D_ADDR;
+    // rt_memcpy(&sensor->config, &cfg, sizeof(struct rt_sensor_config));
+    if (rt_hw_sensor_register(sensor, "gzp6816d", RT_DEVICE_FLAG_RDWR, device) != RT_EOK)
     {
         LOG_E("gzp6816d register error");
+        free(sensor);
         goto __exit;
     }
-
+    // module->sen[0] = sensor;
+    // module->sen_num = 1;
 #if 0 // 测试读取数据
 		uint8_t buf[6] = {0};
     if (gzp6816d_readsls(device, buf) == RT_EOK)
@@ -262,6 +302,14 @@ rt_err_t gzp6816d_init(const char *i2cname, uint8_t addr)
 #endif /* 0 */
     return RT_EOK;
 __exit:
+    // if (module != NULL)
+    // {
+    //     rt_free(module);
+    // }
+    if (sensor != NULL)
+    {
+        
+    }
     if (device->i2cname != NULL)
     {
         rt_free(device->i2cname);
@@ -293,6 +341,6 @@ int gzp6816d_init_test(void)
 {
     gzp6816d_init("i2c1", GZP6816D_ADDR);
 }
-INIT_DEVICE_EXPORT(gzp6816d_init_test);
+// INIT_DEVICE_EXPORT(gzp6816d_init_test);
 
 #endif /* PKG_USING_GZP6816D_SENSOR */

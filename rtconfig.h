@@ -204,15 +204,18 @@
 /* WCH HAL & SDK Drivers */
 
 
+/* AT32 HAL & SDK Drivers */
+
+
 /* sensors drivers */
 
 #define PKG_USING_SGP30
 #define PKG_SGP30_USING_SENSOR_V1
-#define PKG_SGP30_USING_SENSOR_V1_SAMPLE
 #define PKG_USING_SGP30_I2C_ADDR
 #define PKG_USING_SGP30_I2C_ADDRESS 0x58
-#define PKG_USING_SGP30_DEBUG
 #define PKG_USING_SGP30_LATEST_VERSION
+#define PKG_USING_SHT3X
+#define PKG_USING_SHT3X_V100
 
 /* touch drivers */
 

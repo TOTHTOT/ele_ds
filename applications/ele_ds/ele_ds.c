@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-02-25 13:31:06
+ * @LastEditTime: 2025-03-29 13:38:55
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -23,6 +23,7 @@ ele_ds_t g_ele_ds = RT_NULL; // 全局设备函数指针
  */
 rt_err_t get_gzp6816d_data(void *para)
 {
+    RT_ASSERT(para != RT_NULL);
     gzp6816d_data_t *data = (gzp6816d_data_t *)para;
     rt_device_t gzp6816d_dev = rt_device_find("baro_gzp6816d");
     if (gzp6816d_dev == RT_NULL)
@@ -95,7 +96,7 @@ rt_err_t get_sgp30_data(void *para)
     int32_t *para_data = (int32_t *)para;
     para_data[0] = data[0];
     para_data[1] = data[1];
-    LOG_D("TVOC: %d ppb, eCO2: %d ppm\n", *(int32_t *)para, *((int32_t *)para + 1));
+    // LOG_D("TVOC: %d ppb, eCO2: %d ppm\n", *(int32_t *)para, *((int32_t *)para + 1));
     rt_device_close(tvoc_dev);
     rt_device_close(eco2_dev);
     return RT_EOK;
@@ -111,16 +112,16 @@ rt_err_t get_sgp30_data(void *para)
 rt_err_t get_sht30_data(void *para)
 {
     RT_ASSERT(para != RT_NULL);
-    RT_ASSERT(g_ele_ds->devices.sht3x_dev != RT_NULL);
-
+    sht3x_device_t sht3x_dev = (sht3x_device_t)para;
     rt_err_t ret = RT_EOK;
-    float data[2] = {0}; // 温度和湿度
-    ret = sht3x_read_singleshot(g_ele_ds->devices.sht3x_dev);
+    ret = sht3x_read_singleshot(sht3x_dev);
     if (ret == RT_EOK)
     {
-        data[0] = g_ele_ds->devices.sht3x_dev->temperature;
-        data[1] = g_ele_ds->devices.sht3x_dev->humidity;
-        memcpy(para, data, sizeof(data));
+        // LOG_D("sht30: %d, %d", (int)sht3x_dev->humidity, (int)sht3x_dev->temperature);
+    }
+    else
+    {
+        LOG_E("get_sht30_data() failed, ret = %d", ret);
     }
     return ret;
 }
@@ -137,20 +138,36 @@ rt_err_t get_all_sensor_data(void *para)
     // 传感器未初始化
     if (ele_ds->init_flag == false)
         return -EBUSY;
-
+    int32_t ret = RT_EOK;
 #ifdef PKG_USING_GZP6816D_SENSOR
     LOG_D("Get gzp6816d data");
     ele_ds->ops.sensor_data[SENSOR_GZP6816D_INDEX](&ele_ds->sensor_data.gzp6816d);
 #endif /* PKG_USING_GZP6816D_SENSOR */
 #ifdef PKG_USING_SHT3X
     RT_ASSERT(ele_ds->devices.sht3x_dev != RT_NULL);
-    LOG_D("Get sht30 data");
-    ele_ds->ops.sensor_data[SENSOR_SHT3X_INDEX](ele_ds->sensor_data.sht30);
+    ret = ele_ds->ops.sensor_data[SENSOR_SHT3X_INDEX](ele_ds->devices.sht3x_dev);
+    if (ret != RT_EOK)
+    {
+        LOG_E("get_sht30_data() failed, ret = %d", ret);
+    }
+    else
+    {
+        ele_ds->sensor_data.sgp30[0] = (int32_t)ele_ds->devices.sht3x_dev->temperature;
+        ele_ds->sensor_data.sgp30[1] = (int32_t)ele_ds->devices.sht3x_dev->humidity;
+        LOG_D("sht30: temperature: %d, humidity: %d", ele_ds->sensor_data.sgp30[0], ele_ds->sensor_data.sgp30[1]);
+    }
 #endif /* PKG_USING_SHT3X */
 #ifdef PKG_USING_SGP30
     RT_ASSERT(ele_ds->ops.sensor_data[SENSOR_SGP30_INDEX] != RT_NULL);
-    LOG_D("Get sgp30 data");
-    ele_ds->ops.sensor_data[SENSOR_SGP30_INDEX](ele_ds->sensor_data.sgp30);
+    ret = ele_ds->ops.sensor_data[SENSOR_SGP30_INDEX](ele_ds->sensor_data.sgp30);
+    if (ret != RT_EOK)
+    {
+        LOG_E("get_sgp30_data() failed, ret = %d", ret);
+    }
+    else
+    {
+        LOG_D("sgp30: tvoc: %d, eco2: %d", ele_ds->sensor_data.sgp30[0], ele_ds->sensor_data.sgp30[1]);
+    }
 #endif /* PKG_USING_SGP30 */
     return RT_EOK;
 }
@@ -181,7 +198,7 @@ void ele_ds_print_status(void)
 MSH_CMD_EXPORT_ALIAS(ele_ds_print_status, status, ele_ds_print_status);
 
 ele_ds_ops_t ele_ds_ops =
-{
+    {
 #ifdef PKG_USING_GZP6816D_SENSOR
         .sensor_data[SENSOR_GZP6816D_INDEX] = get_gzp6816d_data,
 #endif /* PKG_USING_GZP6816D_SENSOR */
@@ -197,25 +214,28 @@ ele_ds_ops_t ele_ds_ops =
 int EPD_test(void)
 {
     LOG_D("EPD_2IN7B_V2_test Demo");
-    if(DEV_Module_Init()!=0){
+    if (DEV_Module_Init() != 0)
+    {
         LOG_E("Module Init Failed");
         return -1;
     }
-    
+
     LOG_D("e-Paper Init and Clear...");
     EPD_2IN7B_V2_Init();
 
     EPD_2IN7B_V2_Clear();
     DEV_Delay_ms(500);
 
-    //Create a new image cache named IMAGE_BW and fill it with white
+    // Create a new image cache named IMAGE_BW and fill it with white
     UBYTE *BlackImage, *RedImage;
-    UWORD Imagesize = ((EPD_2IN7B_V2_WIDTH % 8 == 0)? (EPD_2IN7B_V2_WIDTH / 8 ): (EPD_2IN7B_V2_WIDTH / 8 + 1)) * EPD_2IN7B_V2_HEIGHT;
-    if((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
+    UWORD Imagesize = ((EPD_2IN7B_V2_WIDTH % 8 == 0) ? (EPD_2IN7B_V2_WIDTH / 8) : (EPD_2IN7B_V2_WIDTH / 8 + 1)) * EPD_2IN7B_V2_HEIGHT;
+    if ((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL)
+    {
         LOG_E("Failed to apply for black memory...");
         return -1;
     }
-    if((RedImage = (UBYTE *)malloc(Imagesize)) == NULL) {
+    if ((RedImage = (UBYTE *)malloc(Imagesize)) == NULL)
+    {
         LOG_E("Failed to apply for red memory...");
         return -1;
     }
@@ -223,13 +243,13 @@ int EPD_test(void)
     Paint_NewImage(BlackImage, EPD_2IN7B_V2_WIDTH, EPD_2IN7B_V2_HEIGHT, 270, WHITE);
     Paint_NewImage(RedImage, EPD_2IN7B_V2_WIDTH, EPD_2IN7B_V2_HEIGHT, 270, WHITE);
 
-    //Select Image
+    // Select Image
     Paint_SelectImage(BlackImage);
     Paint_Clear(WHITE);
     Paint_SelectImage(RedImage);
     Paint_Clear(WHITE);
 
-#if 0   // show image for array   
+#if 0 // show image for array   
     LOG_D("show image for array");
     Paint_SelectImage(BlackImage);
     Paint_DrawBitMap(gImage_2in7b_Black);
@@ -239,9 +259,9 @@ int EPD_test(void)
     DEV_Delay_ms(4000);
 #endif
 
-#if 1   // Drawing on the image
+#if 1 // Drawing on the image
     /*Horizontal screen*/
-    //1.Draw black image
+    // 1.Draw black image
     Paint_SelectImage(BlackImage);
     Paint_Clear(WHITE);
     Paint_DrawPoint(10, 80, BLACK, DOT_PIXEL_1X1, DOT_STYLE_DFT);
@@ -256,7 +276,7 @@ int EPD_test(void)
     // Paint_DrawString_CN(130, 20, "΢ѩ����", &Font24CN, WHITE, BLACK);
     Paint_DrawNum(10, 50, 987654321, &Font16, WHITE, BLACK);
 
-    //2.Draw red image
+    // 2.Draw red image
     Paint_SelectImage(RedImage);
     Paint_Clear(WHITE);
     Paint_DrawCircle(160, 95, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
@@ -279,26 +299,28 @@ int EPD_test(void)
     EPD_2IN7B_V2_Sleep();
     free(BlackImage);
     BlackImage = NULL;
-    DEV_Delay_ms(2000);//important, at least 2s
+    DEV_Delay_ms(2000); // important, at least 2s
     // close 5V
     LOG_D("close 5V, Module enters 0 power consumption ...");
-    DEV_Module_Exit(); 
+    DEV_Module_Exit();
     return 0;
 }
 
 #ifdef PKG_USING_SGP30
-static int rt_hw_sgp30_port(void)
+int rt_hw_sgp30_port(void)
 {
     struct rt_sensor_config cfg;
-    
+
     cfg.intf.type = RT_SENSOR_INTF_I2C;
     cfg.intf.dev_name = "i2c1";
     cfg.intf.user_data = (void *)PKG_USING_SGP30_I2C_ADDRESS;
     rt_hw_sgp30_init("sg3", &cfg);
-    
+
     return RT_EOK;
 }
-INIT_COMPONENT_EXPORT(rt_hw_sgp30_port);
+// 这里注册会导致堆栈溢出 可能是处理注册函数的那部分功能分配的堆栈不够导致运行到获取数据的函数时报错
+// (rt_object_get_type(&mutex->parent.parent) == RT_Object_Class_Mutex) assertion failed at function:_rt_mutex_take, line number:rt_backtrace is not implemented
+// INIT_COMPONENT_EXPORT(rt_hw_sgp30_port);
 #endif /* PKG_USING_SGP30 */
 
 rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
@@ -334,39 +356,50 @@ rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
     return RT_EOK;
 }
 
-ele_ds_t devices_init(void)
+int32_t devices_init(ele_ds_t ele_ds)
 {
-    rt_err_t err = RT_EOK;
+    // rt_err_t err = RT_EOK;
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(V3_3_PIN, PIN_HIGH);
 
-    ele_ds_t ele_ds = rt_calloc(1, sizeof(ele_ds_t));
     if (ele_ds == RT_NULL)
     {
-        LOG_E("No memory for ele_ds");
-        return NULL;
+        LOG_E("ele_ds is NULL");
+        return -1;
     }
-#ifdef PKG_USING_SHT3X
-    ele_ds->devices.sht3x_dev = sht3x_init("i2c1", SHT3X_ADDR_PD);
-#endif /* PKG_USING_SHT3X */
+    memset(ele_ds, 0, sizeof(ele_ds_t));
 
 #if 0
     err = ele_ds_epaper_init(ele_ds);
     if (err != RT_EOK)
     {
         LOG_E("ele_ds_epaper_init failed");
-        return NULL;
-    }
-    spi_epaper = ele_ds->devices.epaper_dev;
+        return -2;
+        }
+        spi_epaper = ele_ds->devices.epaper_dev;
 #endif
-#ifdef 0
-    rt_hw_sgp30_port();
+
+#ifdef PKG_USING_SGP30
+    if (rt_hw_sgp30_port() != RT_EOK)
+    {
+        LOG_E("sgp30 port init failed");
+        return -3;
+    }
 #endif /* PKG_USING_SGP30 */
+
+#ifdef PKG_USING_GZP6816D_SENSOR
+    if (gzp6816d_init("i2c1", GZP6816D_ADDR) != RT_EOK)
+    {
+        LOG_E("gzp6816d init failed");
+        return -4;
+    }
+#endif /* PKG_USING_GZP6816D_SENSOR */
+#ifdef PKG_USING_SHT3X
+    ele_ds->devices.sht3x_dev = sht3x_init("i2c1", SHT3X_ADDR_PD);
+#endif /* PKG_USING_SHT3X */
+
     ele_ds->ops = ele_ds_ops;
     ele_ds->init_flag = true;
-    g_ele_ds = ele_ds;
-    return ele_ds;
+    return 0;
 }
-
-
