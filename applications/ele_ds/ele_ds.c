@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-03-29 13:46:03
+ * @LastEditTime: 2025-03-29 13:59:10
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -152,7 +152,7 @@ rt_err_t get_all_sensor_data(void *para)
     }
     else
     {
-        LOG_D("gzp6816d: pressure: %d, temperature: %d", (int32_t)ele_ds->sensor_data.gzp6816d.pressure, (int32_t)ele_ds->sensor_data.gzp6816d.temperature);
+        // LOG_D("gzp6816d: pressure: %d, temperature: %d", (int32_t)ele_ds->sensor_data.gzp6816d.pressure, (int32_t)ele_ds->sensor_data.gzp6816d.temperature);
     }
 #endif /* PKG_USING_GZP6816D_SENSOR */
 
@@ -165,9 +165,9 @@ rt_err_t get_all_sensor_data(void *para)
     }
     else
     {
-        ele_ds->sensor_data.sgp30[0] = (int32_t)ele_ds->devices.sht3x_dev->temperature;
-        ele_ds->sensor_data.sgp30[1] = (int32_t)ele_ds->devices.sht3x_dev->humidity;
-        LOG_D("sht30: temperature: %d, humidity: %d", ele_ds->sensor_data.sgp30[0], ele_ds->sensor_data.sgp30[1]);
+        ele_ds->sensor_data.sht30[0] = (int32_t)ele_ds->devices.sht3x_dev->temperature;
+        ele_ds->sensor_data.sht30[1] = (int32_t)ele_ds->devices.sht3x_dev->humidity;
+        // LOG_D("sht30: temperature: %d, humidity: %d", (int32_t)ele_ds->sensor_data.sht30[0], (int32_t)ele_ds->sensor_data.sht30[1]);
     }
 #endif /* PKG_USING_SHT3X */
 
@@ -180,7 +180,7 @@ rt_err_t get_all_sensor_data(void *para)
     }
     else
     {
-        LOG_D("sgp30: tvoc: %d, eco2: %d", ele_ds->sensor_data.sgp30[0], ele_ds->sensor_data.sgp30[1]);
+        // LOG_D("sgp30: tvoc: %d, eco2: %d", ele_ds->sensor_data.sgp30[0], ele_ds->sensor_data.sgp30[1]);
     }
 #endif /* PKG_USING_SGP30 */
     return RT_EOK;
@@ -192,6 +192,11 @@ rt_err_t get_all_sensor_data(void *para)
  */
 void ele_ds_print_status(void)
 {
+    if (g_ele_ds == RT_NULL)
+    {
+        rt_kprintf("ele_ds is NULL\n");
+        return;
+    }
     char str[64] = {0};
     memset(str, 0, sizeof(str));
 #ifdef PKG_USING_GZP6816D_SENSOR
@@ -206,7 +211,7 @@ void ele_ds_print_status(void)
 #endif /* PKG_USING_SHT3X */
 
 #ifdef PKG_USING_SGP30
-    rt_kprintf("TVOC: %d ppb, eCO2: %d ppm\n", g_ele_ds->sensor_data.sgp30[0], g_ele_ds->sensor_data.sgp30[1]);
+    rt_kprintf("[SGP30]TVOC: %d ppb, eCO2: %d ppm\n", g_ele_ds->sensor_data.sgp30[0], g_ele_ds->sensor_data.sgp30[1]);
 #endif /* PKG_USING_SGP30 */
 }
 MSH_CMD_EXPORT_ALIAS(ele_ds_print_status, status, ele_ds_print_status);
