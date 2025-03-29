@@ -64,3 +64,4 @@ board/CubeMX_Config/Src/main.c
 .vscode/keil-assistant.log
 /rt-thread/tools
 *.pyc
+/.vscode
