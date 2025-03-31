@@ -6,7 +6,7 @@
  }, 
  {
   "path": "/packages/peripherals/sensors/sht3x", 
-  "ver": "latest", 
+  "ver": "v1.0.0", 
   "name": "SHT3X"
  }, 
  {

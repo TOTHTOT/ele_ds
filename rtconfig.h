@@ -45,7 +45,7 @@
 #define RT_USING_HEAP
 #define RT_USING_DEVICE
 #define RT_USING_CONSOLE
-#define RT_CONSOLEBUF_SIZE 128
+#define RT_CONSOLEBUF_SIZE 256
 #define RT_CONSOLE_DEVICE_NAME "uart1"
 #define RT_VER_NUM 0x50100
 #define RT_BACKTRACE_LEVEL_MAX_NR 32
@@ -78,6 +78,12 @@
 
 /* DFS: device virtual file system */
 
+#define RT_USING_FAL
+#define FAL_DEBUG_CONFIG
+#define FAL_DEBUG 1
+#define FAL_PART_HAS_TABLE_CFG
+#define FAL_USING_SFUD_PORT
+#define FAL_USING_NOR_FLASH_DEV_NAME "norflash0"
 
 /* Device Drivers */
 
@@ -90,6 +96,12 @@
 #define RT_USING_I2C
 #define RT_USING_I2C_BITOPS
 #define RT_USING_SPI
+#define RT_USING_QSPI
+#define RT_USING_SFUD
+#define RT_SFUD_USING_SFDP
+#define RT_SFUD_USING_FLASH_INFO_TABLE
+#define RT_SFUD_SPI_MAX_HZ 50000000
+#define RT_DEBUG_SFUD
 #define RT_USING_SENSOR
 #define RT_USING_SENSOR_CMD
 #define RT_USING_PIN
@@ -295,6 +307,7 @@
 #define BSP_USING_I2C1
 #define BSP_I2C1_SCL_PIN 22
 #define BSP_I2C1_SDA_PIN 23
+#define BSP_USING_ON_CHIP_FLASH
 
 /* Board extended module Drivers */
 

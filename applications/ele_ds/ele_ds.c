@@ -2,11 +2,14 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-03-29 13:59:10
+ * @LastEditTime: 2025-03-31 14:44:50
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 #include "ele_ds.h"
+#include "fal.h"
+#include "drv_spi.h"
+#include "spi_flash_sfud.h"
 
 #define DBG_TAG "ele_ds"
 #define DBG_LVL DBG_LOG
@@ -375,6 +378,19 @@ rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
     return RT_EOK;
 }
 
+static int rt_hw_spi_flash_init(void)
+{
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    rt_hw_spi_device_attach("spi1", "spi10",GET_PIN(C, 4));// spi10 表示挂载在 spi3 总线上的 0 号设备,PC0是片选，这一步就可以将从设备挂在到总线中。
+ 
+    if (RT_NULL == rt_sfud_flash_probe("W25Q128", "spi10"))  //注册块设备，这一步可以将外部flash抽象为系统的块设备
+    {
+        return -RT_ERROR;
+    };
+ 
+    return RT_EOK;
+}
+
 int32_t devices_init(ele_ds_t ele_ds)
 {
     // rt_err_t err = RT_EOK;
@@ -388,7 +404,8 @@ int32_t devices_init(ele_ds_t ele_ds)
         return -1;
     }
     memset(ele_ds, 0, sizeof(ele_ds_t));
-
+    // fal_init();
+    rt_hw_spi_flash_init();
 #if 0
     err = ele_ds_epaper_init(ele_ds);
     if (err != RT_EOK)
