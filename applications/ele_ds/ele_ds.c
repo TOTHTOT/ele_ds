@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-03-31 14:44:50
+ * @LastEditTime: 2025-04-05 12:17:24
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,6 +10,7 @@
 #include "fal.h"
 #include "drv_spi.h"
 #include "spi_flash_sfud.h"
+#include <dfs_fs.h>"
 
 #define DBG_TAG "ele_ds"
 #define DBG_LVL DBG_LOG
@@ -17,12 +18,44 @@
 
 // 全局变量
 ele_ds_t g_ele_ds = RT_NULL; // 全局设备函数指针
+const struct dfs_mount_tbl mount_table[] =
+{
+        // {"norflash0", "/", "elm", 0, 0},
+        {0},
+};
+
+/**
+ * @description: 挂载文件系统
+ * @return {int} 挂载成功返回0, 失败返回-1
+ */
+static int mnt_init(void)
+{
+    if (dfs_mount("norflash0", "/", "elm", 0, 0) == 0)  // "norflash0":挂载的设备名称, "/":挂载路径, 这里挂载到跟目录下
+    {
+        LOG_D("norflash0 mount successful!");
+    }
+    else
+    {
+        dfs_mkfs("elm", "norflash0");  // 如果是第一次挂载文件系统必须要先格式化
+        if(dfs_mount("norflash0", "/", "elm", 0, 0) != 0)
+        {
+            LOG_D("norflash0 mount failed!");
+        }
+        else
+        {
+            LOG_D("norflash0 mkfs successful!");
+        }
+    }
+
+    return 0;
+}
+
 
 #ifdef PKG_USING_GZP6816D_SENSOR
 /**
  * @description: 获取传感器数据
  * @param {void} *para 回传数据
- * @return {rt_err_t} 函数执行结果，RT_EOK表示成功
+ * @return {rt_err_t} 函数执行结果, RT_EOK表示成功
  */
 rt_err_t get_gzp6816d_data(void *para)
 {
@@ -133,7 +166,7 @@ rt_err_t get_sht30_data(void *para)
 /**
  * @description: 获取所有传感器数据
  * @param {void} *para 传入参数为ele_ds_t类型
- * @return {rt_err_t} 函数执行结果，RT_EOK表示成功
+ * @return {rt_err_t} 函数执行结果, RT_EOK表示成功
  */
 rt_err_t get_all_sensor_data(void *para)
 {
@@ -381,9 +414,9 @@ rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
 static int rt_hw_spi_flash_init(void)
 {
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    rt_hw_spi_device_attach("spi1", "spi10",GET_PIN(C, 4));// spi10 表示挂载在 spi3 总线上的 0 号设备,PC0是片选，这一步就可以将从设备挂在到总线中。
+    rt_hw_spi_device_attach("spi1", "spi10",GET_PIN(C, 4));// spi10 表示挂载在 spi3 总线上的 0 号设备,PC0是片选, 这一步就可以将从设备挂在到总线中。
  
-    if (RT_NULL == rt_sfud_flash_probe("W25Q128", "spi10"))  //注册块设备，这一步可以将外部flash抽象为系统的块设备
+    if (RT_NULL == rt_sfud_flash_probe("norflash0", "spi10"))  //注册块设备, 这一步可以将外部flash抽象为系统的块设备
     {
         return -RT_ERROR;
     };
@@ -434,7 +467,7 @@ int32_t devices_init(ele_ds_t ele_ds)
 #ifdef PKG_USING_SHT3X
     ele_ds->devices.sht3x_dev = sht3x_init("i2c1", SHT3X_ADDR_PD);
 #endif /* PKG_USING_SHT3X */
-
+    mnt_init();
     ele_ds->ops = ele_ds_ops;
     ele_ds->init_flag = true;
     return 0;

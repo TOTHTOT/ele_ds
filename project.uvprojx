@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>__STDC_LIMIT_MACROS, RT_USING_ARMLIBC, STM32F103xE, USE_HAL_DRIVER, RT_USING_LIBC, __CLK_TCK=RT_TICK_PER_SECOND, __RTTHREAD__</Define>
               <Undefine></Undefine>
-              <IncludePath>rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;rt-thread\components\libc\posix\ipc;packages\sht3x-latest;rt-thread\components\drivers\include;rt-thread\components\libc\posix\io\poll;components\epaper\driver;applications\ele_ds;rt-thread\components\libc\cplusplus;board\CubeMX_Config\Inc;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\libcpu\arm\common;rt-thread\components\libc\compilers\common\extension\fcntl\octal;components\epaper\gui;rt-thread\components\drivers\spi;.;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;components\epaper\fonts;components\gzp6816d_driver;rt-thread\include;rt-thread\components\drivers\include;packages\i2c-tools-latest\src;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;rt-thread\components\finsh;packages\sgp30-latest\inc;components\epaper\config;libraries\HAL_Drivers\CMSIS\Include;libraries\HAL_Drivers;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\drv_flash;rt-thread\components\fal\inc;rt-thread\components\drivers\spi\sfud\inc;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m3;applications;applications\fal;packages\i2c-tools-latest;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config</IncludePath>
+              <IncludePath>rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;rt-thread\components\libc\posix\ipc;packages\sht3x-latest;rt-thread\components\drivers\include;rt-thread\components\libc\posix\io\poll;components\epaper\driver;applications\ele_ds;rt-thread\components\libc\cplusplus;board\CubeMX_Config\Inc;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\libcpu\arm\common;rt-thread\components\libc\compilers\common\extension\fcntl\octal;components\epaper\gui;rt-thread\components\drivers\spi;.;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;components\epaper\fonts;components\gzp6816d_driver;rt-thread\include;rt-thread\components\drivers\include;rt-thread\components\dfs\dfs_v1\include;packages\i2c-tools-latest\src;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;rt-thread\components\finsh;rt-thread\components\dfs\dfs_v1\filesystems\elmfat;components\epaper\config;libraries\HAL_Drivers\CMSIS\Include;libraries\HAL_Drivers;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\drv_flash;rt-thread\components\dfs\dfs_v1\filesystems\devfs;rt-thread\components\fal\inc;rt-thread\components\drivers\spi\sfud\inc;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m3;packages\sgp30-latest\inc;applications;applications\fal;packages\i2c-tools-latest;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1751,9 +1751,9 @@
           <GroupName>Fal</GroupName>
           <Files>
             <File>
-              <FileName>fal_flash.c</FileName>
+              <FileName>fal_flash_sfud_port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>rt-thread\components\fal\src\fal_flash.c</FilePath>
+              <FilePath>rt-thread\components\fal\samples\porting\fal_flash_sfud_port.c</FilePath>
             </File>
             <File>
               <FileName>fal_rtt.c</FileName>
@@ -1761,19 +1761,64 @@
               <FilePath>rt-thread\components\fal\src\fal_rtt.c</FilePath>
             </File>
             <File>
-              <FileName>fal.c</FileName>
+              <FileName>fal_flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>rt-thread\components\fal\src\fal.c</FilePath>
-            </File>
-            <File>
-              <FileName>fal_flash_sfud_port.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>rt-thread\components\fal\samples\porting\fal_flash_sfud_port.c</FilePath>
+              <FilePath>rt-thread\components\fal\src\fal_flash.c</FilePath>
             </File>
             <File>
               <FileName>fal_partition.c</FileName>
               <FileType>1</FileType>
               <FilePath>rt-thread\components\fal\src\fal_partition.c</FilePath>
+            </File>
+            <File>
+              <FileName>fal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\fal\src\fal.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Filesystem</GroupName>
+          <Files>
+            <File>
+              <FileName>devfs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\dfs\dfs_v1\filesystems\devfs\devfs.c</FilePath>
+            </File>
+            <File>
+              <FileName>dfs_elm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\dfs\dfs_v1\filesystems\elmfat\dfs_elm.c</FilePath>
+            </File>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\dfs\dfs_v1\filesystems\elmfat\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>ffunicode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\dfs\dfs_v1\filesystems\elmfat\ffunicode.c</FilePath>
+            </File>
+            <File>
+              <FileName>dfs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\dfs\dfs_v1\src\dfs.c</FilePath>
+            </File>
+            <File>
+              <FileName>dfs_file.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\dfs\dfs_v1\src\dfs_file.c</FilePath>
+            </File>
+            <File>
+              <FileName>dfs_fs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\dfs\dfs_v1\src\dfs_fs.c</FilePath>
+            </File>
+            <File>
+              <FileName>dfs_posix.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\dfs\dfs_v1\src\dfs_posix.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1800,20 +1845,25 @@
               <FileType>1</FileType>
               <FilePath>rt-thread\components\finsh\cmd.c</FilePath>
             </File>
+            <File>
+              <FileName>msh_file.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\finsh\msh_file.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>i2c-tools</GroupName>
           <Files>
             <File>
-              <FileName>i2c_utils.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>packages\i2c-tools-latest\src\i2c_utils.cpp</FilePath>
-            </File>
-            <File>
               <FileName>i2c_tools.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_utils.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>packages\i2c-tools-latest\src\i2c_utils.cpp</FilePath>
             </File>
             <File>
               <FileName>SoftwareI2C.cpp</FileName>
