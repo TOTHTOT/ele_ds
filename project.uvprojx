@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>__STDC_LIMIT_MACROS, RT_USING_ARMLIBC, STM32F103xE, USE_HAL_DRIVER, RT_USING_LIBC, __CLK_TCK=RT_TICK_PER_SECOND, __RTTHREAD__</Define>
               <Undefine></Undefine>
-              <IncludePath>rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;rt-thread\components\libc\posix\ipc;packages\sht3x-latest;rt-thread\components\drivers\include;rt-thread\components\libc\posix\io\poll;components\epaper\driver;applications\ele_ds;rt-thread\components\libc\cplusplus;board\CubeMX_Config\Inc;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\libcpu\arm\common;rt-thread\components\libc\compilers\common\extension\fcntl\octal;components\epaper\gui;rt-thread\components\drivers\spi;.;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;components\epaper\fonts;components\gzp6816d_driver;rt-thread\include;rt-thread\components\drivers\include;rt-thread\components\dfs\dfs_v1\include;packages\i2c-tools-latest\src;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;rt-thread\components\finsh;rt-thread\components\dfs\dfs_v1\filesystems\elmfat;components\epaper\config;libraries\HAL_Drivers\CMSIS\Include;libraries\HAL_Drivers;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\drv_flash;rt-thread\components\dfs\dfs_v1\filesystems\devfs;rt-thread\components\fal\inc;rt-thread\components\drivers\spi\sfud\inc;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m3;packages\sgp30-latest\inc;applications;applications\fal;packages\i2c-tools-latest;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config</IncludePath>
+              <IncludePath>rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;rt-thread\components\libc\posix\ipc;packages\sht3x-latest;rt-thread\components\drivers\include;rt-thread\components\libc\posix\io\poll;components\epaper\driver;applications\ele_ds;rt-thread\components\libc\cplusplus;board\CubeMX_Config\Inc;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\libcpu\arm\common;rt-thread\components\libc\compilers\common\extension\fcntl\octal;components\epaper\gui;rt-thread\components\drivers\spi;.;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;components\epaper\fonts;components\gzp6816d_driver;rt-thread\include;rt-thread\components\drivers\include;rt-thread\components\dfs\dfs_v1\include;packages\i2c-tools-latest\src;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;rt-thread\components\finsh;rt-thread\components\dfs\dfs_v1\filesystems\elmfat;components\epaper\config;libraries\HAL_Drivers\CMSIS\Include;libraries\HAL_Drivers;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\drv_flash;rt-thread\components\dfs\dfs_v1\filesystems\devfs;rt-thread\components\fal\inc;rt-thread\components\drivers\spi\sfud\inc;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m3;packages\sgp30-latest\inc;applications;applications\fal;packages\i2c-tools-latest;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config;.\applications\dfs</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -393,6 +393,11 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>dfscfg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\applications\dfs\dfscfg.c</FilePath>
             </File>
           </Files>
         </Group>

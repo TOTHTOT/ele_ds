@@ -10,7 +10,7 @@
 #include "fal.h"
 #include "drv_spi.h"
 #include "spi_flash_sfud.h"
-#include <dfs_fs.h>"
+#include "dfscfg.h"
 
 #define DBG_TAG "ele_ds"
 #define DBG_LVL DBG_LOG
@@ -18,37 +18,6 @@
 
 // 全局变量
 ele_ds_t g_ele_ds = RT_NULL; // 全局设备函数指针
-const struct dfs_mount_tbl mount_table[] =
-{
-        // {"norflash0", "/", "elm", 0, 0},
-        {0},
-};
-
-/**
- * @description: 挂载文件系统
- * @return {int} 挂载成功返回0, 失败返回-1
- */
-static int mnt_init(void)
-{
-    if (dfs_mount("norflash0", "/", "elm", 0, 0) == 0)  // "norflash0":挂载的设备名称, "/":挂载路径, 这里挂载到跟目录下
-    {
-        LOG_D("norflash0 mount successful!");
-    }
-    else
-    {
-        dfs_mkfs("elm", "norflash0");  // 如果是第一次挂载文件系统必须要先格式化
-        if(dfs_mount("norflash0", "/", "elm", 0, 0) != 0)
-        {
-            LOG_D("norflash0 mount failed!");
-        }
-        else
-        {
-            LOG_D("norflash0 mkfs successful!");
-        }
-    }
-
-    return 0;
-}
 
 
 #ifdef PKG_USING_GZP6816D_SENSOR
