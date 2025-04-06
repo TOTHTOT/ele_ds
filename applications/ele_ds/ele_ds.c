@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-05 12:17:24
+ * @LastEditTime: 2025-04-06 21:41:13
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,6 +11,7 @@
 #include "drv_spi.h"
 #include "spi_flash_sfud.h"
 #include "dfscfg.h"
+#include <rtdevice.h>
 
 #define DBG_TAG "ele_ds"
 #define DBG_LVL DBG_LOG
@@ -18,7 +19,6 @@
 
 // 全局变量
 ele_ds_t g_ele_ds = RT_NULL; // 全局设备函数指针
-
 
 #ifdef PKG_USING_GZP6816D_SENSOR
 /**
@@ -235,97 +235,239 @@ ele_ds_ops_t ele_ds_ops =
         .sensor_data[SENSOR_MAX] = get_all_sensor_data,
 };
 
+UBYTE BlackImage[5808];
 int EPD_test(void)
 {
-    LOG_D("EPD_2IN7B_V2_test Demo");
+    printf("EPD_2IN7_V2_test Demo\r\n");
     if (DEV_Module_Init() != 0)
     {
-        LOG_E("Module Init Failed");
         return -1;
     }
 
-    LOG_D("e-Paper Init and Clear...");
-    EPD_2IN7B_V2_Init();
+    printf("e-Paper Init and Clear...\r\n");
+    EPD_2IN7_V2_Init();
 
-    EPD_2IN7B_V2_Clear();
-    DEV_Delay_ms(500);
+    EPD_2IN7_V2_Clear();
 
-    // Create a new image cache named IMAGE_BW and fill it with white
-    UBYTE *BlackImage, *RedImage;
-    UWORD Imagesize = ((EPD_2IN7B_V2_WIDTH % 8 == 0) ? (EPD_2IN7B_V2_WIDTH / 8) : (EPD_2IN7B_V2_WIDTH / 8 + 1)) * EPD_2IN7B_V2_HEIGHT;
-    if ((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL)
-    {
-        LOG_E("Failed to apply for black memory...");
-        return -1;
-    }
-    if ((RedImage = (UBYTE *)malloc(Imagesize)) == NULL)
-    {
-        LOG_E("Failed to apply for red memory...");
-        return -1;
-    }
-    LOG_D("NewImage:BlackImage and RedImage");
-    Paint_NewImage(BlackImage, EPD_2IN7B_V2_WIDTH, EPD_2IN7B_V2_HEIGHT, 270, WHITE);
-    Paint_NewImage(RedImage, EPD_2IN7B_V2_WIDTH, EPD_2IN7B_V2_HEIGHT, 270, WHITE);
+    // Create a new image cache
 
-    // Select Image
-    Paint_SelectImage(BlackImage);
-    Paint_Clear(WHITE);
-    Paint_SelectImage(RedImage);
+    //    UWORD Imagesize = ((EPD_2IN7_V2_WIDTH % 8 == 0)? (EPD_2IN7_V2_WIDTH / 8 ): (EPD_2IN7_V2_WIDTH / 8 + 1)) * EPD_2IN7_V2_HEIGHT;
+    //    if((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
+    //        printf("Failed to apply for black memory...\r\n");
+    //        return -1;
+    //    }
+    printf("Paint_NewImage\r\n");
+    Paint_NewImage(BlackImage, EPD_2IN7_V2_WIDTH, EPD_2IN7_V2_HEIGHT, 90, WHITE);
     Paint_Clear(WHITE);
 
-#if 0 // show image for array   
-    LOG_D("show image for array");
-    Paint_SelectImage(BlackImage);
-    Paint_DrawBitMap(gImage_2in7b_Black);
-    Paint_SelectImage(RedImage);
-    Paint_DrawBitMap(gImage_2in7b_Red);
-    EPD_2IN7B_V2_Display(BlackImage, RedImage);
-    DEV_Delay_ms(4000);
-#endif
+#if 0 // Fast Drawing on the image
+    // Fast refresh
+    printf("This is followed by a quick refresh demo\r\n");
+    printf("First, clear the screen\r\n");
+    EPD_2IN7_V2_Init();
+    EPD_2IN7_V2_Clear();
 
-#if 1 // Drawing on the image
-    /*Horizontal screen*/
-    // 1.Draw black image
+    printf("e-Paper Init Fast\r\n");
+    EPD_2IN7_V2_Init_Fast();
+		Paint_NewImage(BlackImage, EPD_2IN7_V2_WIDTH, EPD_2IN7_V2_HEIGHT, 90, WHITE);  	
+    printf("Drawing\r\n");
+    //1.Select Image
     Paint_SelectImage(BlackImage);
+
+    // 2.Drawing on the image
     Paint_Clear(WHITE);
+    printf("Drawing:BlackImage\r\n");
     Paint_DrawPoint(10, 80, BLACK, DOT_PIXEL_1X1, DOT_STYLE_DFT);
     Paint_DrawPoint(10, 90, BLACK, DOT_PIXEL_2X2, DOT_STYLE_DFT);
     Paint_DrawPoint(10, 100, BLACK, DOT_PIXEL_3X3, DOT_STYLE_DFT);
-    Paint_DrawPoint(10, 110, BLACK, DOT_PIXEL_3X3, DOT_STYLE_DFT);
+
     Paint_DrawLine(20, 70, 70, 120, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
     Paint_DrawLine(70, 70, 20, 120, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
+
     Paint_DrawRectangle(20, 70, 70, 120, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
     Paint_DrawRectangle(80, 70, 130, 120, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);
-    Paint_DrawString_EN(10, 0, "waveshare", &Font16, BLACK, WHITE);
-    // Paint_DrawString_CN(130, 20, "΢ѩ����", &Font24CN, WHITE, BLACK);
-    Paint_DrawNum(10, 50, 987654321, &Font16, WHITE, BLACK);
 
-    // 2.Draw red image
-    Paint_SelectImage(RedImage);
-    Paint_Clear(WHITE);
-    Paint_DrawCircle(160, 95, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
-    Paint_DrawCircle(210, 95, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+    Paint_DrawCircle(45, 95, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
+    Paint_DrawCircle(105, 95, 20, WHITE, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+
     Paint_DrawLine(85, 95, 125, 95, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
     Paint_DrawLine(105, 75, 105, 115, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
-    // Paint_DrawString_CN(130, 0,"���abc", &Font12CN, BLACK, WHITE);
-    Paint_DrawString_EN(10, 20, "hello world", &Font12, WHITE, BLACK);
-    Paint_DrawNum(10, 33, 123456789, &Font12, BLACK, WHITE);
 
-    LOG_D("EPD_Display");
-    EPD_2IN7B_V2_Display(BlackImage, RedImage);
-    DEV_Delay_ms(4000);
+    Paint_DrawString_EN(10, 0, "waveshare", &Font16, BLACK, WHITE);
+    Paint_DrawString_EN(10, 20, "hello world", &Font12, WHITE, BLACK);
+
+    Paint_DrawNum(10, 33, 123456789, &Font12, BLACK, WHITE);
+    Paint_DrawNum(10, 50, 987654321, &Font16, WHITE, BLACK);
+
+    Paint_DrawString_CN(130, 0,"���abc", &Font12CN, BLACK, WHITE);
+    Paint_DrawString_CN(130, 20, "΢ѩ����", &Font24CN, WHITE, BLACK);
+
+    EPD_2IN7_V2_Display_Fast(BlackImage);
+    DEV_Delay_ms(3000);
+
 #endif
 
-    LOG_D("Clear...");
-    EPD_2IN7B_V2_Clear();
+#if 1 // show bmp
 
-    LOG_D("Goto Sleep...");
-    EPD_2IN7B_V2_Sleep();
+    printf("show window BMP-----------------\r\n");
+    EPD_2IN7_V2_Init();
+    Paint_SelectImage(BlackImage);
+    Paint_Clear(WHITE);
+    // Paint_DrawBitMap(gImage_2in7);
+    EPD_2IN7_V2_Display(BlackImage);
+    DEV_Delay_ms(3000);
+
+#endif
+
+#if 1 // Drawing on the image
+    Paint_NewImage(BlackImage, EPD_2IN7_V2_WIDTH, EPD_2IN7_V2_HEIGHT, 90, WHITE);
+    printf("Drawing\r\n");
+    // 1.Select Image
+    EPD_2IN7_V2_Init();
+    Paint_SelectImage(BlackImage);
+    Paint_Clear(WHITE);
+
+    // 2.Drawing on the image
+    printf("Drawing:BlackImage\r\n");
+    Paint_DrawPoint(10, 80, BLACK, DOT_PIXEL_1X1, DOT_STYLE_DFT);
+    Paint_DrawPoint(10, 90, BLACK, DOT_PIXEL_2X2, DOT_STYLE_DFT);
+    Paint_DrawPoint(10, 100, BLACK, DOT_PIXEL_3X3, DOT_STYLE_DFT);
+
+    Paint_DrawLine(20, 70, 70, 120, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
+    Paint_DrawLine(70, 70, 20, 120, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
+
+    Paint_DrawRectangle(20, 70, 70, 120, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
+    Paint_DrawRectangle(80, 70, 130, 120, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+
+    Paint_DrawCircle(45, 95, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
+    Paint_DrawCircle(105, 95, 20, WHITE, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+
+    Paint_DrawLine(85, 95, 125, 95, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
+    Paint_DrawLine(105, 75, 105, 115, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
+
+    Paint_DrawString_EN(10, 0, "waveshare", &Font16, BLACK, WHITE);
+    Paint_DrawString_EN(10, 20, "hello world", &Font12, WHITE, BLACK);
+
+    Paint_DrawNum(10, 33, 123456789, &Font12, BLACK, WHITE);
+    Paint_DrawNum(10, 50, 987654321, &Font16, WHITE, BLACK);
+
+    // Paint_DrawString_CN(130, 0, "���abc", &Font12CN, BLACK, WHITE);
+    // Paint_DrawString_CN(130, 20, "΢ѩ����", &Font24CN, WHITE, BLACK);
+
+    EPD_2IN7_V2_Display_Base(BlackImage);
+    DEV_Delay_ms(3000);
+#endif
+
+#if 1 // Partial refresh, example shows time
+    // If you didn't use the EPD_2IN7_V2_Display_Base() function to refresh the image before,
+    // use the EPD_2IN7_V2_Display_Base_color() function to refresh the background color,
+    // otherwise the background color will be garbled
+    EPD_2IN7_V2_Init();
+    // EPD_2IN7_V2_Display_Base_color(WHITE);
+    Paint_NewImage(BlackImage, 50, 120, 90, WHITE);
+
+    printf("Partial refresh\r\n");
+    Paint_SelectImage(BlackImage);
+    Paint_SetScale(2);
+    Paint_Clear(WHITE);
+
+    PAINT_TIME sPaint_time;
+    sPaint_time.Hour = 12;
+    sPaint_time.Min = 34;
+    sPaint_time.Sec = 56;
+    UBYTE num = 15;
+    for (;;)
+    {
+        sPaint_time.Sec = sPaint_time.Sec + 1;
+        if (sPaint_time.Sec == 60)
+        {
+            sPaint_time.Min = sPaint_time.Min + 1;
+            sPaint_time.Sec = 0;
+            if (sPaint_time.Min == 60)
+            {
+                sPaint_time.Hour = sPaint_time.Hour + 1;
+                sPaint_time.Min = 0;
+                if (sPaint_time.Hour == 24)
+                {
+                    sPaint_time.Hour = 0;
+                    sPaint_time.Min = 0;
+                    sPaint_time.Sec = 0;
+                }
+            }
+        }
+
+        Paint_Clear(WHITE);
+        Paint_DrawString_EN(10, 20, "hello world", &Font12, WHITE, BLACK);
+        Paint_DrawRectangle(1, 1, 120, 50, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
+        Paint_DrawTime(10, 15, &sPaint_time, &Font20, WHITE, BLACK);
+
+        num = num - 1;
+        if (num == 0)
+        {
+            break;
+        }
+        printf("Part refresh...\r\n");
+        EPD_2IN7_V2_Display_Partial(BlackImage, 60, 134, 110, 254); // Xstart must be a multiple of 8
+        DEV_Delay_ms(500);
+    }
+#endif
+
+#if 0 // show image for array
+		free(BlackImage);
+    printf("show Gray------------------------\r\n");
+//    Imagesize = ((EPD_2IN7_V2_WIDTH % 4 == 0)? (EPD_2IN7_V2_WIDTH / 4 ): (EPD_2IN7_V2_WIDTH / 4 + 1)) * EPD_2IN7_V2_HEIGHT;
+//    if((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
+//        printf("Failed to apply for black memory...\r\n");
+//        return -1;
+//    }
+    EPD_2IN7_V2_Init_4GRAY();
+    printf("4 grayscale display\r\n");
+    Paint_NewImage(BlackImage, EPD_2IN7_V2_WIDTH, EPD_2IN7_V2_HEIGHT, 90, WHITE);
+    Paint_SetScale(4);
+    Paint_Clear(0xff);
+    
+    Paint_DrawPoint(10, 80, GRAY4, DOT_PIXEL_1X1, DOT_STYLE_DFT);
+    Paint_DrawPoint(10, 90, GRAY4, DOT_PIXEL_2X2, DOT_STYLE_DFT);
+    Paint_DrawPoint(10, 100, GRAY4, DOT_PIXEL_3X3, DOT_STYLE_DFT);
+    Paint_DrawLine(20, 70, 70, 120, GRAY4, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
+    Paint_DrawLine(70, 70, 20, 120, GRAY4, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
+    Paint_DrawRectangle(20, 70, 70, 120, GRAY4, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
+    Paint_DrawRectangle(80, 70, 130, 120, GRAY4, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+    Paint_DrawCircle(45, 95, 20, GRAY4, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
+    Paint_DrawCircle(105, 95, 20, GRAY2, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+    Paint_DrawLine(85, 95, 125, 95, GRAY4, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
+    Paint_DrawLine(105, 75, 105, 115, GRAY4, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
+    Paint_DrawString_EN(10, 0, "waveshare", &Font16, GRAY4, GRAY1);
+    Paint_DrawString_EN(10, 20, "hello world", &Font12, GRAY3, GRAY1);
+    Paint_DrawNum(10, 33, 123456789, &Font12, GRAY4, GRAY2);
+    Paint_DrawNum(10, 50, 987654321, &Font16, GRAY1, GRAY4);
+    Paint_DrawString_CN(150, 0,"���abc", &Font12CN, GRAY4, GRAY1);
+    Paint_DrawString_CN(150, 20,"���abc", &Font12CN, GRAY3, GRAY2);
+    Paint_DrawString_CN(150, 40,"���abc", &Font12CN, GRAY2, GRAY3);
+    Paint_DrawString_CN(150, 60,"���abc", &Font12CN, GRAY1, GRAY4);
+    Paint_DrawString_CN(10, 130, "΢ѩ����", &Font24CN, GRAY1, GRAY4);
+    EPD_2IN7_V2_4GrayDisplay(BlackImage);
+    DEV_Delay_ms(3000);
+		
+		Paint_SelectImage(BlackImage);
+    Paint_Clear(WHITE);
+    Paint_DrawBitMap(gImage_2in7_4Gray);
+    EPD_2IN7_V2_4GrayDisplay(BlackImage);
+    DEV_Delay_ms(3000);
+
+#endif
+
+    printf("Clear...\r\n");
+    EPD_2IN7_V2_Init();
+    EPD_2IN7_V2_Clear();
+
+    printf("Goto Sleep...\r\n");
+    EPD_2IN7_V2_Sleep();
     free(BlackImage);
-    BlackImage = NULL;
+    //    BlackImage = NULL;
     DEV_Delay_ms(2000); // important, at least 2s
     // close 5V
-    LOG_D("close 5V, Module enters 0 power consumption ...");
+    printf("close 5V, Module enters 0 power consumption ...\r\n");
     DEV_Module_Exit();
     return 0;
 }
@@ -364,7 +506,7 @@ rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
         LOG_E("find %s error", EPAPER_DEVNAME);
         return -RT_ERROR;
     }
-
+    spi_epaper = ele_ds->devices.epaper_dev;
     struct rt_spi_configuration cfg = {
         .mode = RT_SPI_MASTER | RT_SPI_MODE_0 | RT_SPI_MSB,
         .data_width = 8,
@@ -375,6 +517,7 @@ rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
         LOG_E("configure %s error", EPAPER_DEVNAME);
         return -err;
     }
+    rt_thread_mdelay(1000);
     DEV_Module_Init();
     EPD_test();
     return RT_EOK;
@@ -383,19 +526,19 @@ rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
 static int rt_hw_spi_flash_init(void)
 {
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    rt_hw_spi_device_attach("spi1", "spi10",GET_PIN(C, 4));// spi10 表示挂载在 spi3 总线上的 0 号设备,PC0是片选, 这一步就可以将从设备挂在到总线中。
- 
-    if (RT_NULL == rt_sfud_flash_probe("norflash0", "spi10"))  //注册块设备, 这一步可以将外部flash抽象为系统的块设备
+    rt_hw_spi_device_attach("spi1", "spi10", GET_PIN(C, 4)); // spi10 表示挂载在 spi3 总线上的 0 号设备,PC0是片选, 这一步就可以将从设备挂在到总线中。
+
+    if (RT_NULL == rt_sfud_flash_probe("norflash0", "spi10")) // 注册块设备, 这一步可以将外部flash抽象为系统的块设备
     {
         return -RT_ERROR;
     };
- 
+
     return RT_EOK;
 }
 
 int32_t devices_init(ele_ds_t ele_ds)
 {
-    // rt_err_t err = RT_EOK;
+    rt_err_t err = RT_EOK;
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(V3_3_PIN, PIN_HIGH);
@@ -407,15 +550,14 @@ int32_t devices_init(ele_ds_t ele_ds)
     }
     memset(ele_ds, 0, sizeof(ele_ds_t));
     // fal_init();
-    rt_hw_spi_flash_init();
-#if 0
+    // rt_hw_spi_flash_init();
+#if 1
     err = ele_ds_epaper_init(ele_ds);
     if (err != RT_EOK)
     {
         LOG_E("ele_ds_epaper_init failed");
         return -2;
-        }
-        spi_epaper = ele_ds->devices.epaper_dev;
+    }
 #endif
 
 #ifdef PKG_USING_SGP30
@@ -436,7 +578,7 @@ int32_t devices_init(ele_ds_t ele_ds)
 #ifdef PKG_USING_SHT3X
     ele_ds->devices.sht3x_dev = sht3x_init("i2c1", SHT3X_ADDR_PD);
 #endif /* PKG_USING_SHT3X */
-    mnt_init();
+    // mnt_init();
     ele_ds->ops = ele_ds_ops;
     ele_ds->init_flag = true;
     return 0;

@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>__STDC_LIMIT_MACROS, RT_USING_ARMLIBC, STM32F103xE, USE_HAL_DRIVER, RT_USING_LIBC, __CLK_TCK=RT_TICK_PER_SECOND, __RTTHREAD__</Define>
               <Undefine></Undefine>
-              <IncludePath>rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;rt-thread\components\libc\posix\ipc;packages\sht3x-latest;rt-thread\components\drivers\include;rt-thread\components\libc\posix\io\poll;components\epaper\driver;applications\ele_ds;rt-thread\components\libc\cplusplus;board\CubeMX_Config\Inc;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\libcpu\arm\common;rt-thread\components\libc\compilers\common\extension\fcntl\octal;components\epaper\gui;rt-thread\components\drivers\spi;.;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;components\epaper\fonts;components\gzp6816d_driver;rt-thread\include;rt-thread\components\drivers\include;rt-thread\components\dfs\dfs_v1\include;packages\i2c-tools-latest\src;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;rt-thread\components\finsh;rt-thread\components\dfs\dfs_v1\filesystems\elmfat;components\epaper\config;libraries\HAL_Drivers\CMSIS\Include;libraries\HAL_Drivers;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\drv_flash;rt-thread\components\dfs\dfs_v1\filesystems\devfs;rt-thread\components\fal\inc;rt-thread\components\drivers\spi\sfud\inc;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m3;packages\sgp30-latest\inc;applications;applications\fal;packages\i2c-tools-latest;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config;.\applications\dfs</IncludePath>
+              <IncludePath>rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;applications\dfs;packages\sht3x-latest;rt-thread\components\drivers\include;rt-thread\components\libc\posix\io\poll;components\epaper\driver;applications\ele_ds;rt-thread\components\libc\cplusplus;board\CubeMX_Config\Inc;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\posix\ipc;rt-thread\components\libc\compilers\common\extension;rt-thread\libcpu\arm\common;rt-thread\components\libc\compilers\common\extension\fcntl\octal;components\epaper\gui;rt-thread\components\drivers\spi;.;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;components\epaper\fonts;components\gzp6816d_driver;rt-thread\include;rt-thread\components\drivers\include;rt-thread\components\dfs\dfs_v1\include;packages\i2c-tools-latest\src;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;rt-thread\components\finsh;rt-thread\components\dfs\dfs_v1\filesystems\elmfat;components\epaper\config;libraries\HAL_Drivers\CMSIS\Include;libraries\HAL_Drivers;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\drv_flash;rt-thread\components\dfs\dfs_v1\filesystems\devfs;rt-thread\components\fal\inc;rt-thread\components\drivers\spi\sfud\inc;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m3;packages\sgp30-latest\inc;applications;applications\fal;packages\i2c-tools-latest;rt-thread\components\drivers\include;libraries\HAL_Drivers\drivers\config</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -385,6 +385,11 @@
           <GroupName>Applications</GroupName>
           <Files>
             <File>
+              <FileName>dfscfg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\dfs\dfscfg.c</FilePath>
+            </File>
+            <File>
               <FileName>ele_ds.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\ele_ds\ele_ds.c</FilePath>
@@ -393,11 +398,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>dfscfg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\applications\dfs\dfscfg.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -455,9 +455,9 @@
               <FilePath>components\epaper\config\DEV_Config.c</FilePath>
             </File>
             <File>
-              <FileName>EPD_2in7b_V2.c</FileName>
+              <FileName>EPD_2in7_V2.c</FileName>
               <FileType>1</FileType>
-              <FilePath>components\epaper\driver\EPD_2in7b_V2.c</FilePath>
+              <FilePath>components\epaper\driver\EPD_2in7_V2.c</FilePath>
             </File>
             <File>
               <FileName>font12.c</FileName>
@@ -1761,9 +1761,9 @@
               <FilePath>rt-thread\components\fal\samples\porting\fal_flash_sfud_port.c</FilePath>
             </File>
             <File>
-              <FileName>fal_rtt.c</FileName>
+              <FileName>fal_partition.c</FileName>
               <FileType>1</FileType>
-              <FilePath>rt-thread\components\fal\src\fal_rtt.c</FilePath>
+              <FilePath>rt-thread\components\fal\src\fal_partition.c</FilePath>
             </File>
             <File>
               <FileName>fal_flash.c</FileName>
@@ -1771,9 +1771,9 @@
               <FilePath>rt-thread\components\fal\src\fal_flash.c</FilePath>
             </File>
             <File>
-              <FileName>fal_partition.c</FileName>
+              <FileName>fal_rtt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>rt-thread\components\fal\src\fal_partition.c</FilePath>
+              <FilePath>rt-thread\components\fal\src\fal_rtt.c</FilePath>
             </File>
             <File>
               <FileName>fal.c</FileName>
@@ -1861,14 +1861,14 @@
           <GroupName>i2c-tools</GroupName>
           <Files>
             <File>
-              <FileName>i2c_tools.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
-            </File>
-            <File>
               <FileName>i2c_utils.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>packages\i2c-tools-latest\src\i2c_utils.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_tools.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
             </File>
             <File>
               <FileName>SoftwareI2C.cpp</FileName>
@@ -2907,14 +2907,14 @@
           <GroupName>sgp30</GroupName>
           <Files>
             <File>
-              <FileName>sgp30.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\sgp30-latest\src\sgp30.c</FilePath>
-            </File>
-            <File>
               <FileName>sensor_sensirion_sgp30.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\sgp30-latest\src\sensor_sensirion_sgp30.c</FilePath>
+            </File>
+            <File>
+              <FileName>sgp30.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\sgp30-latest\src\sgp30.c</FilePath>
             </File>
           </Files>
         </Group>

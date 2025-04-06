@@ -1,11 +1,11 @@
 /*****************************************************************************
-* | File      	:   EPD_2in7b_V2.h
+* | File      	:   EPD_2in7_V2.h
 * | Author      :   Waveshare team
-* | Function    :   2.7inch e-paper b V2
+* | Function    :   2.7inch V2 e-paper
 * | Info        :
 *----------------
 * |	This version:   V1.0
-* | Date        :   2020-10-20
+* | Date        :   2022-08-18
 * | Info        :
 * -----------------------------------------------------------------------------
 #
@@ -28,18 +28,25 @@
 # THE SOFTWARE.
 #
 ******************************************************************************/
-#ifndef __EPD_2IN7B_V2_H_
-#define __EPD_2IN7B_V2_H_
+#ifndef __EPD_2IN7_V2_H_
+#define __EPD_2IN7_V2_H_
 
 #include "DEV_Config.h"
 
 // Display resolution
-#define EPD_2IN7B_V2_WIDTH       176
-#define EPD_2IN7B_V2_HEIGHT      264
+#define EPD_2IN7_V2_WIDTH       176
+#define EPD_2IN7_V2_HEIGHT      264
 
-void EPD_2IN7B_V2_Init(void);
-void EPD_2IN7B_V2_Clear(void);
-void EPD_2IN7B_V2_Display(UBYTE *Imageblack, UBYTE *Imagered);
-void EPD_2IN7B_V2_Sleep(void);
+void EPD_2IN7_V2_Init(void);
+void EPD_2IN7_V2_Init_Fast(void);
+void EPD_2IN7_V2_Init_4GRAY(void);
+void EPD_2IN7_V2_Clear(void);
+void EPD_2IN7_V2_Display(UBYTE *Image);
+void EPD_2IN7_V2_Display_Fast(UBYTE *Image);
+void EPD_2IN7_V2_Display_Base(UBYTE *Image);
+void EPD_2IN7_V2_Display_Base_color(UBYTE color);
+void EPD_2IN7_V2_Display_Partial(const UBYTE *Image, UWORD Xstart, UWORD Ystart, UWORD Xend, UWORD Yende);
+void EPD_2IN7_V2_4GrayDisplay(UBYTE *Image);
+void EPD_2IN7_V2_Sleep(void);
 
 #endif

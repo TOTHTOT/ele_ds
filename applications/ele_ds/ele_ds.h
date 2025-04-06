@@ -25,7 +25,7 @@
 #endif /* PKG_USING_SHT3X */
 #include "DEV_Config.h"
 #include "EPD_Test.h"
-#include "EPD_2in7b_V2.h"
+#include "EPD_2in7_V2.h"
 /* 参数配置 */
 #define LED0_PIN GET_PIN(C, 13)
 #define V3_3_PIN GET_PIN(C, 8)
