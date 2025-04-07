@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-07 11:03:03
+ * @LastEditTime: 2025-04-07 13:19:00
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -517,7 +517,7 @@ rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
         LOG_E("configure %s error", EPAPER_DEVNAME);
         return -err;
     }
-    
+
     rt_pin_mode(EPD_RST_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(EPD_DC_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(EPD_CS_PIN, PIN_MODE_OUTPUT);
@@ -554,7 +554,7 @@ int32_t devices_init(ele_ds_t ele_ds)
     }
     memset(ele_ds, 0, sizeof(ele_ds_t));
     // fal_init();
-    // rt_hw_spi_flash_init();
+    rt_hw_spi_flash_init();
 #if 1
     err = ele_ds_epaper_init(ele_ds);
     if (err != RT_EOK)
@@ -582,7 +582,7 @@ int32_t devices_init(ele_ds_t ele_ds)
 #ifdef PKG_USING_SHT3X
     ele_ds->devices.sht3x_dev = sht3x_init("i2c1", SHT3X_ADDR_PD);
 #endif /* PKG_USING_SHT3X */
-    // mnt_init();
+    mnt_init();
     ele_ds->ops = ele_ds_ops;
     ele_ds->init_flag = true;
     return 0;
