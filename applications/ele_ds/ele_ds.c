@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-07 13:19:00
+ * @LastEditTime: 2025-04-07 17:41:48
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -234,7 +234,7 @@ ele_ds_ops_t ele_ds_ops =
 #endif /* PKG_USING_SGP30 */
         .sensor_data[SENSOR_MAX] = get_all_sensor_data,
 };
-
+#if 0
 UBYTE BlackImage[5808];
 int EPD_test(void)
 {
@@ -471,6 +471,7 @@ int EPD_test(void)
     DEV_Module_Exit();
     return 0;
 }
+#endif
 
 #ifdef PKG_USING_SGP30
 int rt_hw_sgp30_port(void)
@@ -522,8 +523,8 @@ rt_err_t ele_ds_epaper_init(ele_ds_t ele_ds)
     rt_pin_mode(EPD_DC_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(EPD_CS_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(EPD_BUSY_PIN, PIN_MODE_INPUT);
-    DEV_Module_Init();
-    EPD_test();
+    // DEV_Module_Init();
+    // EPD_test();
     return RT_EOK;
 }
 
@@ -555,7 +556,7 @@ int32_t devices_init(ele_ds_t ele_ds)
     memset(ele_ds, 0, sizeof(ele_ds_t));
     // fal_init();
     rt_hw_spi_flash_init();
-#if 1
+#if 0
     err = ele_ds_epaper_init(ele_ds);
     if (err != RT_EOK)
     {

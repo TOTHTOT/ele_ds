@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-03-29 13:59:50
+ * @LastEditTime: 2025-04-07 16:16:21
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -31,6 +31,9 @@ int main(void)
         return -RT_ERROR;
     }
     g_ele_ds = &ele_ds;
+    extern int lvgl_thread_init(void);
+    lvgl_thread_init();
+
     rt_kprintf("ele_ds init success, date: %s, time: %s\n", __DATE__, __TIME__);
     while (1)
     {

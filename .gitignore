@@ -66,3 +66,5 @@ board/CubeMX_Config/Src/main.c
 *.pyc
 /.vscode
 /.vscode
+examples
+demos
