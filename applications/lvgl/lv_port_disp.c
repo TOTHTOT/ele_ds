@@ -6,24 +6,24 @@
 #include "ele_ds.h"
 
 #ifndef MY_DISP_HOR_RES
-#define MY_DISP_HOR_RES    264
+#define MY_DISP_HOR_RES 264
 #endif
 
 #ifndef MY_DISP_VER_RES
-#define MY_DISP_VER_RES    176
+#define MY_DISP_VER_RES 176
 #endif
 
 static lv_disp_draw_buf_t draw_buf_dsc_1;
-static lv_color_t buf1[MY_DISP_HOR_RES * MY_DISP_VER_RES/2]; // 10 行缓冲区
+static lv_color_t buf1[MY_DISP_HOR_RES * MY_DISP_VER_RES / 2]; // 10 行缓冲区
 
 static void disp_init(void);
-static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
+static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p);
 
 void lv_port_disp_init(void)
 {
     disp_init();
 
-    lv_disp_draw_buf_init(&draw_buf_dsc_1, buf1, NULL, MY_DISP_HOR_RES * MY_DISP_VER_RES/ 2);
+    lv_disp_draw_buf_init(&draw_buf_dsc_1, buf1, NULL, MY_DISP_HOR_RES * MY_DISP_VER_RES / 2);
 
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
@@ -32,7 +32,7 @@ void lv_port_disp_init(void)
     disp_drv.flush_cb = disp_flush;
     disp_drv.draw_buf = &draw_buf_dsc_1;
     // disp_drv.sw_rotate = 1;   // add for rotation
-    disp_drv.rotated = LV_DISP_ROT_90;   // add for rotation
+    disp_drv.rotated = LV_DISP_ROT_90; // add for rotation
     lv_disp_drv_register(&disp_drv);
 }
 
@@ -59,7 +59,7 @@ static void wait_for_idle(void)
     }
 }
 
-static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
+static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p)
 {
     uint32_t w = area->x2 - area->x1 + 1;
     uint32_t h = area->y2 - area->y1 + 1;
@@ -70,7 +70,8 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
 
     uint32_t buf_size = ((rw + 7) / 8) * rh;
     UBYTE *temp_buf = (UBYTE *)lv_mem_alloc(buf_size);
-    if (temp_buf == NULL) return;
+    if (temp_buf == NULL)
+        return;
 
     EPD_2IN7_V2_Init();
     Paint_NewImage(temp_buf, rw, rh, 0, WHITE);
@@ -79,8 +80,10 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
     Paint_Clear(WHITE);
     memset(temp_buf, 0xFF, buf_size); // 默认全白
 
-    for (uint32_t y = 0; y < h; y++) {
-        for (uint32_t x = 0; x < w; x++) {
+    for (uint32_t y = 0; y < h; y++)
+    {
+        for (uint32_t x = 0; x < w; x++)
+        {
             uint32_t idx = x + y * w;
 
             // 旋转90度后坐标：(x, y) → (y, w - 1 - x)
@@ -90,7 +93,8 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
             uint32_t byte_idx = (new_x / 8) + new_y * ((rw + 7) / 8);
             uint8_t bit_mask = 0x80 >> (new_x % 8);
 
-            if (lv_color_to1(color_p[idx]) == 0) {
+            if (lv_color_to1(color_p[idx]) == 0)
+            {
                 temp_buf[byte_idx] &= ~bit_mask;
             }
         }
@@ -113,7 +117,7 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
     uint32_t new_x2 = area->y2;
     uint32_t new_y2 = MY_DISP_HOR_RES - 1 - area->x1;
 
-    EPD_2IN7_V2_Display_Partial(temp_buf, new_x1, new_y1, new_x2 -1, new_y2-1);
+    EPD_2IN7_V2_Display_Partial(temp_buf, new_x1, new_y1, new_x2 - 1, new_y2 - 1);
     wait_for_idle();
 
     lv_mem_free(temp_buf);
