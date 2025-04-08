@@ -16,10 +16,10 @@
 #define MY_DISP_HOR_RES          176
 #define MY_DISP_VER_RES          264
 #define LV_COLOR_DEPTH 1       // 1-bit 色深，适合墨水屏
-#define LV_USE_PERF_MONITOR 0
+// #define LV_USE_PERF_MONITOR 0
 #define LV_COLOR_16_SWAP 0
-#define LV_USE_LOG 1
-#define LV_LOG_LEVEL LV_LOG_LEVEL_TRACE
+// #define LV_USE_LOG 1
+// #define LV_LOG_LEVEL LV_LOG_LEVEL_TRACE
 
 #ifdef PKG_USING_LV_MUSIC_DEMO
 /* music player demo */

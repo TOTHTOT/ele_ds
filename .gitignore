@@ -68,3 +68,5 @@ board/CubeMX_Config/Src/main.c
 /.vscode
 examples
 demos
+*.png
+/.venv
