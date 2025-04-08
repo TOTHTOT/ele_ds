@@ -4,6 +4,8 @@
 #include "EPD_2in7_V2.h"
 #include "DEV_Config.h"
 #include "ele_ds.h"
+#include <time.h>
+#include "lvgl.h"
 
 #ifndef MY_DISP_HOR_RES
 #define MY_DISP_HOR_RES 264
@@ -99,7 +101,7 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
             }
         }
     }
-#if 0
+#if 1
     // 输出验证
     printf("Drawing rotated, w = %d, h = %d, size = %d\n", rw, rh, buf_size);
     printf("Partial refresh\n");
@@ -123,15 +125,53 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     lv_mem_free(temp_buf);
     lv_disp_flush_ready(disp_drv);
 }
+lv_obj_t *time_label;  // 声明一个全局标签，用来显示时间
+
+void update_time_label(void)
+{
+    // 获取当前时间
+    time_t t = time(NULL);
+    struct tm *tm_info = localtime(&t);
+
+    // 将时间格式化为字符串
+    char time_str[9];  // 格式为 HH:MM:SS
+    strftime(time_str, sizeof(time_str), "%H:%M:%S", tm_info);
+
+    // 更新时间标签的文本
+    lv_label_set_text(time_label, time_str);
+}
+
 void lv_user_gui_init(void)
 {
     printf("lv_user_gui_init\n");
+
     lv_obj_t *scr = lv_scr_act();
+
+    // 创建一个标签
     lv_obj_t *label = lv_label_create(scr);
     lv_label_set_text(label, "Hello");
-    lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_align(label, LV_ALIGN_TOP_RIGHT, 0, 0);
+
+    // 创建一个按钮
+    lv_obj_t *btn = lv_btn_create(scr);
+    lv_obj_align(btn, LV_ALIGN_CENTER, 0, 10);  // 按钮居中
+    lv_obj_set_size(btn, 100, 50);  // 设置按钮的大小
+
+    // 在按钮上创建一个标签
+    lv_obj_t *btn_label = lv_label_create(btn);
+    lv_label_set_text(btn_label, "Click");
+
+    // 创建一个时间标签
+    time_label = lv_label_create(scr);
+    lv_obj_align(time_label, LV_ALIGN_CENTER, 0, 0);  // 将时间标签放在屏幕底部
+
+    // 每秒钟更新一次时间
+	lv_timer_create(update_time_label, 5000, NULL);
+    //lv_task_create((lv_task_cb_t)update_time_label, 1000, LV_TASK_PRIO_LOW, NULL);
+
     printf("lv_user_gui_init end\n");
 }
+
 
 void disp_enable_update(void)
 {
