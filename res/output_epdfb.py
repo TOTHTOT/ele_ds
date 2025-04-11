@@ -1,10 +1,18 @@
+'''
+Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+Date: 2025-04-08 14:50:00
+LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+LastEditTime: 2025-04-11 15:42:37
+FilePath: \ele_ds\res\output_epdfb.py
+Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+'''
 # -*- coding: utf-8 -*-
 
 from PIL import Image
 
 # 配置图像尺寸
-width = 264
-height = 176
+width = 176
+height = 264
 bytes_per_row = (width + 7) // 8  # 每行字节数
 frame_size = bytes_per_row * height  # 每帧图像数据所需字节数
 
