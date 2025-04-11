@@ -50,7 +50,9 @@ static void disp_init(void)
 
     DEV_Module_Init();
     EPD_2IN7_V2_Init();
+    // 必须这样不然有可能出现图像残留
     EPD_2IN7_V2_Clear();
+    EPD_2IN7_V2_Display_Base_color(WHITE);
 }
 
 static void wait_for_idle(void)
@@ -74,7 +76,7 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
     printf("Drawing, w = %d, h = %d, size = %d\r\n", w, h, buf_size);
     printf("Partial refresh\r\n");
     Paint_SelectImage(temp_buf);
-    Paint_SetScale(2);
+    // Paint_SetScale(2);
     Paint_Clear(WHITE);
 
     memset(temp_buf, 0xFF, buf_size);
