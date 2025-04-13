@@ -71,8 +71,8 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     uint32_t buf_size = ((w + 7) / 8) * h;
     rt_uint32_t total, used, max_used;
     rt_memory_info(&total, &used, &max_used);
-    printf("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
-    printf("x1:%d, y1:%d, x2:%d, y2:%d, w:%d, h:%d, buf_size:%d\n", area->x1, area->y1, area->x2, area->y2, w, h, buf_size);
+    // printf("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
+    // printf("x1:%d, y1:%d, x2:%d, y2:%d, w:%d, h:%d, buf_size:%d\n", area->x1, area->y1, area->x2, area->y2, w, h, buf_size);
     UBYTE *temp_buf = (UBYTE *)lv_mem_alloc(buf_size);
     if (temp_buf == NULL) 
     {
@@ -198,11 +198,12 @@ void lv_user_gui_init(void)
     lv_obj_set_size(btn, 100, 50);
     lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
 
-    // 设置按钮样式：黑底白字
-    lv_obj_set_style_bg_color(btn, lv_color_black(), 0);
-    lv_obj_set_style_text_color(btn, lv_color_white(), 0);
+    // 设置按钮样式：黑边框,白底 黑字
+
+    lv_obj_set_style_bg_color(btn, lv_color_white(), 0);
+    lv_obj_set_style_text_color(btn, lv_color_black(), 0);
     lv_obj_set_style_border_width(btn, 1, 0);
-    lv_obj_set_style_border_color(btn, lv_color_white(), 0);
+    lv_obj_set_style_border_color(btn, lv_color_black(), 0);
 
     // 按钮上的标签
     lv_obj_t *btn_label = lv_label_create(btn);
