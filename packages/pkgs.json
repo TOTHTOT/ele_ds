@@ -5,11 +5,6 @@
   "name": "LVGL"
  }, 
  {
-  "path": "/packages/multimedia/LVGL/lv_music_demo", 
-  "ver": "v0.3.4", 
-  "name": "LV_MUSIC_DEMO"
- }, 
- {
   "path": "/packages/peripherals/sensors/sgp30", 
   "ver": "latest", 
   "name": "SGP30"

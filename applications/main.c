@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-07 16:16:21
+ * @LastEditTime: 2025-04-13 14:09:18
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -35,6 +35,10 @@ int main(void)
     lvgl_thread_init();
 
     rt_kprintf("ele_ds init success, date: %s, time: %s\n", __DATE__, __TIME__);
+    rt_uint32_t total, used, max_used;
+    rt_memory_info(&total, &used, &max_used);
+    rt_kprintf("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
+
     while (1)
     {
         ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
