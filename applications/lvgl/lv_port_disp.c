@@ -49,7 +49,8 @@ static void disp_init(void)
         rt_kprintf("ele_ds_epaper_init failed\n");
         return;
     }
-
+    //LV_FONT_DECLARE(字体名);
+    LV_FONT_DECLARE(hz_12_4);
     DEV_Module_Init();
     EPD_2IN7_V2_Init();
     EPD_2IN7_V2_Clear();
@@ -165,59 +166,53 @@ void update_time_label(void)
 
 void lv_user_gui_init(void)
 {
-    printf("lv_user_gui_init\n");
-
     lv_obj_t *scr = lv_scr_act();
 
-    lv_obj_t *label1 = lv_label_create(scr);
-    lv_label_set_text(label1, "tr");
-    lv_obj_align(label1, LV_ALIGN_TOP_RIGHT, 0, 0);
 
-    lv_obj_t *label2 = lv_label_create(scr);
-    lv_label_set_text(label2, "tf");
-    lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 0, 0);
+    /* 样式 */
+    static lv_style_t style_small;
+    lv_style_init(&style_small);
+    lv_style_set_text_font(&style_small, &lv_font_montserrat_10);
 
-    lv_obj_t *label4 = lv_label_create(scr);
-    lv_label_set_text(label4, "br");
-    lv_obj_align(label4, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
+    static lv_style_t style_bold;
+    lv_style_init(&style_bold);
+    lv_style_set_text_font(&style_bold, &lv_font_montserrat_14);
 
-    lv_obj_t *label5 = lv_label_create(scr);
-    lv_label_set_text(label5, "bf");
-    lv_obj_align(label5, LV_ALIGN_BOTTOM_LEFT, 0, 0);
-#if 0
-    // 添加一个按钮
-    lv_obj_t *btn = lv_btn_create(scr);
-    lv_obj_set_size(btn, 50, 50);
-    lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_t *label = lv_label_create(btn);
-    lv_label_set_text(label, "Click me!");
-    lv_obj_center(label);
-#else
-    // 创建按钮
-    lv_obj_t *btn = lv_btn_create(scr);
-    lv_obj_set_size(btn, 100, 50);
-    lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
+    static lv_style_t style_large;
+    lv_style_init(&style_large);
+    lv_style_set_text_font(&style_large, &lv_font_montserrat_18);
 
-    // 设置按钮样式：黑边框,白底 黑字
+    /* 1. 状态栏 */
+    lv_obj_t *status_bar = lv_label_create(scr);
+    lv_obj_add_style(status_bar, &style_small, 0);
+    lv_label_set_text(status_bar, "Bat:85%  Sig:▂▄▆  14:20  2025-04-13 (Sun)");
 
-    lv_obj_set_style_bg_color(btn, lv_color_white(), 0);
-    lv_obj_set_style_text_color(btn, lv_color_black(), 0);
-    lv_obj_set_style_border_width(btn, 1, 0);
-    lv_obj_set_style_border_color(btn, lv_color_black(), 0);
+    lv_obj_align(status_bar, LV_ALIGN_TOP_LEFT, 4, 2);
 
-    // 按钮上的标签
-    lv_obj_t *btn_label = lv_label_create(btn);
-    lv_label_set_text(btn_label, "Click me!");
-    lv_obj_center(btn_label);
+    /* 2. 天气信息 */
+    lv_obj_t *weather_label = lv_label_create(scr);
+    lv_obj_add_style(weather_label, &style_large, 0);
+    lv_label_set_text(weather_label, "多云     温度：24C / 18C");
+    lv_obj_align_to(weather_label, status_bar, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 6);
+    lv_obj_set_style_text_font(weather_label, &hz_12_4, LV_PART_MAIN);
 
-#endif
+    /* 3. 传感器数据 - 第一行 */
+    lv_obj_t *sensor_row1 = lv_label_create(scr);
+    lv_obj_add_style(sensor_row1, &style_bold, 0);
+    lv_label_set_text(sensor_row1, "温度: 23.5℃   湿度: 45%   气压: 1012 hPa");
+    lv_obj_align_to(sensor_row1, weather_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 8);
 
-    // time_label = lv_label_create(scr);
-    // lv_obj_align(time_label, LV_ALIGN_CENTER, 0, 0);
+    /* 4. 传感器数据 - 第二行 */
+    lv_obj_t *sensor_row2 = lv_label_create(scr);
+    lv_obj_add_style(sensor_row2, &style_bold, 0);
+    lv_label_set_text(sensor_row2, "TVOC: 120 ppb    CO₂: 580 ppm");
+    lv_obj_align_to(sensor_row2, sensor_row1, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 6);
 
-    // lv_timer_create(update_time_label, 1000, NULL);
-
-    printf("lv_user_gui_init end\n");
+    /* 5. 底部 LOGO 或品牌字样 */
+    lv_obj_t *logo = lv_label_create(scr);
+    lv_obj_add_style(logo, &style_small, 0);
+    lv_label_set_text(logo, "ELE_DS");
+    lv_obj_align(logo, LV_ALIGN_BOTTOM_MID, 0, -2);
 }
 
 void disp_enable_update(void) {}
