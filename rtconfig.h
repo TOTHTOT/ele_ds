@@ -161,6 +161,8 @@
 
 /* Utilities */
 
+#define RT_USING_RYM
+#define YMODEM_USING_FILE_TRANSFER
 
 /* RT-Thread online packages */
 
@@ -203,8 +205,8 @@
 /* LVGL: powerful and easy-to-use embedded GUI library */
 
 #define PKG_USING_LVGL
-#define PKG_LVGL_THREAD_PRIO 25
-#define PKG_LVGL_THREAD_STACK_SIZE 9096
+#define PKG_LVGL_THREAD_PRIO 20
+#define PKG_LVGL_THREAD_STACK_SIZE 4096
 #define PKG_LVGL_DISP_REFR_PERIOD 1000
 #define PKG_LVGL_USING_V080311
 #define PKG_LVGL_VER_NUM 0x080311

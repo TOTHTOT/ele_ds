@@ -180,7 +180,7 @@ void lv_user_gui_init(void)
 
     static lv_style_t style_large;
     lv_style_init(&style_large);
-    lv_style_set_text_font(&style_large, &lv_font_montserrat_18);
+    //lv_style_set_text_font(&style_large, &lv_font_montserrat_18);
 
     /* 1. 状态栏 */
     lv_obj_t *status_bar = lv_label_create(scr);
@@ -194,7 +194,7 @@ void lv_user_gui_init(void)
     lv_obj_add_style(weather_label, &style_large, 0);
     lv_label_set_text(weather_label, "多云     温度：24C / 18C");
     lv_obj_align_to(weather_label, status_bar, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 6);
-    lv_obj_set_style_text_font(weather_label, &hz_12_4, LV_PART_MAIN);
+    //lv_obj_set_style_text_font(weather_label, &hz_12_4, LV_PART_MAIN);
 
     /* 3. 传感器数据 - 第一行 */
     lv_obj_t *sensor_row1 = lv_label_create(scr);
