@@ -125,6 +125,8 @@ void lv_mem_deinit(void)
 void * lv_mem_alloc(size_t size)
 {
     MEM_TRACE("allocating %lu bytes", (unsigned long)size);
+    extern void get_heapinfo();
+    get_heapinfo();
     if(size == 0) {
         MEM_TRACE("using zero_mem");
         return &zero_mem;

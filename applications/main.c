@@ -19,7 +19,12 @@
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
-
+void get_heapinfo(void)
+{
+    rt_uint32_t total, used, max_used;
+    rt_memory_info(&total, &used, &max_used);
+		rt_kprintf("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
+}
 int main(void)
 {
     int32_t ret = 0;
@@ -35,9 +40,6 @@ int main(void)
     lvgl_thread_init();
 
     rt_kprintf("ele_ds init success, date: %s, time: %s\n", __DATE__, __TIME__);
-    rt_uint32_t total, used, max_used;
-    rt_memory_info(&total, &used, &max_used);
-    rt_kprintf("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
 
     while (1)
     {

@@ -167,12 +167,12 @@ void update_time_label(void)
     strftime(time_str, sizeof(time_str), "%H:%M:%S", tm_info);
     lv_label_set_text(time_label, time_str);
 }
-
+#define CHINESE_FONT_16_PATH "S:/sysfile/chinese_font_16.bin"
 void lv_user_gui_init(void)
 {
     lv_obj_t *scr = lv_scr_act();
 
-    lv_font_t *my_chinese_font = lv_font_load("/sysfile/chinese_font_16.bin");
+    lv_font_t *my_chinese_font = lv_font_load(CHINESE_FONT_16_PATH);
 
     /* 样式 */
     static lv_style_t style_small;
@@ -219,19 +219,19 @@ void lv_user_gui_init(void)
     lv_label_set_text(logo, "ELE_DS");
     lv_obj_align(logo, LV_ALIGN_BOTTOM_MID, 0, -2);
     
-    int fd = open("/sysfile/ele_ds_logo.bin", O_WRONLY);
+    int fd = open(CHINESE_FONT_16_PATH, O_WRONLY);
     if (fd < 0)
     {
-        printf("打开文件失败！\n");
+        printf("open file failed\n");
     }
     else
     {
-        printf("打开文件成功！\n");
+        printf("open file success\n");
         close(fd);
     }
     if (my_chinese_font == NULL)
     {
-        printf("字体加载失败！\n");
+        printf("load font failed\n");
     }
     else
     {

@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-07 14:15:53
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-13 23:24:02
+ * @LastEditTime: 2025-04-14 16:30:19
  * @FilePath: \ele_ds\applications\lvgl\lv_conf.h
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -42,6 +42,8 @@
 
 #endif
 #define LV_FONT_CUSTOM 1  // 启用自定义字体
+#define LV_USE_FS_STDIO      1
+#define LV_FS_STDIO_LETTER   'S'     // 可根据你实际挂载情况修改为 A, B, 0, 等
 
 // #define LV_USE_DEMO_BENCHMARK 1
 

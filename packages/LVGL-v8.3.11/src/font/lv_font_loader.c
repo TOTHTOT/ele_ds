@@ -530,7 +530,7 @@ static bool lvgl_load_font(lv_fs_file_t * fp, lv_font_t * font)
     if(lv_fs_read(fp, &loca_count, sizeof(uint32_t), NULL) != LV_FS_RES_OK) {
         return false;
     }
-
+    printf("loca_count: %d\n", loca_count);
     bool failed = false;
     uint32_t * glyph_offset = lv_mem_alloc(sizeof(uint32_t) * (loca_count + 1));
 
