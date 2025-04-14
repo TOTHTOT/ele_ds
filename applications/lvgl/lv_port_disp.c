@@ -1,4 +1,4 @@
-#include <lv_conf.h>
+﻿#include <lv_conf.h>
 #include "lv_port_disp.h"
 #include <stdbool.h>
 #include "EPD_2in7_V2.h"
@@ -217,31 +217,24 @@ void lv_user_gui_init(void)
     lv_obj_add_style(logo, &style_small, 0);
     lv_label_set_text(logo, "ELE_DS");
     lv_obj_align(logo, LV_ALIGN_BOTTOM_MID, 0, -2);
-#endif
+    #endif
     {
         static lv_style_t style;
         lv_style_init(&style);  // 初始化 style
-    
-        // 设置背景颜色（label 默认是透明背景，这里设置为黑色仅作演示）
-        lv_style_set_bg_color(&style, lv_color_black());
-        lv_style_set_bg_opa(&style, LV_OPA_COVER); // 否则看不到背景颜色
-    
+        
         // 设置字体
-        extern lv_font_t hz_12;  // 确保你有正确的外部声明
-        lv_style_set_text_font(&style, &hz_12);
-        lv_style_set_text_color(&style, lv_color_white());
-    
+        extern lv_font_t fangsong_8;
+        lv_style_set_text_font(&style, &fangsong_8);
+        
         // 创建 label
         lv_obj_t *label = lv_label_create(lv_scr_act());
-    
-        // 设置大小
-        lv_obj_set_size(label, 100, 100);
-    
+        
         // 设置样式
         lv_obj_add_style(label, &style, 0);
-    
+        
         // 设置文本
-        lv_label_set_text(label, "啊阿");
+        lv_label_set_text(label, "我是杨逸辉你是刘洁琳");
+        lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     }
 }
 

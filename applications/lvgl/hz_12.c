@@ -1,4 +1,12 @@
 /*
+ * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+ * @Date: 2025-04-14 19:25:39
+ * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+ * @LastEditTime: 2025-04-14 19:48:17
+ * @FilePath: \ele_ds\applications\lvgl\hz_12.c
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
+/*
 *---------------------------------------------------------------
 *                        Lvgl Font Tool                         
 *                                                               
@@ -53,8 +61,9 @@ static uint8_t *__user_font_getdata(int offset, int size){
         return NULL;
     }
     lseek(fd, offset, SEEK_SET);
-    printf("offset:%d, size:%d\n", offset, size);
     read(fd, __g_font_buf, size);
+#if 0
+    printf("offset:%d, size:%d\n", offset, size);
     for (size_t i = 0; i < size; i++)
     {
         printf("%02X ", __g_font_buf[i]);
@@ -62,7 +71,7 @@ static uint8_t *__user_font_getdata(int offset, int size){
             printf("\n");
         }
     }
-    
+#endif
     close(fd);
     return __g_font_buf;
 }
@@ -109,7 +118,7 @@ static bool __user_font_get_glyph_dsc(const lv_font_t * font, lv_font_glyph_dsc_
 const lv_font_t hz_12 = {
     .get_glyph_bitmap = __user_font_get_bitmap,
     .get_glyph_dsc = __user_font_get_glyph_dsc,
-    .line_height = 12,
+    .line_height = 24,
     .base_line = 0,
 };
 

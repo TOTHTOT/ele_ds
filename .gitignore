@@ -70,3 +70,4 @@ examples
 demos
 *.png
 /.venv
+/res/font/LvglFontTool_V0.5测试版/LvglFontTool
