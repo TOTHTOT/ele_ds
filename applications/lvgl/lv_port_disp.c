@@ -54,7 +54,7 @@ static void disp_init(void)
         return;
     }
     //LV_FONT_DECLARE(字体名);
-    LV_FONT_DECLARE(hz_12_4);
+    // LV_FONT_DECLARE(hz_12_4);
     DEV_Module_Init();
     EPD_2IN7_V2_Init();
     EPD_2IN7_V2_Clear();
@@ -168,75 +168,6 @@ void update_time_label(void)
     lv_label_set_text(time_label, time_str);
 }
 
-void lv_user_gui_init(void)
-{
-#if 0
-    lv_obj_t *scr = lv_scr_act();
-
-    /* 样式 */
-    static lv_style_t style_small;
-    lv_style_init(&style_small);
-    lv_style_set_text_font(&style_small, &lv_font_montserrat_10);
-
-    static lv_style_t style_bold;
-    lv_style_init(&style_bold);
-    lv_style_set_text_font(&style_bold, &lv_font_montserrat_14);
-
-    static lv_style_t style_large;
-    lv_style_init(&style_large);
-    //lv_style_set_text_font(&style_large, &lv_font_montserrat_18);
-
-    /* 1. 状态栏 */
-    lv_obj_t *status_bar = lv_label_create(scr);
-    lv_obj_add_style(status_bar, &style_small, 0);
-    lv_label_set_text(status_bar, "Bat:85%  Sig:▂▄▆  14:20  2025-04-13 (Sun)");
-
-    lv_obj_align(status_bar, LV_ALIGN_TOP_LEFT, 4, 2);
-
-    /* 2. 天气信息 */
-    lv_obj_t *weather_label = lv_label_create(scr);
-    lv_obj_add_style(weather_label, &style_large, 0);
-    lv_label_set_text(weather_label, "多云     温度：24C / 18C");
-    lv_obj_align_to(weather_label, status_bar, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 6);
-    //lv_obj_set_style_text_font(weather_label, &hz_12_4, LV_PART_MAIN);
-
-    /* 3. 传感器数据 - 第一行 */
-    lv_obj_t *sensor_row1 = lv_label_create(scr);
-    lv_obj_add_style(sensor_row1, &style_bold, 0);
-    lv_label_set_text(sensor_row1, "温度: 23.5℃   湿度: 45%   气压: 1012 hPa");
-    lv_obj_align_to(sensor_row1, weather_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 8);
-
-    /* 4. 传感器数据 - 第二行 */
-    lv_obj_t *sensor_row2 = lv_label_create(scr);
-    lv_obj_add_style(sensor_row2, &style_bold, 0);
-    lv_label_set_text(sensor_row2, "TVOC: 120 ppb    CO₂: 580 ppm");
-    lv_obj_align_to(sensor_row2, sensor_row1, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 6);
-
-    /* 5. 底部 LOGO 或品牌字样 */
-    lv_obj_t *logo = lv_label_create(scr);
-    lv_obj_add_style(logo, &style_small, 0);
-    lv_label_set_text(logo, "ELE_DS");
-    lv_obj_align(logo, LV_ALIGN_BOTTOM_MID, 0, -2);
-    #endif
-    {
-        static lv_style_t style;
-        lv_style_init(&style);  // 初始化 style
-        
-        // 设置字体
-        extern lv_font_t fangsong_8;
-        lv_style_set_text_font(&style, &fangsong_8);
-        
-        // 创建 label
-        lv_obj_t *label = lv_label_create(lv_scr_act());
-        
-        // 设置样式
-        lv_obj_add_style(label, &style, 0);
-        
-        // 设置文本
-        lv_label_set_text(label, "我是杨逸辉你是刘洁琳");
-        lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-    }
-}
 
 void disp_enable_update(void) {}
 void disp_disable_update(void) {}

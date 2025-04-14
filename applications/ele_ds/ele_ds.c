@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-07 17:41:48
+ * @LastEditTime: 2025-04-14 20:36:57
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -347,6 +347,11 @@ int32_t devices_init(ele_ds_t ele_ds)
 #endif /* PKG_USING_SHT3X */
     mnt_init();
     ele_ds->ops = ele_ds_ops;
+    // 初始化设备基本信息
+    ele_ds->device_status.cnt_wifi = false;
+    ele_ds->device_status.current_vbat = 4.15f;
+    ele_ds->device_status.current_time = 0;
+
     ele_ds->init_flag = true;
     return 0;
 }

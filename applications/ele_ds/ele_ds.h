@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:27
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-03-29 11:37:43
+ * @LastEditTime: 2025-04-14 20:22:40
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.h
  * @Description: 电子桌搭主要功能
  */
@@ -29,6 +29,8 @@
 /* 参数配置 */
 #define LED0_PIN GET_PIN(C, 13)
 #define V3_3_PIN GET_PIN(C, 8)
+#define MAX_VBAT 4.2f
+#define MIN_VBAT 3.6f
 
 typedef rt_err_t (*get_sensor_data)(void *data);
 
@@ -72,6 +74,14 @@ struct ele_ds
 #endif
     } sensor_data;  // 传感器数据
     bool init_flag; // 系统是否初始化成功, == true 表示初始化成功, == false 表示初始化失败
+
+    struct 
+    {
+        bool cnt_wifi;
+        float current_vbat;
+        time_t current_time;
+    }device_status;
+    
     struct ele_ds_ops ops;
 };
 typedef struct ele_ds *ele_ds_t;
