@@ -170,9 +170,8 @@ void update_time_label(void)
 
 void lv_user_gui_init(void)
 {
+#if 0
     lv_obj_t *scr = lv_scr_act();
-
-    lv_font_t *my_chinese_font = lv_font_load("/sysfile/chinese_font_16.bin");
 
     /* 样式 */
     static lv_style_t style_small;
@@ -218,27 +217,31 @@ void lv_user_gui_init(void)
     lv_obj_add_style(logo, &style_small, 0);
     lv_label_set_text(logo, "ELE_DS");
     lv_obj_align(logo, LV_ALIGN_BOTTOM_MID, 0, -2);
+#endif
+    {
+        static lv_style_t style;
+        lv_style_init(&style);  // 初始化 style
     
-    int fd = open("/sysfile/ele_ds_logo.bin", O_WRONLY);
-    if (fd < 0)
-    {
-        printf("打开文件失败！\n");
-    }
-    else
-    {
-        printf("打开文件成功！\n");
-        close(fd);
-    }
-    if (my_chinese_font == NULL)
-    {
-        printf("字体加载失败！\n");
-    }
-    else
-    {
-        lv_obj_t *label = lv_label_create(scr);
-        lv_obj_set_style_text_font(label, my_chinese_font, 0);
-        lv_label_set_text(label, "你好，世界！");
-        lv_obj_align(label, LV_ALIGN_BOTTOM_LEFT, 0, -2);
+        // 设置背景颜色（label 默认是透明背景，这里设置为黑色仅作演示）
+        lv_style_set_bg_color(&style, lv_color_black());
+        lv_style_set_bg_opa(&style, LV_OPA_COVER); // 否则看不到背景颜色
+    
+        // 设置字体
+        extern lv_font_t hz_12;  // 确保你有正确的外部声明
+        lv_style_set_text_font(&style, &hz_12);
+        lv_style_set_text_color(&style, lv_color_white());
+    
+        // 创建 label
+        lv_obj_t *label = lv_label_create(lv_scr_act());
+    
+        // 设置大小
+        lv_obj_set_size(label, 100, 100);
+    
+        // 设置样式
+        lv_obj_add_style(label, &style, 0);
+    
+        // 设置文本
+        lv_label_set_text(label, "啊阿");
     }
 }
 
