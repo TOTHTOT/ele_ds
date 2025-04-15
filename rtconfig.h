@@ -120,13 +120,14 @@
 #define RT_SERIAL_RB_BUFSZ 64
 #define RT_USING_I2C
 #define RT_USING_I2C_BITOPS
+#define RT_USING_RTC
+#define RT_USING_ALARM
 #define RT_USING_SPI
 #define RT_USING_SFUD
 #define RT_SFUD_USING_SFDP
 #define RT_SFUD_USING_FLASH_INFO_TABLE
 #define RT_SFUD_SPI_MAX_HZ 50000000
 #define RT_USING_SENSOR
-#define RT_USING_SENSOR_CMD
 #define RT_USING_PIN
 
 /* Using USB */
@@ -138,10 +139,7 @@
 
 /* Timezone and Daylight Saving Time */
 
-#define RT_LIBC_USING_LIGHT_TZ_DST
-#define RT_LIBC_TZ_DEFAULT_HOUR 8
-#define RT_LIBC_TZ_DEFAULT_MIN 0
-#define RT_LIBC_TZ_DEFAULT_SEC 0
+#define RT_LIBC_USING_FULL_TZ_DST
 
 /* POSIX (Portable Operating System Interface) layer */
 
@@ -230,6 +228,8 @@
 
 /* Micrium: Micrium software products porting for RT-Thread */
 
+#define PKG_USING_TZ_DATABASE
+#define PKG_USING_TZ_DATABASE_LATEST_VERSION
 
 /* peripheral libraries and drivers */
 
@@ -339,6 +339,8 @@
 #define BSP_I2C1_SCL_PIN 22
 #define BSP_I2C1_SDA_PIN 23
 #define BSP_USING_ON_CHIP_FLASH
+#define BSP_USING_ONCHIP_RTC
+#define BSP_RTC_USING_LSE
 
 /* Board extended module Drivers */
 
