@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-05 12:21:47
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-13 23:36:37
+ * @LastEditTime: 2025-04-20 21:59:56
  * @FilePath: \ele_ds\applications\dfs\dfscfg.h
  * @Description: dfs文件系统相关配置
  */
@@ -11,7 +11,7 @@
 
 #include <dfs_fs.h>
 #include <stdint.h>
-
+#include <unistd.h>
 #define SYSFILE_PATH "/sysfile"
 
 extern int mnt_init(void);

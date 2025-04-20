@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:27
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-20 13:13:57
+ * @LastEditTime: 2025-04-20 21:54:38
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.h
  * @Description: 电子桌搭主要功能
  */
@@ -26,6 +26,7 @@
 #include "DEV_Config.h"
 #include "EPD_Test.h"
 #include "EPD_2in7_V2.h"
+#include "dfscfg.h"
 /* 参数配置 */
 #define LED0_PIN GET_PIN(C, 13)
 #define V3_3_PIN GET_PIN(C, 8)

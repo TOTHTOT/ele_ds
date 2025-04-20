@@ -89,10 +89,6 @@ void update_status_bar(ele_ds_t dev)
 {
     lv_obj_t *scr = lv_scr_act();
 
-    // lv_obj_t *status_bar = lv_label_create(scr);
-    // lv_obj_add_style(status_bar, &style_small, 0);
-    // lv_label_set_text(status_bar, "Bat:85%  Sig:▂▄▆  14:20  2025-04-13 (Sun)");
-
     // 电量初始化
     lv_obj_t *vbat = lv_label_create(scr);
     lv_obj_add_style(vbat, &style_bold, 0);
@@ -118,6 +114,46 @@ void update_status_bar(ele_ds_t dev)
     lv_obj_align_to(time_label, scr, LV_ALIGN_TOP_MID, 0, 0);
 }
 
+void update_weather_info(ele_ds_t dev)
+{
+    // 使用 open 函数打开文件
+    int fd = open("/sysfile/icon/tianqi_48/tianqi-baoxue.bin", O_RDONLY);
+    if (fd == -1) {
+        printf("Failed to open file: %s\n", strerror(errno));
+        return;
+    }
+    else {
+        printf("File opened successfully\n");
+    }
+
+     static uint8_t my_img_data[48 * 48] = {0xff};
+    read(fd, my_img_data, sizeof(my_img_data));
+    close(fd);
+    
+    static lv_img_dsc_t my_img_dsc = {
+        .header.always_zero = 0,
+        .header.w = 48,
+        .header.h = 48,
+        .data_size = 48 * 48 * LV_COLOR_DEPTH / 8,
+        .header.cf = LV_IMG_CF_RGB888, /*Set the color format*/
+        .data = my_img_data,
+    };
+    
+    // 创建一个图像对象
+    lv_obj_t * img = lv_img_create(lv_scr_act());
+
+    // 设置图像文件路径
+    lv_img_set_src(img, &my_img_dsc);
+
+    // 将图像对象居中显示
+    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
+
+
+    // 调用 LVGL 任务处理函数以刷新显示
+    // lv_task_handler();
+}
+
+
 void lv_user_gui_init(void)
 {
 #if 1
@@ -135,6 +171,8 @@ void lv_user_gui_init(void)
     /* 1. 状态栏 */
     update_status_bar(g_ele_ds);
 
+    /* 2. 天气 */
+    update_weather_info(g_ele_ds);
 
     // /* 2. 天气信息 */
     // lv_obj_t *weather_label = lv_label_create(scr);
@@ -163,9 +201,10 @@ void lv_user_gui_init(void)
     {
         // 创建 label
         lv_obj_t *label = lv_label_create(lv_scr_act());
-        
+        lv_style_init(&style_font);  
+        lv_style_set_text_font(&style_font, &fangsong_8);
         // 设置样式
-        lv_obj_add_style(label, &style, 0);
+        lv_obj_add_style(label, &style_font, 0);
         
         // 设置文本
         lv_label_set_text(label, "我是杨逸辉你是刘洁琳");

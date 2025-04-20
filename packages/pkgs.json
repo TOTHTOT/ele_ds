@@ -5,6 +5,11 @@
   "name": "LVGL"
  }, 
  {
+  "path": "/packages/system/tz-database", 
+  "ver": "latest", 
+  "name": "TZ_DATABASE"
+ }, 
+ {
   "path": "/packages/peripherals/sensors/sgp30", 
   "ver": "latest", 
   "name": "SGP30"
