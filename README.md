@@ -1,3 +1,11 @@
+<!--
+ * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+ * @Date: 2025-02-15 12:25:00
+ * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+ * @LastEditTime: 2025-04-20 13:37:00
+ * @FilePath: \ele_ds\README.md
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 # 电子桌搭
 
 ## 字体替换
@@ -10,7 +18,7 @@ static uint8_t __g_font_buf[30];//如bin文件存在SPI FLASH可使用此buff
 static uint8_t *__user_font_getdata(int offset, int size){
     //如字模保存在SPI FLASH, SPIFLASH_Read(__g_font_buf,offset,size);
     //如字模已加载到SDRAM,直接返回偏移地址即可如:return (uint8_t*)(sdram_fontddr+offset);
-    int fd = open("/sysfile/fangsong_8.bin", O_RDONLY);
+    int fd = open("/sysfile/font/fangsong_8.bin", O_RDONLY);
     if (fd < 0) {
         printf("打开文件失败！\n");
         return NULL;
