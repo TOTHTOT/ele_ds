@@ -72,3 +72,7 @@ demos
 /res/font/LvglFontTool_V0.5测试版/LvglFontTool
 res/frame_*
 /rt-thread/tools
+packages/pkgs.json
+packages/sht3x-latest/
+packages/tz-database-latest/
+packages/zlib-latest/
