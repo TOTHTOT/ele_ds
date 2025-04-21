@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-20 13:22:49
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-20 13:30:13
+ * @LastEditTime: 2025-04-21 09:40:20
  * @FilePath: \ele_ds\applications\common\common.c
  * @Description: 常用函数
  */
@@ -142,3 +142,31 @@ void untar_cmd(int argc, char **argv)
 }
 MSH_CMD_EXPORT_ALIAS(untar_cmd, untar, untar a tar file to a directory);
 #endif /* __RTTHREAD__ */
+
+
+/**
+ * @description: 打印数组内容，带前缀
+ * @param {char} *prefix 前缀字符串
+ * @param {uint8_t} *array 数组指针
+ * @param {size_t} size 数组大小
+ * @return {*}
+ */
+void print_array_with_prefix(const char *prefix, const uint8_t *array, size_t size)
+{
+    if (prefix == NULL || array == NULL || size == 0)
+    {
+        printf("Invalid input.\n");
+        return;
+    }
+
+    printf("%s: [", prefix);
+    for (size_t i = 0; i < size; i++)
+    {
+        printf("%x", array[i]);
+        if (i < size - 1)
+        {
+            printf(", ");
+        }
+    }
+    printf("]\n");
+}
