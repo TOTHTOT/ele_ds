@@ -116,6 +116,7 @@ void update_status_bar(ele_ds_t dev)
 
 void update_weather_info(ele_ds_t dev)
 {
+#if 0
     // 使用 open 函数打开文件
     int fd = open("/sysfile/icon/tianqi_48/tianqi-baoxue.bin", O_RDONLY);
     if (fd == -1) {
@@ -126,7 +127,7 @@ void update_weather_info(ele_ds_t dev)
         printf("File opened successfully\n");
     }
 
-     static uint8_t my_img_data[48 * 48] = {0xff};
+    static uint8_t my_img_data[48 * 48 /8] = {0xff};
     read(fd, my_img_data, sizeof(my_img_data));
     close(fd);
     
@@ -135,22 +136,20 @@ void update_weather_info(ele_ds_t dev)
         .header.w = 48,
         .header.h = 48,
         .data_size = 48 * 48 * LV_COLOR_DEPTH / 8,
-        .header.cf = LV_IMG_CF_RGB888, /*Set the color format*/
+        .header.cf = LV_IMG_CF_INDEXED_1BIT, /*Set the color format*/
         .data = my_img_data,
     };
-    
+    print_array_with_prefix("my_img_data", my_img_data, sizeof(my_img_data));
     // 创建一个图像对象
     lv_obj_t * img = lv_img_create(lv_scr_act());
-
-    // 设置图像文件路径
     lv_img_set_src(img, &my_img_dsc);
+#else
+    lv_obj_t * img = lv_img_create(lv_scr_act());
+    lv_img_set_src(img, "S:/sysfile/icon/tianqi_48/tianqi-baoxue.bin");
 
     // 将图像对象居中显示
     lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
-
-
-    // 调用 LVGL 任务处理函数以刷新显示
-    // lv_task_handler();
+#endif
 }
 
 
