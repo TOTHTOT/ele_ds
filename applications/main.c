@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-13 14:09:18
+ * @LastEditTime: 2025-04-21 16:36:59
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -31,6 +31,10 @@ int main(void)
         return -RT_ERROR;
     }
     g_ele_ds = &ele_ds;
+    
+    // 初始化文件系统并加载系统配置
+    mnt_init();
+    
     extern int lvgl_thread_init(void);
     lvgl_thread_init();
 

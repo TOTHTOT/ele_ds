@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-14 20:36:57
+ * @LastEditTime: 2025-04-21 16:21:35
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -318,14 +318,6 @@ int32_t devices_init(ele_ds_t ele_ds)
     memset(ele_ds, 0, sizeof(ele_ds_t));
     // fal_init();
     rt_hw_spi_flash_init();
-#if 0
-    err = ele_ds_epaper_init(ele_ds);
-    if (err != RT_EOK)
-    {
-        LOG_E("ele_ds_epaper_init failed");
-        return -2;
-    }
-#endif
 
 #ifdef PKG_USING_SGP30
     if (rt_hw_sgp30_port() != RT_EOK)
@@ -345,7 +337,7 @@ int32_t devices_init(ele_ds_t ele_ds)
 #ifdef PKG_USING_SHT3X
     ele_ds->devices.sht3x_dev = sht3x_init("i2c1", SHT3X_ADDR_PD);
 #endif /* PKG_USING_SHT3X */
-    mnt_init();
+
     ele_ds->ops = ele_ds_ops;
     // 初始化设备基本信息
     ele_ds->device_status.cnt_wifi = false;
