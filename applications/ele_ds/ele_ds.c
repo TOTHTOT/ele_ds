@@ -305,7 +305,6 @@ static int rt_hw_spi_flash_init(void)
 
 int32_t devices_init(ele_ds_t ele_ds)
 {
-    rt_err_t err = RT_EOK;
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(V3_3_PIN, PIN_HIGH);

@@ -17,5 +17,7 @@
 #define CONFIG_FILE_PATH SYSFILE_PATH "/config"
 
 extern int mnt_init(void);
+extern int32_t write_ele_ds_cfg(ele_ds_cfg_t *cfg);
+extern int32_t read_ele_ds_cfg(ele_ds_cfg_t *cfg);
 
 #endif /* __DFSCFG_H__ */

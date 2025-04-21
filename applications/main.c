@@ -52,6 +52,7 @@ int main(void)
         rt_thread_mdelay(1500);
     }
 }
+#if 0
 static int ota_app_vtor_reconfig(void)
 {
  #define NVIC_VTOR_MASK 0x3FFFFF80
@@ -61,5 +62,7 @@ static int ota_app_vtor_reconfig(void)
 
  return 0;
 }
-// INIT_BOARD_EXPORT(ota_app_vtor_reconfig);
+INIT_BOARD_EXPORT(ota_app_vtor_reconfig);
+#endif
+
 

@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-07 09:21:50
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-21 17:12:11
+ * @LastEditTime: 2025-04-21 17:44:48
  * @FilePath: \ele_ds\applications\dfs\dfscfg.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -27,6 +27,7 @@ const struct dfs_mount_tbl mount_table[] =
 void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
 {
     memset(cfg, 0, sizeof(ele_ds_cfg_t));
+    memset(cfg->weather_info, 0, sizeof(cfg->weather_info));
     cfg->check = CFGFILE_CHECK;
     cfg->cityid = CFGFILE_DEFATLT_CITYID;
     cfg->server_port = CFGFILE_DEFATLT_SERVER_PORT;
@@ -78,7 +79,7 @@ int32_t write_ele_ds_cfg(ele_ds_cfg_t *cfg)
  * @param {ele_ds_cfg_t} *cfg
  * @return {*}
  */
-static int32_t init_sysfile(ele_ds_cfg_t *cfg)
+static int32_t init_cfgfile(ele_ds_cfg_t *cfg)
 {
     init_ele_ds_cfg(cfg);
     if (write_ele_ds_cfg(cfg) != 0)
@@ -88,6 +89,33 @@ static int32_t init_sysfile(ele_ds_cfg_t *cfg)
     }
     return 0;
 }
+
+/**
+ * @description: 打印配置文件信息
+ * @param {ele_ds_cfg_t} *cfg
+ * @return {*}
+ */
+void ele_ds_cfg_print(ele_ds_cfg_t *cfg)
+{
+    rt_kprintf("config file info:\n");
+    rt_kprintf("version: %s\n", cfg->version);
+    rt_kprintf("cityid: %d\n", cfg->cityid);
+    rt_kprintf("wifi_ssid: %s\n", cfg->wifi_ssid);
+    rt_kprintf("wifi_pass: %s\n", cfg->wifi_pass);
+    rt_kprintf("server_addr: %s\n", cfg->server_addr);
+    rt_kprintf("server_port: %d\n", cfg->server_port);
+    rt_kprintf("weather info:\n");
+    for (int32_t i = 0; i < 7; i++)
+    {
+        rt_kprintf("weather[%d]: %s\t", i, cfg->weather_info[i].textDay);
+        rt_kprintf("tempMax: %d tempMin: %d\n", cfg->weather_info[i].tempMax, cfg->weather_info[i].tempMin);
+    }
+}
+void ele_ds_cfg_print_cmd(int argc, char **argv)
+{
+    ele_ds_cfg_print(&g_ele_ds->device_cfg);
+}
+MSH_CMD_EXPORT_ALIAS(ele_ds_cfg_print_cmd, showcfg, print config file info);
 
 /**
  * @description: 初始化系统文件, 如果 SYSFILE_PATH 不存在, 则初始化基本文件
@@ -100,7 +128,7 @@ static int32_t sysfile_init(void)
     {
         LOG_D("filesystem need init, mkdir %s", SYSFILE_PATH);
         mkdir(SYSFILE_PATH, 0);
-        init_sysfile(&g_ele_ds->device_cfg);
+        init_cfgfile(&g_ele_ds->device_cfg);
     }
     else
     {
@@ -116,10 +144,12 @@ static int32_t sysfile_init(void)
         if (g_ele_ds->device_cfg.check != CFGFILE_CHECK)
         {
             LOG_E("config file check failed, need init");
-            init_sysfile(&g_ele_ds->device_cfg);
+            init_cfgfile(&g_ele_ds->device_cfg);
             return -3;
         }
         LOG_D("filesystem already init");
+        // 输出配置信息
+        ele_ds_cfg_print(&g_ele_ds->device_cfg);
     }
     return 0;
 }

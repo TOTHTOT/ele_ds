@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:27
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-21 16:32:53
+ * @LastEditTime: 2025-04-21 17:20:51
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.h
  * @Description: 电子桌搭主要功能
  */
@@ -139,7 +139,7 @@ typedef struct
 #define CFGFILE_DEFATLT_CITYID 101230101
     uint32_t cityid;
     weather_type_t curweather;
-    weather_info_t weather_info;
+    weather_info_t weather_info[7];
 
     uint8_t version[16];
 #define CFGFILE_CHECK 0xA5A5A5A5
