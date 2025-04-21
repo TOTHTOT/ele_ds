@@ -114,6 +114,26 @@ void update_status_bar(ele_ds_t dev)
     lv_obj_align_to(time_label, scr, LV_ALIGN_TOP_MID, 0, 0);
 }
 
+/**
+ * @description: 根据当前天气信息返回对应后缀
+ * @param {ele_ds_t} dev
+ * @return {*}
+ */
+static char *get_weather_icon_suffix(ele_ds_t dev)
+{
+    static const char *weather_icons[] = {
+        "baoxue", "baoyu", "bingbao", "bingjing", "bingli", "daxue", "dayu", "dawu",
+        "duoyun", "duoyun_ye", "fuchen", "leibao", "leiyu", "mai", "qing", "qing_ye",
+        "qingwu", "shachenbao", "xiaoxue", "xiaoyu", "xuemi", "yangsha", "yin",
+        "yujiayue", "zhenyu", "zhongwu", "zhongxue", "zhongyu"};
+
+    if (dev->device_cfg.curweather >= 0 && dev->device_cfg.curweather < WEATHER_TYPE_COUNT)
+    {
+        return (char *)weather_icons[dev->device_cfg.curweather];
+    }
+    return "unknown"; // 未知天气
+}
+
 void update_weather_info(ele_ds_t dev)
 {
 #if 0
@@ -145,7 +165,9 @@ void update_weather_info(ele_ds_t dev)
     lv_img_set_src(img, &my_img_dsc);
 #else
     lv_obj_t * img = lv_img_create(lv_scr_act());
-    lv_img_set_src(img, "S:/sysfile/icon/tianqi_48/tianqi-baoxue.bin");
+		char iconpath[256] = {0};
+    rt_snprintf(iconpath, 0, "S:/sysfile/icon/tianqi_48/tianqi-%s.bin", get_weather_icon_suffix(g_ele_ds));
+    lv_img_set_src(img, iconpath);
 
     // 将图像对象居中显示
     lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
