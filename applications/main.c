@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-21 16:36:59
+ * @LastEditTime: 2025-04-21 19:48:53
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -24,16 +24,13 @@ int main(void)
 {
     int32_t ret = 0;
     struct ele_ds ele_ds = {0};
+    g_ele_ds = &ele_ds;
     ret = devices_init(&ele_ds);
     if (ret != RT_EOK)
     {
         LOG_E("devices_init() failed, ret = %d", ret);
         return -RT_ERROR;
     }
-    g_ele_ds = &ele_ds;
-    
-    // 初始化文件系统并加载系统配置
-    mnt_init();
     
     extern int lvgl_thread_init(void);
     lvgl_thread_init();

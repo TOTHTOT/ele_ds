@@ -127,7 +127,7 @@ static char *get_weather_icon_suffix(ele_ds_t dev)
         "qingwu", "shachenbao", "xiaoxue", "xiaoyu", "xuemi", "yangsha", "yin",
         "yujiayue", "zhenyu", "zhongwu", "zhongxue", "zhongyu"};
 
-    if (dev->device_cfg.curweather >= 0 && dev->device_cfg.curweather < WEATHER_TYPE_COUNT)
+    if (dev->device_cfg.curweather < WEATHER_TYPE_COUNT)
     {
         return (char *)weather_icons[dev->device_cfg.curweather];
     }
@@ -165,8 +165,8 @@ void update_weather_info(ele_ds_t dev)
     lv_img_set_src(img, &my_img_dsc);
 #else
     lv_obj_t * img = lv_img_create(lv_scr_act());
-		char iconpath[256] = {0};
-    rt_snprintf(iconpath, 0, "S:/sysfile/icon/tianqi_48/tianqi-%s.bin", get_weather_icon_suffix(g_ele_ds));
+	char iconpath[256] = {0};
+    sprintf(iconpath, "S:/sysfile/icon/tianqi_48/tianqi-%s.bin", get_weather_icon_suffix(dev));
     lv_img_set_src(img, iconpath);
 
     // 将图像对象居中显示
