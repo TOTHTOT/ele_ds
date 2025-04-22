@@ -18,6 +18,10 @@ void lv_port_indev_init(void)
 
 }
 
+#define STATUS_BAR_WIDTH_PCT 15
+#define STATUS_BAR_CENTER_WIDTH_PCT 70
+#define WEATHER_LAYOUT_WIDTH_PCT 50
+
 // 设置字体
 extern lv_font_t fangsong_8;
 
@@ -84,7 +88,7 @@ static void set_wifi_icon(lv_obj_t *wifi, bool is_connected)
         lv_label_set_text(wifi, LV_SYMBOL_WARNING);
     }
 }
-void update_status_bar(ele_ds_t dev)
+lv_obj_t *update_status_bar(ele_ds_t dev)
 {
     // 状态栏布局
     lv_obj_t* cont = lv_obj_create(lv_scr_act());
@@ -138,6 +142,8 @@ void update_status_bar(ele_ds_t dev)
     lv_obj_add_style(newmessage, &style_bold, 0);
     lv_label_set_text(newmessage, LV_SYMBOL_NEW_LINE);
     lv_obj_align(newmessage, LV_ALIGN_CENTER, -3, 0);
+    
+    return cont;
 }
 
 /**
@@ -160,6 +166,82 @@ static char *get_weather_icon_suffix(ele_ds_t dev)
     return "unknown"; // 未知天气
 }
 
+void day_weather(lv_obj_t* parent, ele_ds_t dev)
+{
+    lv_obj_t* cont = lv_obj_create(parent);
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_size(cont, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_style_pad_all(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_border_width(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_flex_align(cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER); // 垂直居中对齐
+
+    // 主标签
+    lv_obj_t* label = lv_label_create(cont);
+    lv_obj_add_style(label, &style_small, 0);
+    lv_label_set_text(label, "today");
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+    
+    // 子布局
+    lv_obj_t* sub_layout = lv_obj_create(cont);
+    lv_obj_set_flex_flow(sub_layout, LV_FLEX_FLOW_ROW); // 设置为水平排列
+    lv_obj_set_size(sub_layout, LV_PCT(100), LV_SIZE_CONTENT); // 宽度铺满，高度根据内容自适应
+    lv_obj_set_style_pad_all(sub_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(sub_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(sub_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_scrollbar_mode(sub_layout, LV_SCROLLBAR_MODE_OFF);
+
+    // 设置子布局内元素的对齐方式为居中
+    lv_obj_set_flex_align(sub_layout, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    // 图标
+    lv_obj_t* icon = lv_label_create(sub_layout);
+    lv_label_set_text(icon, LV_SYMBOL_HOME);
+    lv_obj_set_style_text_align(icon, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
+
+    // 子子容器
+    lv_obj_t* sub_sub_cont = lv_obj_create(sub_layout);
+    lv_obj_set_flex_flow(sub_sub_cont, LV_FLEX_FLOW_COLUMN); // 设置为垂直排列
+    lv_obj_set_size(sub_sub_cont, LV_SIZE_CONTENT, LV_SIZE_CONTENT); // 宽度和高度根据内容自适应
+    lv_obj_set_style_pad_all(sub_sub_cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(sub_sub_cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(sub_sub_cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_scrollbar_mode(sub_sub_cont, LV_SCROLLBAR_MODE_OFF);
+
+    // 子标签
+    lv_obj_t* sub_label1 = lv_label_create(sub_sub_cont);
+    lv_label_set_text(sub_label1, "wd: 25°C");
+    lv_obj_set_style_text_align(sub_label1, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
+
+    lv_obj_t* sub_label2 = lv_label_create(sub_sub_cont);
+    lv_label_set_text(sub_label2, "wd: 60%");
+    lv_obj_set_style_text_align(sub_label2, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
+}
+
+static void create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv_obj_t* down)
+{
+    lv_obj_t* cont = lv_obj_create(parent);
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW);
+    lv_obj_set_size(cont, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_style_pad_all(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_align_to(cont, up, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+
+    for (int i = 0; i < 2; i++) {
+        lv_obj_t* weather_cont = lv_obj_create(cont);
+        lv_obj_set_size(weather_cont, LV_PCT(WEATHER_LAYOUT_WIDTH_PCT), LV_SIZE_CONTENT);
+        lv_obj_set_style_pad_all(weather_cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(weather_cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_radius(weather_cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_scrollbar_mode(weather_cont, LV_SCROLLBAR_MODE_OFF);
+        day_weather(weather_cont, dev);
+    }
+}
+
 void update_weather_info(ele_ds_t dev)
 {
     lv_obj_t * img = lv_img_create(lv_scr_act());
@@ -171,7 +253,14 @@ void update_weather_info(ele_ds_t dev)
     lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
 }
 
+void main_page(ele_ds_t dev)
+{
+    lv_obj_t *screen = lv_scr_act();
+    lv_obj_t *status_bar = update_status_bar(dev);
+    create_weather_layout(dev, status_bar, screen, NULL);
 
+    // create_weather_layout(status_bar, screen, NULL);
+}
 void lv_user_gui_init(void)
 {
 #if 1
@@ -185,12 +274,14 @@ void lv_user_gui_init(void)
     //lv_style_set_text_font(&style_large, &lv_font_montserrat_18);
     lv_style_init(&style_font);  
     lv_style_set_text_font(&style_font, &fangsong_8);
+    
+    main_page(g_ele_ds);
+    
+    // /* 1. 状态栏 */
+    // update_status_bar(g_ele_ds);
 
-    /* 1. 状态栏 */
-    update_status_bar(g_ele_ds);
-
-    /* 2. 天气 */
-    update_weather_info(g_ele_ds);
+    // /* 2. 天气 */
+    // update_weather_info(g_ele_ds);
 
     // /* 2. 天气信息 */
     // lv_obj_t *weather_label = lv_label_create(scr);
