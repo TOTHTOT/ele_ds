@@ -85,33 +85,59 @@ static void set_wifi_icon(lv_obj_t *wifi, bool is_connected)
     }
 }
 void update_status_bar(ele_ds_t dev)
-    // 获取当前活动的屏幕对象
 {
-    lv_obj_t *scr = lv_scr_act();
+    // 状态栏布局
+    lv_obj_t* cont = lv_obj_create(lv_scr_act());
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW);
+    lv_obj_set_size(cont, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_flex_align(cont, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    lv_obj_set_style_bg_color(cont, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_all(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉容器的内边距
+    lv_obj_set_style_radius(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
+    lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF); // 禁用滚动条
+    lv_obj_set_style_border_width(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
+
+
+    lv_obj_t* sub_cont[3];
+    for (int i = 0; i < 3; i++) {
+        sub_cont[i] = lv_obj_create(cont);
+        lv_obj_set_size(sub_cont[i], LV_PCT(15), LV_SIZE_CONTENT); // 每个子容器宽度为 33%
+        lv_obj_set_style_bg_color(sub_cont[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT); // 设置背景为白色
+        lv_obj_set_style_border_width(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
+        lv_obj_set_style_pad_all(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉子容器的内边距
+        lv_obj_set_style_radius(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
+    }
+    lv_obj_set_size(sub_cont[1], LV_PCT(70), LV_SIZE_CONTENT);
 
     // 电量初始化
-    lv_obj_t *vbat = lv_label_create(scr);
+    lv_obj_t *vbat = lv_label_create(sub_cont[0]);
     lv_obj_add_style(vbat, &style_bold, 0);
     uint8_t vbat_percent = (dev->device_status.current_vbat - MIN_VBAT) / (MAX_VBAT - MIN_VBAT) * 100;
     set_vbat_icon(vbat, vbat_percent);
-    lv_obj_align(vbat, LV_ALIGN_TOP_LEFT, 4, 2);
-
+    lv_obj_align(vbat, LV_ALIGN_LEFT_MID, 3, 0);
+    
     // wifi 信号初始化
-    lv_obj_t *wifi = lv_label_create(scr);
+    lv_obj_t *wifi = lv_label_create(sub_cont[0]);
     lv_obj_add_style(wifi, &style_bold, 0);
     set_wifi_icon(wifi, dev->device_status.cnt_wifi);
     lv_label_set_text(wifi, LV_SYMBOL_WIFI);
     lv_obj_align_to(wifi, vbat, LV_ALIGN_OUT_RIGHT_MID, 4, 0);
 
     // 时间初始化
-    lv_obj_t *time_label = lv_label_create(scr);
+    lv_obj_t *time_label = lv_label_create(sub_cont[1]);
     time_t curtime = time(NULL);
     struct tm *tm_info = localtime(&curtime);
     char time_str[32] = {0};
     strftime(time_str, sizeof(time_str), "%Y-%m-%d ( %a ) %H:%M", tm_info);
     lv_obj_add_style(time_label, &style_bold, 0);
     lv_label_set_text(time_label, time_str);
-    lv_obj_align_to(time_label, scr, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_align(time_label, LV_ALIGN_CENTER, 0, 0);
+
+    // 新消息初始化
+    lv_obj_t *newmessage = lv_label_create(sub_cont[2]);
+    lv_obj_add_style(newmessage, &style_bold, 0);
+    lv_label_set_text(newmessage, LV_SYMBOL_NEW_LINE);
+    lv_obj_align(newmessage, LV_ALIGN_CENTER, -3, 0);
 }
 
 /**
@@ -136,42 +162,13 @@ static char *get_weather_icon_suffix(ele_ds_t dev)
 
 void update_weather_info(ele_ds_t dev)
 {
-#if 0
-    // 使用 open 函数打开文件
-    int fd = open("/sysfile/icon/tianqi_48/tianqi-baoxue.bin", O_RDONLY);
-    if (fd == -1) {
-        printf("Failed to open file: %s\n", strerror(errno));
-        return;
-    }
-    else {
-        printf("File opened successfully\n");
-    }
-
-    static uint8_t my_img_data[48 * 48 /8] = {0xff};
-    read(fd, my_img_data, sizeof(my_img_data));
-    close(fd);
-    
-    static lv_img_dsc_t my_img_dsc = {
-        .header.always_zero = 0,
-        .header.w = 48,
-        .header.h = 48,
-        .data_size = 48 * 48 * LV_COLOR_DEPTH / 8,
-        .header.cf = LV_IMG_CF_INDEXED_1BIT, /*Set the color format*/
-        .data = my_img_data,
-    };
-    print_array_with_prefix("my_img_data", my_img_data, sizeof(my_img_data));
-    // 创建一个图像对象
     lv_obj_t * img = lv_img_create(lv_scr_act());
-    lv_img_set_src(img, &my_img_dsc);
-#else
-    lv_obj_t * img = lv_img_create(lv_scr_act());
-	char iconpath[256] = {0};
+	char iconpath[100] = {0};
     sprintf(iconpath, "S:/sysfile/icon/tianqi_48/tianqi-%s.bin", get_weather_icon_suffix(dev));
     lv_img_set_src(img, iconpath);
 
     // 将图像对象居中显示
     lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
-#endif
 }
 
 
