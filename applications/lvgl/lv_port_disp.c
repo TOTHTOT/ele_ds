@@ -24,12 +24,18 @@
 static lv_color_t buf1[DRAW_BUF_SIZE];
 static lv_disp_draw_buf_t draw_buf_dsc_1;
 
+lv_display_t * lcd_disp;
+
 static void disp_init(void);
 static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p);
 
 void lv_port_disp_init(void)
 {
     disp_init();
+    lcd_disp = lv_tft_espi_create(MY_DISP_HOR_RES, MY_DISP_VER_RES, buf1, DRAW_BUF_SIZE);
+
+    lv_display_set_buffers(lcd_disp, buf1, NULL, buf_size, LV_DISPLAY_RENDER_MODE_PARTIAL);
+
 
     lv_disp_draw_buf_init(&draw_buf_dsc_1, buf1, NULL, DRAW_BUF_SIZE);
 
