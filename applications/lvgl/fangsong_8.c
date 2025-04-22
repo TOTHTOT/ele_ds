@@ -96,7 +96,7 @@ static bool __user_font_get_glyph_dsc(const lv_font_t * font, lv_font_glyph_dsc_
         dsc_out->box_w = gdsc->box_w;
         dsc_out->ofs_x = gdsc->ofs_x;
         dsc_out->ofs_y = gdsc->ofs_y;
-        dsc_out->bpp   = __g_xbf_hd.bpp;
+        //dsc_out->bpp   = __g_xbf_hd.bpp;
         return true;
     }
     return false;
