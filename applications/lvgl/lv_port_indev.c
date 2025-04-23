@@ -88,30 +88,29 @@ static void set_wifi_icon(lv_obj_t *wifi, bool is_connected)
         lv_label_set_text(wifi, LV_SYMBOL_WARNING);
     }
 }
-lv_obj_t *update_status_bar(ele_ds_t dev)
+static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv_obj_t* down)
 {
     // 状态栏布局
-    lv_obj_t* cont = lv_obj_create(lv_scr_act());
-    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW);
-    lv_obj_set_size(cont, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_set_flex_align(cont, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
-    lv_obj_set_style_bg_color(cont, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_all(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉容器的内边距
-    lv_obj_set_style_radius(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
-    lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF); // 禁用滚动条
-    lv_obj_set_style_border_width(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
-
+    lv_obj_t* status_bar = lv_obj_create(parent);
+    lv_obj_set_flex_flow(status_bar, LV_FLEX_FLOW_ROW);
+    lv_obj_set_size(status_bar, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_style_bg_color(status_bar, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_all(status_bar, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(status_bar, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_scrollbar_mode(status_bar, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_border_width(status_bar, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // lv_obj_align_to(status_bar, up, LV_ALIGN_BOTTOM_MID, 0, -20);
 
     lv_obj_t* sub_cont[3];
     for (int i = 0; i < 3; i++) {
-        sub_cont[i] = lv_obj_create(cont);
-        lv_obj_set_size(sub_cont[i], LV_PCT(15), LV_SIZE_CONTENT); // 每个子容器宽度为 33%
-        lv_obj_set_style_bg_color(sub_cont[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT); // 设置背景为白色
-        lv_obj_set_style_border_width(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
-        lv_obj_set_style_pad_all(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉子容器的内边距
-        lv_obj_set_style_radius(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
+        sub_cont[i] = lv_obj_create(status_bar);
+        lv_obj_set_size(sub_cont[i], LV_PCT(STATUS_BAR_WIDTH_PCT), LV_SIZE_CONTENT);
+        lv_obj_set_style_bg_color(sub_cont[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_pad_all(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_radius(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     }
-    lv_obj_set_size(sub_cont[1], LV_PCT(70), LV_SIZE_CONTENT);
+    lv_obj_set_size(sub_cont[1], LV_PCT(STATUS_BAR_CENTER_WIDTH_PCT), LV_SIZE_CONTENT);
 
     // 电量初始化
     lv_obj_t *vbat = lv_label_create(sub_cont[0]);
@@ -143,7 +142,7 @@ lv_obj_t *update_status_bar(ele_ds_t dev)
     lv_label_set_text(newmessage, LV_SYMBOL_NEW_LINE);
     lv_obj_align(newmessage, LV_ALIGN_CENTER, -3, 0);
     
-    return cont;
+    return status_bar;
 }
 
 /**
@@ -180,7 +179,7 @@ void day_weather(lv_obj_t* parent, ele_ds_t dev)
 
     // 主标签
     lv_obj_t* label = lv_label_create(cont);
-    lv_obj_add_style(label, &style_small, 0);
+    lv_obj_add_style(label, &style_bold, 0);
     lv_label_set_text(label, "today");
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     
@@ -229,7 +228,7 @@ static void create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, 
     lv_obj_set_style_border_width(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_radius(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_align_to(cont, up, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_obj_align_to(cont, parent, LV_ALIGN_TOP_MID, 0, -5);
 
     for (int i = 0; i < 2; i++) {
         lv_obj_t* weather_cont = lv_obj_create(cont);
@@ -240,6 +239,74 @@ static void create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, 
         lv_obj_set_scrollbar_mode(weather_cont, LV_SCROLLBAR_MODE_OFF);
         day_weather(weather_cont, dev);
     }
+}
+
+void tabview_create(ele_ds_t dev, lv_obj_t* parent)
+{
+    lv_obj_t* tabview = lv_tabview_create(parent, LV_DIR_BOTTOM, LV_DIR_ALL);
+    lv_obj_set_size(tabview, LV_PCT(100), LV_SIZE_CONTENT); // 宽度全屏，高度自适应
+    lv_obj_set_style_pad_all(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
+    lv_obj_set_style_border_width(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
+    lv_obj_set_style_radius(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
+    lv_obj_set_scrollbar_mode(tabview, LV_SCROLLBAR_MODE_OFF); // 禁用滚动条
+    lv_obj_set_style_border_width(tabview, 4, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
+    lv_obj_set_style_border_color(tabview, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT); // 设置边框颜色
+    lv_obj_align_to(tabview, parent, LV_ALIGN_BOTTOM_MID, 0, -10); // 对齐到屏幕底部
+    // 获取 TabView 的按钮容器
+    lv_obj_t* tab_btns = lv_tabview_get_tab_btns(tabview);
+
+    // 减小导航栏高度
+    lv_obj_set_height(tab_btns, 20);
+    lv_obj_set_align(tab_btns, LV_ALIGN_BOTTOM_MID); 
+    // 创建样式：选中标签黑底白字
+    static lv_style_t style_tab_selected;
+    lv_style_init(&style_tab_selected);
+    lv_style_set_bg_color(&style_tab_selected, lv_color_hex(0x000000));   // 黑色背景
+    lv_style_set_text_color(&style_tab_selected, lv_color_hex(0xFFFFFF)); // 白色文字
+
+    // 应用样式到选中标签
+    lv_obj_add_style(tab_btns, &style_tab_selected, LV_PART_ITEMS | LV_STATE_CHECKED);
+    lv_obj_add_state(tab_btns, LV_STATE_CHECKED);
+
+    //本地样式修改选中时的文字颜色
+    lv_obj_set_style_text_color(tab_btns,lv_color_hex(0x000000), LV_PART_ITEMS | LV_STATE_CHECKED);
+	lv_obj_set_style_border_color(tab_btns, lv_color_hex(0x000000), LV_PART_ITEMS | LV_STATE_CHECKED);
+
+	//本地样式修改未选中时的文字颜色
+    lv_obj_set_style_text_color(tab_btns, lv_color_hex(0x000000), 0);
+    // 创建标签页
+    lv_obj_t* tab1 = lv_tabview_add_tab(tabview, "weather");
+    lv_obj_t* tab2 = lv_tabview_add_tab(tabview, "memo");
+    lv_obj_t* tab3 = lv_tabview_add_tab(tabview, "custom");
+    lv_obj_t* tab4 = lv_tabview_add_tab(tabview, "settings");
+
+    create_weather_layout(dev, tabview, tab1, NULL);
+
+    lv_obj_t* label2 = lv_label_create(tab2);
+    lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 0, 0);
+    lv_label_set_text(label2, "Hello World");
+}
+
+lv_obj_t *create_tabview_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv_obj_t* down)
+{
+    // 创建底部布局容器
+    lv_obj_t* bottom_layout = lv_obj_create(parent);
+    lv_obj_set_size(bottom_layout, LV_PCT(100), LV_PCT(100)); // 宽度全屏，高度自适应
+    lv_obj_set_style_pad_all(bottom_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
+    lv_obj_set_style_border_width(bottom_layout, 2, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
+    lv_obj_set_style_border_color(bottom_layout, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT); // 设置边框颜色
+    lv_obj_set_style_radius(bottom_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
+    lv_obj_set_scrollbar_mode(bottom_layout, LV_SCROLLBAR_MODE_OFF); // 禁用滚动条
+    lv_obj_align_to(bottom_layout, parent, LV_ALIGN_BOTTOM_MID, 0, 0); // 对齐到屏幕底部
+
+    // // 在底部布局中添加内容（示例）
+    // lv_obj_t* label = lv_label_create(bottom_layout);
+    // lv_label_set_text(label, "This is the bottom layout.");
+    // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0); // 居中对齐
+
+    tabview_create(dev, bottom_layout);
+
+    return bottom_layout;
 }
 
 void update_weather_info(ele_ds_t dev)
@@ -253,13 +320,21 @@ void update_weather_info(ele_ds_t dev)
     lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
 }
 
+
 void main_page(ele_ds_t dev)
 {
-    lv_obj_t *screen = lv_scr_act();
-    lv_obj_t *status_bar = update_status_bar(dev);
-    create_weather_layout(dev, status_bar, screen, NULL);
+    lv_obj_t* screen = lv_scr_act();
+    lv_obj_t* screen_layout = lv_obj_create(screen);
+    lv_obj_set_flex_flow(screen_layout, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_size(screen_layout, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_style_pad_all(screen_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(screen_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(screen_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_scrollbar_mode(screen_layout, LV_SCROLLBAR_MODE_OFF);
 
-    // create_weather_layout(status_bar, screen, NULL);
+
+    lv_obj_t* status_bar = create_status_bar(g_ele_ds, NULL, screen, NULL);
+    lv_obj_t *tabview = create_tabview_layout(g_ele_ds, NULL, screen_layout, NULL);
 }
 void lv_user_gui_init(void)
 {
