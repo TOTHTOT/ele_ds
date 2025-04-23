@@ -228,7 +228,7 @@ static void create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, 
     lv_obj_set_style_border_width(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_radius(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_align_to(cont, parent, LV_ALIGN_TOP_MID, 0, -5);
+    lv_obj_align_to(cont, parent, LV_ALIGN_TOP_MID, 0, 0);
 
     for (int i = 0; i < 2; i++) {
         lv_obj_t* weather_cont = lv_obj_create(cont);
@@ -244,14 +244,14 @@ static void create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, 
 void tabview_create(ele_ds_t dev, lv_obj_t* parent)
 {
     lv_obj_t* tabview = lv_tabview_create(parent, LV_DIR_BOTTOM, LV_DIR_ALL);
-    lv_obj_set_size(tabview, LV_PCT(100), LV_SIZE_CONTENT); // 宽度全屏，高度自适应
+    lv_obj_set_size(tabview, LV_PCT(100), LV_PCT(100)); // 宽度全屏，高度自适应
     lv_obj_set_style_pad_all(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
     lv_obj_set_style_border_width(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
     lv_obj_set_style_radius(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
     lv_obj_set_scrollbar_mode(tabview, LV_SCROLLBAR_MODE_OFF); // 禁用滚动条
     lv_obj_set_style_border_width(tabview, 4, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
     lv_obj_set_style_border_color(tabview, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT); // 设置边框颜色
-    lv_obj_align_to(tabview, parent, LV_ALIGN_BOTTOM_MID, 0, -10); // 对齐到屏幕底部
+    lv_obj_align_to(tabview, parent, LV_ALIGN_BOTTOM_MID, 0, 0); // 对齐到屏幕底部
     // 获取 TabView 的按钮容器
     lv_obj_t* tab_btns = lv_tabview_get_tab_btns(tabview);
 
@@ -291,7 +291,7 @@ lv_obj_t *create_tabview_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv
 {
     // 创建底部布局容器
     lv_obj_t* bottom_layout = lv_obj_create(parent);
-    lv_obj_set_size(bottom_layout, LV_PCT(100), LV_PCT(100)); // 宽度全屏，高度自适应
+    lv_obj_set_size(bottom_layout, LV_PCT(100), LV_PCT(85)); // 宽度全屏，高度自适应
     lv_obj_set_style_pad_all(bottom_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
     lv_obj_set_style_border_width(bottom_layout, 2, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
     lv_obj_set_style_border_color(bottom_layout, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT); // 设置边框颜色
@@ -333,7 +333,7 @@ void main_page(ele_ds_t dev)
     lv_obj_set_scrollbar_mode(screen_layout, LV_SCROLLBAR_MODE_OFF);
 
 
-    lv_obj_t* status_bar = create_status_bar(g_ele_ds, NULL, screen, NULL);
+    lv_obj_t* status_bar = create_status_bar(g_ele_ds, NULL, screen_layout, NULL);
     lv_obj_t *tabview = create_tabview_layout(g_ele_ds, NULL, screen_layout, NULL);
 }
 void lv_user_gui_init(void)
