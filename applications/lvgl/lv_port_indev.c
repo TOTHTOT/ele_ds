@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2006-2022, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -176,11 +176,11 @@ void day_weather(lv_obj_t* parent, ele_ds_t dev)
     lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF);
     lv_obj_set_style_border_width(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_flex_align(cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER); // 垂直居中对齐
-
+    lv_obj_align_to(cont, parent, LV_ALIGN_LEFT_MID, -5, 0);
     // 主标签
     lv_obj_t* label = lv_label_create(cont);
-    lv_obj_add_style(label, &style_bold, 0);
-    lv_label_set_text(label, "today");
+    lv_obj_add_style(label, &style_font, 0);
+    lv_label_set_text(label, "今天");
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     
     // 子布局
@@ -196,10 +196,14 @@ void day_weather(lv_obj_t* parent, ele_ds_t dev)
     lv_obj_set_flex_align(sub_layout, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
     // 图标
-    lv_obj_t* icon = lv_label_create(sub_layout);
-    lv_label_set_text(icon, LV_SYMBOL_HOME);
-    lv_obj_set_style_text_align(icon, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
-
+    lv_obj_t* icon = lv_img_create(sub_layout);
+	char iconpath[100] = {0};
+    sprintf(iconpath, "S:/sysfile/icon/tianqi_48/tianqi-%s.bin", get_weather_icon_suffix(dev));
+    lv_img_set_src(icon, iconpath);
+    // lv_label_set_text(icon, LV_SYMBOL_HOME);
+    // lv_obj_set_style_text_align(icon, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
+    lv_obj_align(icon, LV_ALIGN_LEFT_MID, 0, 0);
+    
     // 子子容器
     lv_obj_t* sub_sub_cont = lv_obj_create(sub_layout);
     lv_obj_set_flex_flow(sub_sub_cont, LV_FLEX_FLOW_COLUMN); // 设置为垂直排列
@@ -211,11 +215,13 @@ void day_weather(lv_obj_t* parent, ele_ds_t dev)
 
     // 子标签
     lv_obj_t* sub_label1 = lv_label_create(sub_sub_cont);
-    lv_label_set_text(sub_label1, "wd: 25°C");
+    lv_obj_add_style(sub_label1, &style_font, 0);
+    lv_label_set_text(sub_label1, "温度:25C");
     lv_obj_set_style_text_align(sub_label1, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
-
+    
     lv_obj_t* sub_label2 = lv_label_create(sub_sub_cont);
-    lv_label_set_text(sub_label2, "wd: 60%");
+    lv_obj_add_style(sub_label2, &style_font, 0);
+    lv_label_set_text(sub_label2, "湿度:60%");
     lv_obj_set_style_text_align(sub_label2, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
 }
 
@@ -228,7 +234,7 @@ static void create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, 
     lv_obj_set_style_border_width(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_radius(cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_align_to(cont, parent, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_align_to(cont, parent, LV_ALIGN_TOP_LEFT, 0, 0);
 
     for (int i = 0; i < 2; i++) {
         lv_obj_t* weather_cont = lv_obj_create(cont);
@@ -249,14 +255,14 @@ void tabview_create(ele_ds_t dev, lv_obj_t* parent)
     lv_obj_set_style_border_width(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
     lv_obj_set_style_radius(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
     lv_obj_set_scrollbar_mode(tabview, LV_SCROLLBAR_MODE_OFF); // 禁用滚动条
-    lv_obj_set_style_border_width(tabview, 4, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
+    lv_obj_set_style_border_width(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
     lv_obj_set_style_border_color(tabview, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT); // 设置边框颜色
     lv_obj_align_to(tabview, parent, LV_ALIGN_BOTTOM_MID, 0, 0); // 对齐到屏幕底部
     // 获取 TabView 的按钮容器
     lv_obj_t* tab_btns = lv_tabview_get_tab_btns(tabview);
 
     // 减小导航栏高度
-    lv_obj_set_height(tab_btns, 20);
+    lv_obj_set_height(tab_btns, 25);
     lv_obj_set_align(tab_btns, LV_ALIGN_BOTTOM_MID); 
     // 创建样式：选中标签黑底白字
     static lv_style_t style_tab_selected;
@@ -271,14 +277,18 @@ void tabview_create(ele_ds_t dev, lv_obj_t* parent)
     //本地样式修改选中时的文字颜色
     lv_obj_set_style_text_color(tab_btns,lv_color_hex(0x000000), LV_PART_ITEMS | LV_STATE_CHECKED);
 	lv_obj_set_style_border_color(tab_btns, lv_color_hex(0x000000), LV_PART_ITEMS | LV_STATE_CHECKED);
-
+    
 	//本地样式修改未选中时的文字颜色
     lv_obj_set_style_text_color(tab_btns, lv_color_hex(0x000000), 0);
+
+    // 设置字体样式
+    lv_obj_add_style(tabview, &style_font, 0);
+    
     // 创建标签页
-    lv_obj_t* tab1 = lv_tabview_add_tab(tabview, "weather");
-    lv_obj_t* tab2 = lv_tabview_add_tab(tabview, "memo");
-    lv_obj_t* tab3 = lv_tabview_add_tab(tabview, "custom");
-    lv_obj_t* tab4 = lv_tabview_add_tab(tabview, "settings");
+    lv_obj_t* tab1 = lv_tabview_add_tab(tabview, "天气");
+    lv_obj_t* tab2 = lv_tabview_add_tab(tabview, "备忘录");
+    lv_obj_t* tab3 = lv_tabview_add_tab(tabview, "背景");
+    lv_obj_t* tab4 = lv_tabview_add_tab(tabview, "设置");
 
     create_weather_layout(dev, tabview, tab1, NULL);
 
@@ -291,9 +301,9 @@ lv_obj_t *create_tabview_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv
 {
     // 创建底部布局容器
     lv_obj_t* bottom_layout = lv_obj_create(parent);
-    lv_obj_set_size(bottom_layout, LV_PCT(100), LV_PCT(85)); // 宽度全屏，高度自适应
+    lv_obj_set_size(bottom_layout, LV_PCT(100), LV_PCT(87)); // 宽度全屏，高度自适应
     lv_obj_set_style_pad_all(bottom_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
-    lv_obj_set_style_border_width(bottom_layout, 2, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
+    lv_obj_set_style_border_width(bottom_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
     lv_obj_set_style_border_color(bottom_layout, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT); // 设置边框颜色
     lv_obj_set_style_radius(bottom_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
     lv_obj_set_scrollbar_mode(bottom_layout, LV_SCROLLBAR_MODE_OFF); // 禁用滚动条
