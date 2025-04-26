@@ -246,10 +246,10 @@ static void create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, 
         day_weather(weather_cont, dev);
     }
 }
-
+lv_obj_t* tabview = NULL;
 void tabview_create(ele_ds_t dev, lv_obj_t* parent)
 {
-    lv_obj_t* tabview = lv_tabview_create(parent, LV_DIR_BOTTOM, LV_DIR_ALL);
+    tabview = lv_tabview_create(parent, LV_DIR_BOTTOM, LV_DIR_ALL);
     lv_obj_set_size(tabview, LV_PCT(100), LV_PCT(100)); // 宽度全屏，高度自适应
     lv_obj_set_style_pad_all(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
     lv_obj_set_style_border_width(tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
@@ -290,12 +290,31 @@ void tabview_create(ele_ds_t dev, lv_obj_t* parent)
     lv_obj_t* tab3 = lv_tabview_add_tab(tabview, "背景");
     lv_obj_t* tab4 = lv_tabview_add_tab(tabview, "设置");
 
+    lv_tabview_set_act(tabview, 1, LV_ANIM_OFF); // 1 表示第二个标签页，LV_ANIM_OFF 表示无动画切换
+
     create_weather_layout(dev, tabview, tab1, NULL);
 
     lv_obj_t* label2 = lv_label_create(tab2);
     lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 0, 0);
     lv_label_set_text(label2, "Hello World");
 }
+
+void switch_tabview_cmd(int argc,char *argv[])
+{
+    if (tabview == NULL) {
+        rt_kprintf("tabview is NULL\n");
+        return;
+    }
+    if (argc < 2) {
+        return;
+    }
+    int tab_index = atoi(argv[1]);
+    if (tab_index < 0 || tab_index > 3) {
+        return;
+    }
+    lv_tabview_set_act(tabview, tab_index, LV_ANIM_OFF); // 切换到指定标签页
+}
+MSH_CMD_EXPORT_ALIAS(switch_tabview_cmd, switch_tabview, Switch tabview page);
 
 lv_obj_t *create_tabview_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv_obj_t* down)
 {
