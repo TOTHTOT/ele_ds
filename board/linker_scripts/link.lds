@@ -1,12 +1,15 @@
 /*
- * linker script for STM32F10x with GNU ld
+ * linker script for STM32F4xx with GNU ld
+ * bernard.xiong 2009-10-14
+ * flybreak      2018-11-19  Add support for RAM2
  */
 
 /* Program Entry, set to mark it as "used" and avoid gc */
 MEMORY
 {
-    ROM (rx) : ORIGIN = 0x08000000, LENGTH = 512k /* 512KB flash */
-    RAM (rw) : ORIGIN = 0x20000000, LENGTH =  60k /* 60K sram */
+    CODE (rx) : ORIGIN = 0x08000000, LENGTH = 1024k /* 1024KB flash */
+    RAM1 (rw) : ORIGIN = 0x20000000, LENGTH =  128k /* 128K sram */
+    RAM2 (rw) : ORIGIN = 0x10000000, LENGTH =   64k /* 64K sram */
 }
 ENTRY(Reset_Handler)
 _system_stack_size = 0x400;
@@ -55,7 +58,7 @@ SECTIONS
         . = ALIGN(4);
 
         _etext = .;
-    } > ROM = 0
+    } > CODE = 0
 
     /* .ARM.exidx is sorted, so has to go in its own output section.  */
     __exidx_start = .;
@@ -65,7 +68,7 @@ SECTIONS
 
         /* This is used by the startup in order to initialize the .data secion */
         _sidata = .;
-    } > ROM
+    } > CODE
     __exidx_end = .;
 
     /* .data section which is used for initialized data */
@@ -88,7 +91,7 @@ SECTIONS
         . = ALIGN(4);
         /* This is used by the startup in order to initialize the .data secion */
         _edata = . ;
-    } >RAM
+    } >RAM1
 
     .stack :
     {
@@ -97,7 +100,7 @@ SECTIONS
         . = . + _system_stack_size;
         . = ALIGN(4);
         _estack = .;
-    } >RAM
+    } >RAM1
 
     __bss_start = .;
     .bss :
@@ -115,7 +118,7 @@ SECTIONS
         _ebss = . ;
 
         *(.bss.init)
-    } > RAM
+    } > RAM1
     __bss_end = .;
 
     _end = .;

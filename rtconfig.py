@@ -2,7 +2,7 @@ import os
 
 # toolchains options
 ARCH='arm'
-CPU='cortex-m3'
+CPU='cortex-m4'
 CROSS_TOOL='gcc'
 
 # bsp lib config
@@ -17,7 +17,7 @@ if os.getenv('RTT_ROOT'):
 # EXEC_PATH is the compiler execute path, for example, CodeSourcery, Keil MDK, IAR
 if  CROSS_TOOL == 'gcc':
     PLATFORM    = 'gcc'
-    EXEC_PATH   = r'C:\Users\XXYYZZ'
+    EXEC_PATH   = r'/usr/bin'
 elif CROSS_TOOL == 'keil':
     PLATFORM    = 'armcc'
     EXEC_PATH   = r'C:/Keil_v5'
@@ -43,10 +43,10 @@ if PLATFORM == 'gcc':
     OBJDUMP = PREFIX + 'objdump'
     OBJCPY = PREFIX + 'objcopy'
 
-    DEVICE = ' -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections'
+    DEVICE = ' -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffunction-sections -fdata-sections'
     CFLAGS = DEVICE + ' -Dgcc'
     AFLAGS = ' -c' + DEVICE + ' -x assembler-with-cpp -Wa,-mimplicit-it=thumb '
-    LFLAGS = DEVICE + ' -Wl,--gc-sections,-Map=rt-thread.map,-cref,-u,Reset_Handler -T board/linker_scripts/link.lds'
+    LFLAGS = DEVICE + ' -Wl,--gc-sections,-Map=rtthread.map,-cref,-u,Reset_Handler -T board/linker_scripts/link.lds'
 
     CPATH = ''
     LPATH = ''
@@ -70,7 +70,7 @@ elif PLATFORM == 'armcc':
     LINK = 'armlink'
     TARGET_EXT = 'axf'
 
-    DEVICE = ' --cpu Cortex-M3 '
+    DEVICE = ' --cpu Cortex-M4.fp '
     CFLAGS = '-c ' + DEVICE + ' --apcs=interwork --c99'
     AFLAGS = DEVICE + ' --apcs=interwork '
     LFLAGS = DEVICE + ' --scatter "board\linker_scripts\link.sct" --info sizes --info totals --info unused --info veneers --list rt-thread.map --strict'
@@ -88,7 +88,6 @@ elif PLATFORM == 'armcc':
     else:
         CFLAGS += ' -O2'
 
-
     CXXFLAGS = CFLAGS 
     CFLAGS += ' -std=c99'
 
@@ -103,10 +102,10 @@ elif PLATFORM == 'armclang':
     LINK = 'armlink'
     TARGET_EXT = 'axf'
 
-    DEVICE = ' --cpu Cortex-M3 '
-    CFLAGS = ' --target=arm-arm-none-eabi -mcpu=cortex-m3 '
-    CFLAGS += ' -mcpu=cortex-m3 '
-    CFLAGS += ' -c -fno-rtti -funsigned-char -fshort-enums -fshort-wchar '
+    DEVICE = ' --cpu Cortex-M4.fp '
+    CFLAGS = ' --target=arm-arm-none-eabi -mcpu=cortex-m4 '
+    CFLAGS += ' -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 '
+    CFLAGS += ' -mfloat-abi=hard -c -fno-rtti -funsigned-char -fshort-enums -fshort-wchar '
     CFLAGS += ' -gdwarf-3 -ffunction-sections '
     AFLAGS = DEVICE + ' --apcs=interwork '
     LFLAGS = DEVICE + ' --info sizes --info totals --info unused --info veneers '
@@ -149,9 +148,9 @@ elif PLATFORM == 'iccarm':
     CFLAGS += ' --no_clustering'
     CFLAGS += ' --no_scheduling'
     CFLAGS += ' --endian=little'
-    CFLAGS += ' --cpu=Cortex-M3'
+    CFLAGS += ' --cpu=Cortex-M4'
     CFLAGS += ' -e'
-    CFLAGS += ' --fpu=None'
+    CFLAGS += ' --fpu=VFPv4_sp'
     CFLAGS += ' --dlib_config "' + EXEC_PATH + '/arm/INC/c/DLib_Config_Normal.h"'
     CFLAGS += ' --silent'
 
@@ -159,8 +158,8 @@ elif PLATFORM == 'iccarm':
     AFLAGS += ' -s+'
     AFLAGS += ' -w+'
     AFLAGS += ' -r'
-    AFLAGS += ' --cpu Cortex-M3'
-    AFLAGS += ' --fpu None'
+    AFLAGS += ' --cpu Cortex-M4'
+    AFLAGS += ' --fpu VFPv4_sp'
     AFLAGS += ' -S'
 
     if BUILD == 'debug':

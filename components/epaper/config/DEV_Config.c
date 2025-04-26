@@ -30,7 +30,7 @@
 #
 ******************************************************************************/
 #include "DEV_Config.h"
-#include "stm32f1xx_hal_spi.h"
+#include "stm32f4xx_hal_spi.h"
 
 struct rt_spi_device *spi_epaper;
 void DEV_SPI_WriteByte(UBYTE value)

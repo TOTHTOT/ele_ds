@@ -4,7 +4,7 @@
 /* Automatically generated file; DO NOT EDIT. */
 /* RT-Thread Configuration */
 
-#define SOC_STM32F103RB
+#define SOC_STM32F405RG
 
 /* RT-Thread Kernel */
 
@@ -318,7 +318,7 @@
 /* Uncategorized */
 
 #define SOC_FAMILY_STM32
-#define SOC_SERIES_STM32F1
+#define SOC_SERIES_STM32F4
 
 /* Hardware Drivers Config */
 
