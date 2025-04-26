@@ -19,9 +19,9 @@
 #define MY_DISP_VER_RES 264
 #endif
 
-#define DRAW_BUF_LINES 37
+#define DRAW_BUF_LINES MY_DISP_VER_RES
 #define DRAW_BUF_SIZE (MY_DISP_HOR_RES * DRAW_BUF_LINES)  // 横向一整行 × 行数
-static lv_color_t buf1[DRAW_BUF_SIZE];
+CCMRAM static lv_color_t buf1[DRAW_BUF_SIZE];
 static lv_disp_draw_buf_t draw_buf_dsc_1;
 
 static void disp_init(void);

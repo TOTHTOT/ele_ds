@@ -48,7 +48,7 @@ static uint8_t *__user_font_getdata(int offset, int size){
     //如字模已加载到SDRAM,直接返回偏移地址即可如:return (uint8_t*)(sdram_fontddr+offset);
     int fd = open("/sysfile/font/fangsong_8.bin", O_RDONLY);
     if (fd < 0) {
-        printf("打开文件失败！\n");
+        // printf("打开文件失败！\n");
         return NULL;
     }
     lseek(fd, offset, SEEK_SET);

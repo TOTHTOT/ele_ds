@@ -1,4 +1,12 @@
 /*
+ * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+ * @Date: 2025-02-15 12:25:00
+ * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+ * @LastEditTime: 2025-04-26 10:12:21
+ * @FilePath: \ele_ds\board\board.h
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
+/*
  * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -36,6 +44,9 @@ extern int __bss_end;
 #endif
 
 #define HEAP_END        STM32_SRAM_END
+
+// ccm 内存段
+#define CCMRAM  __attribute__((section (".CCM_RAM")))
 
 void SystemClock_Config(void);
 
