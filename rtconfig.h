@@ -53,7 +53,7 @@
 #define RT_USING_CPU_FFS
 #define ARCH_ARM
 #define ARCH_ARM_CORTEX_M
-#define ARCH_ARM_CORTEX_M3
+#define ARCH_ARM_CORTEX_M4
 
 /* RT-Thread Components */
 
@@ -114,12 +114,16 @@
 
 #define RT_USING_DEVICE_IPC
 #define RT_UNAMED_PIPE_NUMBER 64
+#define RT_USING_SYSTEM_WORKQUEUE
+#define RT_SYSTEM_WORKQUEUE_STACKSIZE 2048
+#define RT_SYSTEM_WORKQUEUE_PRIORITY 23
 #define RT_USING_SERIAL
 #define RT_USING_SERIAL_V1
 #define RT_SERIAL_USING_DMA
 #define RT_SERIAL_RB_BUFSZ 64
 #define RT_USING_I2C
 #define RT_USING_I2C_BITOPS
+#define RT_USING_ADC
 #define RT_USING_RTC
 #define RT_USING_ALARM
 #define RT_USING_SPI
@@ -153,6 +157,26 @@
 
 /* Network */
 
+#define RT_USING_SAL
+#define SAL_INTERNET_CHECK
+
+/* Docking with protocol stacks */
+
+#define SAL_USING_AT
+#define SAL_USING_POSIX
+#define RT_USING_NETDEV
+#define NETDEV_USING_IFCONFIG
+#define NETDEV_USING_PING
+#define NETDEV_USING_NETSTAT
+#define NETDEV_USING_AUTO_DEFAULT
+#define NETDEV_IPV4 1
+#define NETDEV_IPV6 0
+#define RT_USING_AT
+#define AT_USING_CLIENT
+#define AT_CLIENT_NUM_MAX 1
+#define AT_USING_SOCKET
+#define AT_USING_CLI
+#define AT_SW_VERSION_NUM 0x10301
 
 /* Memory protection */
 
@@ -183,6 +207,16 @@
 
 /* CYW43439 WiFi */
 
+#define PKG_USING_AT_DEVICE
+#define AT_DEVICE_USING_ESP8266
+#define AT_DEVICE_ESP8266_SOCKET
+#define AT_DEVICE_ESP8266_SAMPLE
+#define ESP8266_SAMPLE_WIFI_SSID "5-806"
+#define ESP8266_SAMPLE_WIFI_PASSWORD "shi18650386691"
+#define ESP8266_SAMPLE_CLIENT_NAME "uart3"
+#define ESP8266_SAMPLE_RECV_BUFF_LEN 4096
+#define PKG_USING_AT_DEVICE_LATEST_VERSION
+#define PKG_AT_DEVICE_VER_NUM 0x99999
 
 /* IoT Cloud */
 
@@ -324,20 +358,19 @@
 
 /* Onboard Peripheral Drivers */
 
-#define BSP_USING_USB_TO_USART
-
 /* On-chip Peripheral Drivers */
 
 #define BSP_USING_GPIO
 #define BSP_USING_UART
 #define BSP_USING_UART1
+#define BSP_USING_UART3
 #define BSP_USING_SPI
 #define BSP_USING_SPI1
-#define BSP_SPI1_TX_USING_DMA
-#define BSP_SPI1_RX_USING_DMA
 #define BSP_USING_I2C1
 #define BSP_I2C1_SCL_PIN 22
 #define BSP_I2C1_SDA_PIN 23
+#define BSP_USING_ADC
+#define BSP_USING_ADC1
 #define BSP_USING_ON_CHIP_FLASH
 #define BSP_USING_ONCHIP_RTC
 #define BSP_RTC_USING_LSE
