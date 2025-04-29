@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-07 14:15:53
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-22 10:27:06
+ * @LastEditTime: 2025-04-29 20:27:38
  * @FilePath: \ele_ds\applications\lvgl\lv_conf.h
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -24,6 +24,9 @@
 #define LV_USE_ANIMATION 0
 #define LV_FONT_MONTSERRAT_10 1
 #define LV_FONT_MONTSERRAT_12 1
+
+// 解决最大刷新行数'38'问题, 增大缓冲区, 10240/MY_DISP_VER_RES = 38, 10240 是默认值
+#define LV_DISP_ROT_MAX_BUF (50*1024)
 
 #define LV_USE_FS_POSIX 1
 #if LV_USE_FS_POSIX

@@ -290,7 +290,7 @@ void tabview_create(ele_ds_t dev, lv_obj_t* parent)
     lv_obj_t* tab3 = lv_tabview_add_tab(tabview, "背景");
     lv_obj_t* tab4 = lv_tabview_add_tab(tabview, "设置");
 
-    lv_tabview_set_act(tabview, 1, LV_ANIM_OFF); // 1 表示第二个标签页，LV_ANIM_OFF 表示无动画切换
+    // lv_tabview_set_act(tabview, 1, LV_ANIM_OFF); // 1 表示第二个标签页，LV_ANIM_OFF 表示无动画切换
 
     create_weather_layout(dev, tabview, tab1, NULL);
 
