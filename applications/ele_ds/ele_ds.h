@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:27
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-21 17:20:51
+ * @LastEditTime: 2025-04-30 10:11:04
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.h
  * @Description: 电子桌搭主要功能
  */
@@ -17,6 +17,8 @@
 #include <stdbool.h>
 #include <dfscfg.h>
 #include "gzp6816d_driver.h"
+#include <at_device_esp8266.h>
+
 #ifdef PKG_USING_SHT3X
 #include "sht3x.h"
 #endif /* PKG_USING_SHT3X */
@@ -63,6 +65,7 @@ struct ele_ds
 {
     struct
     {
+        struct at_device_esp8266 esp8266;
         rt_device_t gzp6816d_dev;
 #ifdef PKG_USING_SHT3X
         sht3x_device_t sht3x_dev;

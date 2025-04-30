@@ -20,10 +20,10 @@
 
 typedef struct
 {
-#define CFGFILE_DEFATLT_WIFI_SSID "esp32-2.4G"
+#define CFGFILE_DEFATLT_WIFI_SSID "esp-2.4G"
 #define CFGFILE_DEFATLT_WIFI_PASS "12345678.."
     uint8_t wifi_ssid[32]; // wifi ssid
-    uint8_t wifi_pass[32]; // wifi 密码
+    uint8_t wifi_passwd[32]; // wifi 密码
 
 #define CFGFILE_DEFATLT_SERVER_ADDR "api.seniverse.com"
 #define CFGFILE_DEFATLT_SERVER_PORT 24680

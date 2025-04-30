@@ -34,7 +34,7 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
 
     strncpy((char *)cfg->version, SOFT_VERSION, sizeof(cfg->version) - 1);
     strncpy((char *)cfg->wifi_ssid, CFGFILE_DEFATLT_WIFI_SSID, sizeof(cfg->wifi_ssid) - 1);
-    strncpy((char *)cfg->wifi_pass, CFGFILE_DEFATLT_WIFI_PASS, sizeof(cfg->wifi_pass) - 1);
+    strncpy((char *)cfg->wifi_passwd, CFGFILE_DEFATLT_WIFI_PASS, sizeof(cfg->wifi_passwd) - 1);
     strncpy((char *)cfg->server_addr, CFGFILE_DEFATLT_SERVER_ADDR, sizeof(cfg->server_addr) - 1);
 }
 
@@ -101,7 +101,7 @@ void ele_ds_cfg_print(ele_ds_cfg_t *cfg)
     rt_kprintf("version: %s\n", cfg->version);
     rt_kprintf("cityid: %d\n", cfg->cityid);
     rt_kprintf("wifi_ssid: %s\n", cfg->wifi_ssid);
-    rt_kprintf("wifi_pass: %s\n", cfg->wifi_pass);
+    rt_kprintf("wifi_passwd: %s\n", cfg->wifi_passwd);
     rt_kprintf("server_addr: %s\n", cfg->server_addr);
     rt_kprintf("server_port: %d\n", cfg->server_port);
     rt_kprintf("weather info:\n");
