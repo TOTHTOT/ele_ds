@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-05 12:21:47
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-21 17:54:27
+ * @LastEditTime: 2025-04-30 12:13:51
  * @FilePath: \ele_ds\applications\dfs\dfscfg.h
  * @Description: dfs文件系统相关配置
  */
@@ -25,8 +25,8 @@ typedef struct
     uint8_t wifi_ssid[32]; // wifi ssid
     uint8_t wifi_passwd[32]; // wifi 密码
 
-#define CFGFILE_DEFATLT_SERVER_ADDR "api.seniverse.com"
-#define CFGFILE_DEFATLT_SERVER_PORT 24680
+#define CFGFILE_DEFATLT_SERVER_ADDR "60.215.128.73"
+#define CFGFILE_DEFATLT_SERVER_PORT 12675
     uint8_t server_addr[64]; // 服务器地址
     uint16_t server_port;    // 服务器端口
 

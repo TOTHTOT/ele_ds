@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:27
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-30 10:11:04
+ * @LastEditTime: 2025-04-30 13:42:56
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.h
  * @Description: 电子桌搭主要功能
  */
@@ -17,7 +17,7 @@
 #include <stdbool.h>
 #include <dfscfg.h>
 #include "gzp6816d_driver.h"
-#include <at_device_esp8266.h>
+#include "client.h"
 
 #ifdef PKG_USING_SHT3X
 #include "sht3x.h"
@@ -81,7 +81,9 @@ struct ele_ds
 #endif
     } sensor_data;  // 传感器数据
     bool init_flag; // 系统是否初始化成功, == true 表示初始化成功, == false 表示初始化失败
-
+    
+    rt_thread_t client_thread; // 终端线程负责和服务器通信
+    bool exit_flag;
     struct 
     {
         bool cnt_wifi;

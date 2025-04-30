@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-30 10:26:30
+ * @LastEditTime: 2025-04-30 14:01:55
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,6 +11,7 @@
 #include "drv_spi.h"
 #include "spi_flash_sfud.h"
 #include "dfscfg.h"
+#include "client.h"
 #include <rtdevice.h>
 
 #define DBG_TAG "ele_ds"
@@ -304,39 +305,14 @@ static int rt_hw_spi_flash_init(void)
 }
 
 /**
- * @description: 注册esp
- * @param {ele_ds_cfg_t} *cfg 配置参数
- * @return {int} 函数执行结果, 0表示成功
- */
-static int esp8266_device_register(struct at_device_esp8266 *esp8266, ele_ds_cfg_t *cfg)
-{
-    if (esp8266 == RT_NULL)
-    {
-        LOG_E("esp8266 is NULL");
-        return -1;
-    }
-    struct at_device_esp8266 esp0 = {
-        "eps0",
-        "uart3",
-        (char *)cfg->wifi_ssid,
-        (char *)cfg->wifi_passwd,
-        3 * 1024,
-    };
-    memcpy(esp8266, &esp0, sizeof(struct at_device_esp8266));
-    return at_device_register(&(esp8266->device),
-                              esp8266->device_name,
-                              esp8266->client_name,
-                              AT_DEVICE_CLASS_ESP8266,
-                              (void *) esp8266);
-}
-
-/**
  * @description: 初始化设备
  * @param {ele_ds_t} ele_ds 设备指针
  * @return {int32_t} 函数执行结果, 0表示成功
  */
 int32_t devices_init(ele_ds_t ele_ds)
 {
+    int32_t ret = 0;
+
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(V3_3_PIN, PIN_HIGH);
@@ -372,13 +348,19 @@ int32_t devices_init(ele_ds_t ele_ds)
     // 初始化文件系统并加载系统配置
     mnt_init();
     
-    esp8266_device_register(&ele_ds->devices.esp8266, &ele_ds->device_cfg);
+    ret = esp8266_device_init(ele_ds);
+    if (ret != 0)
+    {
+        LOG_E("esp8266 device register failed, ret = %d", ret);
+        return -5;
+    }
+
     ele_ds->ops = ele_ds_ops;
     // 初始化设备基本信息
     ele_ds->device_status.cnt_wifi = false;
     ele_ds->device_status.current_vbat = 4.15f;
     ele_ds->device_status.current_time = 0;
-
+    ele_ds->exit_flag = false;
     ele_ds->init_flag = true;
     return 0;
 }
