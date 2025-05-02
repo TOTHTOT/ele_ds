@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:27
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-30 13:42:56
+ * @LastEditTime: 2025-05-02 12:29:07
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.h
  * @Description: 电子桌搭主要功能
  */
@@ -82,7 +82,6 @@ struct ele_ds
     } sensor_data;  // 传感器数据
     bool init_flag; // 系统是否初始化成功, == true 表示初始化成功, == false 表示初始化失败
     
-    rt_thread_t client_thread; // 终端线程负责和服务器通信
     bool exit_flag;
     struct 
     {
@@ -92,7 +91,7 @@ struct ele_ds
     }device_status;
     
     ele_ds_cfg_t device_cfg; // 设备配置
-    
+    ele_ds_client_t client; // 终端相关内容
     struct ele_ds_ops ops;
 };
 typedef struct ele_ds *ele_ds_t;

@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-30 16:36:08
+ * @LastEditTime: 2025-05-02 12:24:04
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -14,10 +14,48 @@
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
-// 双缓冲, 写数据前判断是否有数据在接收缓冲区
-static char recv_buf[2][2048] = {0};
+/**
+ * @description: 解析接收数据线程
+ * @param {void} *parameter 传入参数为ele_ds_t类型
+ * @return {*}
+ */
+static void thread_parse_recv_data(void *parameter)
+{
+    if (parameter == RT_NULL)
+    {
+        LOG_E("parameter is NULL");
+        return;
+    }
+    ele_ds_t ele_ds = (ele_ds_t)parameter;
+    rt_uint8_t buffer[1500]; // tcp 的mtu一般都是 1500
+    int32_t ret = 0;
 
-void threads_communicate_server(void *parameter)
+    while (ele_ds->exit_flag == false)
+    {
+        ret = rt_sem_take(ele_ds->client.rb_sem, 50);
+        if (ret == RT_EOK)
+        {
+            rt_size_t len = rt_ringbuffer_get(&ele_ds->client.rb, buffer, sizeof(buffer));
+            if (len > 0)
+            {
+                LOG_I("recv len: %d", len);
+            }
+        }
+        else
+        {
+            LOG_I("recv sem take timeout, ret = %d", ret);
+            continue;
+        }
+    }
+    LOG_I("recv parse thread exit");
+}
+
+/**
+ * @description: 客户端线程
+ * @param {void} *parameter 传入参数为ele_ds_t类型
+ * @return {*}
+ */
+static void threads_communicate_server(void *parameter)
 {
     if (parameter == RT_NULL)
     {
@@ -45,6 +83,7 @@ void threads_communicate_server(void *parameter)
         closesocket(sock);
         return;
     }
+    // 连接成功发送模拟数据
     const char *msg = "{\"type\":2,\"sensor_data\":{\"temperature\":25,\"humidity\":60,\"pressure\":101325,\"tvoc\":50,\"co2\":400},\"cfg\":{\"username\":\"test_user\",\"passwd\":\"123456\",\"cityname\":\"Beijing\",\"cityid\":101010100,\"cntserver_interval\":30,\"version\":20240328,\"battery\":85}}";
     ret = send(sock, msg, strlen(msg), 0);
     if (ret < 0)
@@ -54,10 +93,11 @@ void threads_communicate_server(void *parameter)
     
     while (ele_ds->exit_flag == false)
     {
-        int len = recv(sock, recv_buf[0], sizeof(recv_buf) - 1, 0);
+        int len = recv(sock, ele_ds->client.recv_buf, sizeof(ele_ds->client.recv_buf), 0);
         if (len > 0)
         {
-            recv_buf[len] = '\0';
+            rt_ringbuffer_put(&ele_ds->client.rb, ele_ds->client.recv_buf, len);
+            rt_sem_release(ele_ds->client.rb_sem);
             LOG_I("Size: %d", len);
         }
         rt_thread_mdelay(20);
@@ -96,11 +136,35 @@ int32_t esp8266_device_init(ele_ds_t ele_ds)
 
     if (ret == 0)
     {
-        ele_ds->client_thread = rt_thread_create("th_client", threads_communicate_server, (void *)ele_ds,
-                                                 10240, RT_THREAD_PRIORITY_MAX - 2, 20);
-        if (ele_ds->client_thread != RT_NULL)
+        ele_ds->client.rb_sem = rt_sem_create("rb_sem", 0, RT_IPC_FLAG_FIFO);
+        if (ele_ds->client.rb_sem == RT_NULL)
         {
-            rt_thread_startup(ele_ds->client_thread);
+            LOG_E("rb_sem create failed\n");
+            return -4;
+        }
+
+        ele_ds->client.recv_thread = rt_thread_create("th_client", threads_communicate_server, (void *)ele_ds,
+                                                 4096, RT_MAIN_THREAD_PRIORITY - 2, 20);
+        if (ele_ds->client.recv_thread != RT_NULL)
+        {
+            rt_thread_startup(ele_ds->client.recv_thread);
+        }
+        else
+        {
+            LOG_E("recv thread create failed\n");
+            return -2;
+        }
+
+        ele_ds->client.parse_thread = rt_thread_create("th_recv_parse", thread_parse_recv_data, (void *)ele_ds,
+                                                 8192, RT_MAIN_THREAD_PRIORITY - 3, 20);
+        if (ele_ds->client.parse_thread != RT_NULL)
+        {
+            rt_thread_startup(ele_ds->client.parse_thread);
+        }
+        else
+        {
+            LOG_E("recv parse thread create failed\n");
+            return -3;
         }
         return 0;
     }

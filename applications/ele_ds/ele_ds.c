@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-30 14:01:55
+ * @LastEditTime: 2025-05-02 12:05:09
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -347,7 +347,7 @@ int32_t devices_init(ele_ds_t ele_ds)
     
     // 初始化文件系统并加载系统配置
     mnt_init();
-    
+    rt_ringbuffer_init(&ele_ds->client.rb, ele_ds->client.recv_buf, sizeof(ele_ds->client.recv_buf));
     ret = esp8266_device_init(ele_ds);
     if (ret != 0)
     {
