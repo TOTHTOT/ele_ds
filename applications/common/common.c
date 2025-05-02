@@ -170,3 +170,24 @@ void print_array_with_prefix(const char *prefix, const uint8_t *array, size_t si
     }
     printf("]\n");
 }
+
+/**
+ * @description: 判断字符串是否为json格式
+ * @param {char} *data 字符串数据
+ * @param {size_t} len 字符串长度
+ * @return {bool} true表示是json格式，false表示不是
+ */
+bool is_json(const char *data, size_t len)
+{
+    if (len < 2 || data == NULL)
+    {
+        return false; // 长度不足，不可能是 JSON
+    }
+    // 检查是否以 { } 或 [ ] 包裹
+    if ((data[0] == '{' && data[len - 1] == '}') ||
+        (data[0] == '[' && data[len - 1] == ']'))
+    {
+        return true;
+    }
+    return false;
+}

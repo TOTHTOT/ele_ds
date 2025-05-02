@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-05 12:21:47
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-30 12:13:51
+ * @LastEditTime: 2025-05-02 20:14:43
  * @FilePath: \ele_ds\applications\dfs\dfscfg.h
  * @Description: dfs文件系统相关配置
  */
@@ -17,7 +17,7 @@
 
 #define SYSFILE_PATH "/sysfile"
 #define CONFIG_FILE_PATH SYSFILE_PATH "/config"
-
+#define SOFTWARE_UPDATE_FILE_PATH SYSFILE_PATH
 typedef struct
 {
 #define CFGFILE_DEFATLT_WIFI_SSID "esp-2.4G"
@@ -34,7 +34,8 @@ typedef struct
     uint32_t cityid;
     weather_type_t curweather;
     weather_info_t weather_info[7];
-
+#define CLIENT_CHEAT_CONTENT_SIZE 256 
+    char memo[CLIENT_CHEAT_CONTENT_SIZE]; // 备忘录消息
     uint8_t version[16];
 #define CFGFILE_CHECK 0xA5A5A5A5
     uint32_t check;
