@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-03 08:41:23
+ * @LastEditTime: 2025-05-03 10:11:31
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -167,9 +167,11 @@ static int32_t parese_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
               msg->data.cs_info.len, msg->data.cs_info.crc, msg->data.cs_info.version,
               msg->data.cs_info.buildinfo);
         client->recv_info.recv_state = CRS_DATA;
+        client->recv_info.update_file_crc = msg->data.cs_info.crc;
         client->recv_info.datalen = msg->data.cs_info.len;
-        char filepath[64] = {0};
-        sprintf(filepath, "%s/%d.bin", SOFTWARE_UPDATE_FILE_PATH, msg->data.cs_info.version);
+        char filepath[256] = {0};
+        sprintf(filepath, "%s_%x.bin", SOFTWARE_UPDATE_FILE_PATH, msg->data.cs_info.version);
+        memcpy(client->recv_info.update_file_name, filepath, strlen(filepath) + 1);
         // 收到数据头后创建文件, 如果文件存在就删除
         client->recv_info.update_file_fd = open(filepath, O_RDWR | O_CREAT | O_TRUNC, 0);
         if (client->recv_info.update_file_fd < 0)
@@ -289,6 +291,23 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
             break;
         case CRS_END: // 接收结束
             rt_timer_stop(&ele_ds->client.tcp_recv_timer);
+            if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_CLIENTUPDATE)
+            {
+                char *arg0 = "md5sum";
+                char *arg1 = ele_ds->client.recv_info.update_file_name;
+                char *argv[] = {arg0, arg1};
+                uint32_t crc_result = crcfile(2, argv);
+                if (crc_result == ele_ds->client.recv_info.update_file_crc)
+                {
+                    LOG_I("crc check success, crc = %d", crc_result);
+                    ret = 1; // CRC 校验成功
+                }
+                else
+                {
+                    LOG_E("crc check failed, crc = %#x, expect crc = %#x", crc_result, ele_ds->client.recv_info.update_file_crc);
+                    ret = -4; 
+                }
+            }
             clear_client_info(&ele_ds->client);
             break;
 

@@ -78,3 +78,4 @@ packages/tz-database-latest/
 packages/zlib-latest/
 DebugConfig/rt-thread_STM32F103RG_1.0.0.dbgconf
 /packages/LVGL-v9.1.0
+/packages

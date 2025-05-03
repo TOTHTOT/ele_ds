@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-20 13:23:44
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-02 16:28:11
+ * @LastEditTime: 2025-05-03 09:50:56
  * @FilePath: \ele_ds\applications\common\common.h
  * @Description: 常用函数头文件
  */
@@ -28,6 +28,7 @@
 extern int untar(const char *tar_path, const char *dst_dir);
 extern void print_array_with_prefix(const char *prefix, const uint8_t *array, size_t size);
 extern bool is_json(const char *data, size_t len);
+extern uint32_t crcfile(int argc, char **argv);
 
 #endif /* __COMMON_H__ */
 

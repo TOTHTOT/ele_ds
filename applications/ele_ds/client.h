@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:41
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-02 20:59:04
+ * @LastEditTime: 2025-05-03 10:00:26
  * @FilePath: \ele_ds\applications\ele_ds\client.h
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -134,10 +134,12 @@ typedef struct ele_ds_client
     {
         client_recv_state_t recv_state; // 终端线程接收数据的状态
         ele_msg_type_t curparse_type;   // 当前解析的消息类型
-        int32_t datalen;               // CRS_DATA 态时要接收的数据长度
-        int32_t recv_len;              // 已经 接收数据长度
-        int32_t update_file_fd; // 升级包文件句柄
-    } recv_info; // 终端线程接收数据的状态, 超时直接复位这个结构体
+        int32_t datalen;                // CRS_DATA 态时要接收的数据长度
+        int32_t recv_len;               // 已经 接收数据长度
+        int32_t update_file_fd;         // 升级包文件句柄
+        char update_file_name[256];     // 升级包文件名
+        uint32_t update_file_crc;       // 升级包crc, 服务器传来的
+    } recv_info;                        // 终端线程接收数据的状态, 超时直接复位这个结构体
 
 } ele_ds_client_t;
 

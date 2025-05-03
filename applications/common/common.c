@@ -2,11 +2,13 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-20 13:22:49
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-21 09:40:20
+ * @LastEditTime: 2025-05-03 09:52:48
  * @FilePath: \ele_ds\applications\common\common.c
  * @Description: 常用函数
  */
 #include "common.h"
+#include "dfscfg.h"
+
 /**
  * @description: 创建中间目录（递归）
  * @param {char} *dir
@@ -191,3 +193,81 @@ bool is_json(const char *data, size_t len)
     }
     return false;
 }
+
+
+#define CRC_BUFFER_SIZE 512  // 每次读取文件的块大小
+/**
+ * @description: 计算文件的CRC32值
+ * @param {int} argc 参数数量, 程序内调用传入2
+ * @param {char} * argv[] 参数数组, 程序内调用传入文件路径 argv[0]为程序名, argv[1]为文件路径
+ * @return {uint32_t} CRC32值
+ */
+uint32_t crcfile(int argc, char **argv)
+{
+    if (argc != 2)
+    {
+        rt_kprintf("Usage: crcfile <filename>\n");
+        return 0;
+    }
+
+    const char *filename = argv[1];
+    int fd = open(filename, O_RDONLY);
+    if (fd < 0)
+    {
+        rt_kprintf("Failed to open file: %s\n", filename);
+        return 0;
+    }
+
+    // 创建 CRC 上下文
+    struct rt_hwcrypto_ctx *ctx;
+    struct hwcrypto_crc_cfg cfg =
+    {
+        .last_val = 0xFFFFFFFF,
+        .poly     = 0x04C11DB7,
+        .width    = 32,
+        .xorout   = 0x00000000,
+        .flags    = 0, // 默认无反转；如需支持反转可添加 RT_HWCRYPTO_CRC_FLAG_REVERSE_IN / OUT
+    };
+
+    ctx = rt_hwcrypto_crc_create(rt_hwcrypto_dev_default(), HWCRYPTO_CRC_CRC32);
+    if (ctx == RT_NULL)
+    {
+        rt_kprintf("Failed to create CRC context\n");
+        close(fd);
+        return 0;
+    }
+
+    rt_hwcrypto_crc_cfg(ctx, &cfg);
+    
+    rt_tick_t start_tick = rt_tick_get();
+    // 分块读取并计算 CRC
+    uint8_t buffer[CRC_BUFFER_SIZE];
+    ssize_t read_bytes;
+    rt_uint32_t crc_result = 0;
+
+    while ((read_bytes = read(fd, buffer, CRC_BUFFER_SIZE)) > 0)
+    {
+        crc_result = rt_hwcrypto_crc_update(ctx, buffer, read_bytes);
+    }
+
+		rt_tick_t end_tick = rt_tick_get();
+		
+    if (read_bytes < 0)
+    {
+        rt_kprintf("Error reading file\n");
+    }
+    else
+    {
+        rt_uint32_t elapsed_tick = end_tick - start_tick;
+        float elapsed_ms = (float)elapsed_tick * 1000 / RT_TICK_PER_SECOND;
+        rt_kprintf("CRC32 of file '%s': 0x%08X\n", filename, crc_result);
+        rt_kprintf("Time used: %d ticks (%.3f ms)\n", elapsed_tick, elapsed_ms);
+
+    }
+
+    close(fd);
+    rt_hwcrypto_crc_destroy(ctx);
+
+    return crc_result;
+}
+MSH_CMD_EXPORT(crcfile, Calculate CRC32 of a file using hardware CRC);
