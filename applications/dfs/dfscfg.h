@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-05 12:21:47
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-02 20:14:43
+ * @LastEditTime: 2025-05-03 08:31:11
  * @FilePath: \ele_ds\applications\dfs\dfscfg.h
  * @Description: dfs文件系统相关配置
  */
@@ -22,7 +22,7 @@ typedef struct
 {
 #define CFGFILE_DEFATLT_WIFI_SSID "esp-2.4G"
 #define CFGFILE_DEFATLT_WIFI_PASS "12345678.."
-    uint8_t wifi_ssid[32]; // wifi ssid
+    uint8_t wifi_ssid[32];   // wifi ssid
     uint8_t wifi_passwd[32]; // wifi 密码
 
 #define CFGFILE_DEFATLT_SERVER_ADDR "60.215.128.73"
@@ -34,8 +34,13 @@ typedef struct
     uint32_t cityid;
     weather_type_t curweather;
     weather_info_t weather_info[7];
-#define CLIENT_CHEAT_CONTENT_SIZE 256 
+
+#define CLIENT_CHEAT_CONTENT_SIZE 256
     char memo[CLIENT_CHEAT_CONTENT_SIZE]; // 备忘录消息
+
+#define CFGFILE_DEFAULT_TCP_TIMEOUT (3 * 1000) // 3s
+    uint32_t tcp_timeout; // tcp传输数据软件定时器超时时间
+
     uint8_t version[16];
 #define CFGFILE_CHECK 0xA5A5A5A5
     uint32_t check;

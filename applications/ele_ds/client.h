@@ -124,6 +124,7 @@ typedef struct
 
 typedef struct ele_ds_client
 {
+    struct rt_timer tcp_recv_timer; // tcp接收超时定时器
     rt_thread_t recv_thread;        // 终端线程负责和服务器通信
     rt_thread_t parse_thread;       // 终端线程负责解析数据
     struct rt_ringbuffer rb;        // 终端线程和服务器通信的环形缓冲区
