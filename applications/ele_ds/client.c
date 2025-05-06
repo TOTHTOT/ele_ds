@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-06 17:26:20
+ * @LastEditTime: 2025-05-06 17:56:35
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -29,7 +29,7 @@ static int32_t clear_client_info(ele_ds_client_t *client);
 static void tcp_timeout_cb(void *param)
 {
     LOG_W("tcp timeout, clear client info");
-    clear_client_info((ele_ds_client_t *)param);
+    //clear_client_info((ele_ds_client_t *)param);
 }
 
 /**
@@ -166,7 +166,7 @@ static int32_t parese_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
         client->recv_info.update_file_crc = msg->data.cs_info.crc;
         client->recv_info.datalen = msg->data.cs_info.len;
         char filepath[256] = {0};
-        sprintf(filepath, "%s_%x.bin", SOFTWARE_UPDATE_FILE_PATH, msg->data.cs_info.version);
+        sprintf(filepath, "%s/SOFT_%x.bin", SOFTWARE_UPDATE_FILE_PATH, msg->data.cs_info.version);
         memcpy(client->recv_info.update_file_name, filepath, strlen(filepath) + 1);
         // 收到数据头后创建文件, 如果文件存在就删除
         client->recv_info.update_file_fd = open(filepath, O_RDWR | O_CREAT | O_TRUNC, 0);
@@ -241,6 +241,11 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                     ret = -2; // 解析失败
                     break;
                 }
+                else if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_WEATHER ||
+                         ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_CLIENTUPDATE)
+                {
+                    ret = 1; // 结束本次接收 等待服务器发数据
+                }
             }
             else
             {
@@ -278,7 +283,7 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                     ret = -3; // 未知类型
                     break;
                 }
-                rt_timer_start(&ele_ds->client.tcp_recv_timer);
+                //rt_timer_start(&ele_ds->client.tcp_recv_timer);
                 ele_ds->client.recv_info.recv_len += len; // 累加已接收的数据长度
                 ele_ds->client.recv_info.datalen -= len; // 减去已接收的数据长度
             }
@@ -288,7 +293,7 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
         case CRS_FINISH: // 接收结束
         case CRS_END:
             LOG_I("recv end");
-            rt_timer_stop(&ele_ds->client.tcp_recv_timer);
+            //rt_timer_stop(&ele_ds->client.tcp_recv_timer);
             if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_CLIENTUPDATE)
             {
                 char *arg0 = "md5sum";
@@ -317,6 +322,7 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
         // 如果发生错误，退出循环
         if (ret != 0)
         {
+            LOG_I("parse recv data failed, ret = %d", ret);
             break;
         }
     }
