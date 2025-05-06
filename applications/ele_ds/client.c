@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-03 10:11:31
+ * @LastEditTime: 2025-05-06 17:26:20
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -77,50 +77,46 @@ static int32_t parese_json_data(ele_msg_t *msg, uint8_t *buffer, int32_t len)
         LOG_E("cJSON_Parse failed, len = %d", len);
         return -2;
     }
-
-    msg->len = cJSON_GetObjectItem(root, "len")->valueint;
+    cJSON *packinfo = cJSON_GetObjectItem(root, "packinfo");
+    if (packinfo == RT_NULL)
+    {
+        LOG_E("no packinfo in json");
+        cJSON_Delete(root);
+        return -6;
+    }
+    msg->len = cJSON_GetObjectItem(packinfo, "len")->valueint;
     msg->packcnt = cJSON_GetObjectItem(root, "packcnt")->valueint;
     msg->msgtype = (ele_msg_type_t)cJSON_GetObjectItem(root, "msgtype")->valueint;
 
     switch (msg->msgtype)
     {
     case EMT_SERVERMSG_MEMO:
-        msg->data.memo = cJSON_GetObjectItem(root, "message")->valuestring;
+        msg->data.memo = cJSON_GetObjectItem(packinfo, "message")->valuestring;
         break;
     case EMT_SERVERMSG_WEATHER:
-        msg->data.weahterdays = cJSON_GetObjectItem(root, "days")->valueint;
+        msg->data.weatherdays = cJSON_GetObjectItem(packinfo, "days")->valueint;
         break;
     case EMT_SERVERMSG_CLIENTUPDATE:
     {
-        cJSON *packinfo = cJSON_GetObjectItem(root, "packinfo");
-        if (packinfo != RT_NULL)
-        {
-            cJSON *len = cJSON_GetObjectItem(packinfo, "len");
-            cJSON *crc = cJSON_GetObjectItem(packinfo, "cscrc");
-            cJSON *version = cJSON_GetObjectItem(packinfo, "version");
-            cJSON *buildinfo = cJSON_GetObjectItem(packinfo, "buildinfo");
+        cJSON *len = cJSON_GetObjectItem(packinfo, "len");
+        cJSON *crc = cJSON_GetObjectItem(packinfo, "cscrc");
+        cJSON *version = cJSON_GetObjectItem(packinfo, "version");
+        cJSON *buildinfo = cJSON_GetObjectItem(packinfo, "buildinfo");
 
-            if (len && crc && version && buildinfo)
-            {
-                msg->data.cs_info.len = (uint32_t)len->valueint;
-                msg->data.cs_info.crc = (uint32_t)crc->valueint;
-                msg->data.cs_info.version = (uint32_t)version->valueint;
-                strncpy(msg->data.cs_info.buildinfo, buildinfo->valuestring,
-                        sizeof(msg->data.cs_info.buildinfo) - 1);
-                msg->data.cs_info.buildinfo[sizeof(msg->data.cs_info.buildinfo) - 1] = '\0';
-            }
-            else
-            {
-                LOG_E("missing field in packinfo");
-                cJSON_Delete(root);
-                return -3;
-            }
+        if (len && crc && version && buildinfo)
+        {
+            msg->data.cs_info.len = (uint32_t)len->valueint;
+            msg->data.cs_info.crc = (uint32_t)crc->valueint;
+            msg->data.cs_info.version = (uint32_t)version->valueint;
+            strncpy(msg->data.cs_info.buildinfo, buildinfo->valuestring,
+                    sizeof(msg->data.cs_info.buildinfo) - 1);
+            msg->data.cs_info.buildinfo[sizeof(msg->data.cs_info.buildinfo) - 1] = '\0';
         }
         else
         {
-            LOG_E("no packinfo in json");
+            LOG_E("missing field in packinfo");
             cJSON_Delete(root);
-            return -4;
+            return -3;
         }
         break;
     }
@@ -155,10 +151,10 @@ static int32_t parese_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
         LOG_I("recv memo: %s", msg->data.memo);
         // 收到备忘录消息后存到配置文件中
         memcpy(ele_ds->device_cfg.memo, msg->data.memo, strlen(msg->data.memo) + 1);
-        client->recv_info.recv_state = CRS_END;
+        client->recv_info.recv_state = CRS_FINISH;
         break;
     case EMT_SERVERMSG_WEATHER:
-        LOG_I("recv weather days: %d", msg->data.weahterdays);
+        LOG_I("recv weather days: %d", msg->data.weatherdays);
         client->recv_info.recv_state = CRS_DATA;
         break;
     case EMT_SERVERMSG_CLIENTUPDATE:
@@ -212,7 +208,7 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
         switch (ele_ds->client.recv_info.recv_state)
         {
         case CRS_NONE: // 默认状态，检查是否是 JSON 数据
-            if (is_json((char *)buffer, len) == true)
+            if (is_json((char *)buffer, strlen((char *)buffer)) == true)
             {
                 ele_ds->client.recv_info.recv_state = CRS_HEAD;
                 LOG_I("recv json data, len = %d", len);
@@ -258,7 +254,7 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
 
         case CRS_DATA: // 解析数据部分
             /* 接收数据段
-                1. 处理 datalen 长度的数据, 收完设置 CRS_END
+                1. 处理 datalen 长度的数据, 收完设置 CRS_FINISH
                 2. 长时间处于 CRS_DATA 且没数据, 使用定时器复位接收状态 */
             if (ele_ds->client.recv_info.datalen > 0)
             {
@@ -287,9 +283,11 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                 ele_ds->client.recv_info.datalen -= len; // 减去已接收的数据长度
             }
             else
-                ele_ds->client.recv_info.recv_state = CRS_END;
+                ele_ds->client.recv_info.recv_state = CRS_FINISH;
             break;
-        case CRS_END: // 接收结束
+        case CRS_FINISH: // 接收结束
+        case CRS_END:
+            LOG_I("recv end");
             rt_timer_stop(&ele_ds->client.tcp_recv_timer);
             if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_CLIENTUPDATE)
             {
@@ -305,12 +303,11 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                 else
                 {
                     LOG_E("crc check failed, crc = %#x, expect crc = %#x", crc_result, ele_ds->client.recv_info.update_file_crc);
-                    ret = -4; 
+                    ret = -4;
                 }
             }
             clear_client_info(&ele_ds->client);
-            break;
-
+            return 0;
         default:
             LOG_E("recv data error, state = %d", ele_ds->client.recv_info.recv_state);
             ret = -2; // 未知状态
@@ -341,18 +338,18 @@ static void thread_parse_recv_data(void *parameter)
         return;
     }
     ele_ds_t ele_ds = (ele_ds_t)parameter;
-    rt_uint8_t buffer[1500]; // tcp 的mtu一般都是 1500
+    uint8_t buffer[1500]; // tcp 的mtu一般都是 1500
     int32_t ret = 0;
 
     while (ele_ds->exit_flag == false)
     {
-        ret = rt_sem_take(ele_ds->client.rb_sem, 50);
+        ret = rt_sem_take(ele_ds->client.rb_sem, 500);
         if (ret == RT_EOK)
         {
             rt_size_t len = rt_ringbuffer_get(&ele_ds->client.rb, buffer, sizeof(buffer));
             if (len > 0)
             {
-                LOG_I("recv len: %d", len);
+                LOG_I("recv len: %d content: %s", len, buffer);
                 int32_t result = parese_recv_data(ele_ds, buffer, len);
                 if (result < 0)
                 {
@@ -360,10 +357,15 @@ static void thread_parse_recv_data(void *parameter)
                     clear_client_info(&ele_ds->client);
                 }
             }
+            else
+            {
+                LOG_E("get rb data failed, ret = %d", ret);
+            }
         }
         else
         {
-            LOG_I("recv sem take timeout, ret = %d", ret);
+            if (ret != -RT_ETIMEOUT)
+                LOG_W("recv sem take timeout, ret = %d", ret);
             continue;
         }
     }
@@ -410,15 +412,26 @@ static void threads_communicate_server(void *parameter)
     {
         LOG_E("send failed, ret = %d", ret);
     }
-
+    uint8_t recvbuf[CLIENT_RECV_PACKSIZE] = {0};
     while (ele_ds->exit_flag == false)
     {
-        int len = recv(sock, ele_ds->client.recv_buf, sizeof(ele_ds->client.recv_buf), 0);
+        int len = recv(sock, recvbuf, CLIENT_RECV_PACKSIZE, 0);
         if (len > 0)
         {
-            rt_ringbuffer_put(&ele_ds->client.rb, ele_ds->client.recv_buf, len);
-            rt_sem_release(ele_ds->client.rb_sem);
-            LOG_I("Size: %d", len);
+            recvbuf[len++] = '\0';
+            int32_t result =  rt_ringbuffer_put(&ele_ds->client.rb, recvbuf, len);
+            if (result <= 0)
+            {
+                LOG_E("rb put failed, ret = %d", result);
+            }
+            else
+            {
+                rt_err_t ret = rt_sem_release(ele_ds->client.rb_sem);
+                if (ret != RT_EOK)
+                {
+                    LOG_E("rb_sem release failed, ret = %d", ret);
+                }
+            }
         }
         rt_thread_mdelay(20);
     }
@@ -456,6 +469,13 @@ int32_t esp8266_device_init(ele_ds_t ele_ds)
 
     if (ret == 0)
     {
+        ele_ds->client.recv_buf = rt_malloc(CLIENT_RECV_PACKSIZE);
+        if (ele_ds->client.recv_buf == RT_NULL)
+        {
+            LOG_E("recv_buf malloc failed\n");
+            return -4;
+        }
+        rt_ringbuffer_init(&ele_ds->client.rb, ele_ds->client.recv_buf, CLIENT_RECV_BUFFSIZE);
         // 初始化tcp接收超时定时器
         rt_timer_init(&ele_ds->client.tcp_recv_timer,
                       "tcp_tim", tcp_timeout_cb,

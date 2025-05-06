@@ -29,6 +29,7 @@ extern int untar(const char *tar_path, const char *dst_dir);
 extern void print_array_with_prefix(const char *prefix, const uint8_t *array, size_t size);
 extern bool is_json(const char *data, size_t len);
 extern uint32_t crcfile(int argc, char **argv);
+extern char *find_json_start(char *buffer, int32_t len);
 
 #endif /* __COMMON_H__ */
 

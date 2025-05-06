@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-20 13:22:49
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-03 09:52:48
+ * @LastEditTime: 2025-05-06 15:07:12
  * @FilePath: \ele_ds\applications\common\common.c
  * @Description: 常用函数
  */
@@ -271,3 +271,24 @@ uint32_t crcfile(int argc, char **argv)
     return crc_result;
 }
 MSH_CMD_EXPORT(crcfile, Calculate CRC32 of a file using hardware CRC);
+
+/**
+ * @description: 查找json在字符串中的起始位置
+ * @param {char} *buffer 接收数据缓冲区
+ * @param {int32_t} len 接收数据长度
+ * @return {char} * 返回json起始位置指针
+ */
+char *find_json_start(char *buffer, int32_t len)
+{
+    char *start = NULL;
+    for (int i = 0; i < len; i++)
+    {
+        if (buffer[i] == '{')
+        {
+            start = &buffer[i];
+            break;
+        }
+    }
+    return start;
+}
+

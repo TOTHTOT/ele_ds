@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:41
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-03 10:00:26
+ * @LastEditTime: 2025-05-06 17:19:58
  * @FilePath: \ele_ds\applications\ele_ds\client.h
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -32,11 +32,12 @@ extern int32_t esp8266_device_init(ele_ds_t ele_ds);
 
 typedef enum
 {
-    CRS_NONE = 0, // 没有数据
-    CRS_HEAD,     // 头部数据
-    CRS_DATA,     // 数据部分
-    CRS_END,      // 结束数据
-    CSR_MAX,      // 最大数据长度
+    CRS_NONE = 0,      // 没有数据
+    CRS_HEAD,          // 头部数据
+    CRS_DATA,          // 数据部分
+    CRS_FINISH,        // 接收完成数据
+    CRS_END,           // 结束
+    CSR_MAX,           // 最大数据长度
 } client_recv_state_t; // 客户端接收数据状态
 
 typedef enum
@@ -113,7 +114,7 @@ typedef struct
     union
     {
         char *memo;                           // 备忘录消息
-        int8_t weahterdays;                   // 天气消息, 天数
+        int8_t weatherdays;                   // 天气消息, 天数
         client_software_updateinfo_t cs_info; // 客户端升级包信息
     } data;
     uint32_t len;           // 消息长度
@@ -129,7 +130,6 @@ typedef struct ele_ds_client
     rt_thread_t parse_thread;       // 终端线程负责解析数据
     struct rt_ringbuffer rb;        // 终端线程和服务器通信的环形缓冲区
     rt_sem_t rb_sem;                // 终端线程和服务器通信的信号量
-    uint8_t recv_buf[1500 * 10];    // 终端线程接收数据的缓冲区
     struct
     {
         client_recv_state_t recv_state; // 终端线程接收数据的状态
@@ -140,7 +140,9 @@ typedef struct ele_ds_client
         char update_file_name[256];     // 升级包文件名
         uint32_t update_file_crc;       // 升级包crc, 服务器传来的
     } recv_info;                        // 终端线程接收数据的状态, 超时直接复位这个结构体
-
+#define CLIENT_RECV_PACKSIZE 1500
+#define CLIENT_RECV_BUFFSIZE (CLIENT_RECV_PACKSIZE * 10)
+    uint8_t *recv_buf; // 终端线程接收数据的缓冲区
 } ele_ds_client_t;
 
 #endif /* __ELE_DS_CLIENT_H__ */
