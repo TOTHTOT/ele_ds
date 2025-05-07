@@ -399,7 +399,11 @@ static void thread_parse_recv_data(void *parameter)
             rt_size_t len = rt_ringbuffer_get(&ele_ds->client.rb, buffer, CLIENT_RECV_PACKSIZE);
             if (len > 0)
             {
+#if 1 // 不验证这块功能时不显示buffer内容
+                LOG_I("recv len: %d", len);
+#else
                 LOG_I("recv len: %d content: %s", len, buffer);
+#endif
                 int32_t result = parse_recv_data(ele_ds, buffer, len);
                 if (result < 0)
                 {
