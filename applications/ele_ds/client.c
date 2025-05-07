@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-06 17:56:35
+ * @LastEditTime: 2025-05-07 15:45:26
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -63,7 +63,7 @@ static int32_t clear_client_info(ele_ds_client_t *client)
  * @param {int32_t} len 接收数据长度
  * @return {int32_t} 0表示成功, -1表示数据格式错误
  */
-static int32_t parese_json_data(ele_msg_t *msg, uint8_t *buffer, int32_t len)
+static int32_t parse_json_data(ele_msg_t *msg, uint8_t *buffer, int32_t len)
 {
     if (msg == RT_NULL || buffer == RT_NULL || len <= 0 || is_json((char *)buffer, len) == false)
     {
@@ -99,7 +99,7 @@ static int32_t parese_json_data(ele_msg_t *msg, uint8_t *buffer, int32_t len)
     case EMT_SERVERMSG_CLIENTUPDATE:
     {
         cJSON *len = cJSON_GetObjectItem(packinfo, "len");
-        cJSON *crc = cJSON_GetObjectItem(packinfo, "cscrc");
+        cJSON *crc = cJSON_GetObjectItem(packinfo, "crc");
         cJSON *version = cJSON_GetObjectItem(packinfo, "version");
         cJSON *buildinfo = cJSON_GetObjectItem(packinfo, "buildinfo");
 
@@ -135,7 +135,7 @@ static int32_t parese_json_data(ele_msg_t *msg, uint8_t *buffer, int32_t len)
  * @param {ele_msg_t} *msg 消息结构体指针
  * @return {int32_t} 0表示成功, < 0 失败, > 0 表示消息类型
  */
-static int32_t parese_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
+static int32_t parse_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
 {
     if (ele_ds == RT_NULL || msg == RT_NULL)
     {
@@ -165,16 +165,19 @@ static int32_t parese_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
         client->recv_info.recv_state = CRS_DATA;
         client->recv_info.update_file_crc = msg->data.cs_info.crc;
         client->recv_info.datalen = msg->data.cs_info.len;
-        char filepath[256] = {0};
-        sprintf(filepath, "%s/SOFT_%x.bin", SOFTWARE_UPDATE_FILE_PATH, msg->data.cs_info.version);
-        memcpy(client->recv_info.update_file_name, filepath, strlen(filepath) + 1);
+        memset(client->recv_info.update_file_name, 0, sizeof(client->recv_info.update_file_name));
+        sprintf(client->recv_info.update_file_name, "%s/soft_%x.bin", SOFTWARE_UPDATE_FILE_PATH, msg->data.cs_info.version);
+#if 0   // 不知道为什么, 这里打开文件 CRS_DATA 里写数据回写不了, 只能在 CRS_DATA 里打开文件
         // 收到数据头后创建文件, 如果文件存在就删除
-        client->recv_info.update_file_fd = open(filepath, O_RDWR | O_CREAT | O_TRUNC, 0);
+        // fd = open(argv[2], O_RDWR | O_APPEND | O_CREAT, 0);
+        client->recv_info.update_file_fd = open(filepath, O_RDWR | O_CREAT);
         if (client->recv_info.update_file_fd < 0)
         {
             LOG_E("open file failed, fd = %d, path = %s", client->recv_info.update_file_fd, filepath);
             return -2;
         }
+        LOG_I("update file path: %s, fd = %d", filepath, client->recv_info.update_file_fd);
+#endif /* ENABLE_SAVE_FILE */
     }
     break;
 
@@ -186,13 +189,28 @@ static int32_t parese_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
 }
 
 /**
+ * @description: 判断当前解析的消息类型是否需要接收数据
+ * @param {ele_msg_type_t} type 消息类型
+ * @return {bool} true表示需要接收数据, false表示不需要接收数据
+ */
+static bool cur_parsetype_need_recvdata(ele_msg_type_t type)
+{
+    if (type == EMT_SERVERMSG_WEATHER ||
+        type == EMT_SERVERMSG_CLIENTUPDATE)
+    {
+        return true;
+    }
+    return false;
+}
+
+/**
  * @description: 解析接收到的数据
  * @param {ele_ds_t} ele_ds 设备指针
  * @param {uint8_t} *buffer 接收数据缓冲区
  * @param {int32_t} len 接收数据长度
  * @return {int32_t} 0表示成功, -1表示数据格式错误,
  */
-static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
+static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
 {
     // 检查输入参数是否有效
     if (ele_ds == RT_NULL || buffer == RT_NULL || len <= 0)
@@ -229,11 +247,11 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                2. 解析失败设置 CRS_NONE */
             int32_t head_len = strlen((char *)buffer);
             ele_msg_t msg = {0};
-            int32_t result = parese_json_data(&msg, buffer, head_len);
+            int32_t result = parse_json_data(&msg, buffer, head_len);
             if (result == 0)
             {
                 LOG_I("msgtype = %d, len = %d, packcnt = %d", msg.msgtype, msg.len, msg.packcnt);
-                result = parese_msgtype(ele_ds, &msg);
+                result = parse_msgtype(ele_ds, &msg);
                 if (result < 0)
                 {
                     LOG_E("parse msgtype failed, ret = %d", result);
@@ -241,9 +259,9 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                     ret = -2; // 解析失败
                     break;
                 }
-                else if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_WEATHER ||
-                         ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_CLIENTUPDATE)
+                else if (cur_parsetype_need_recvdata((ele_msg_type_t)result) == true)
                 {
+                    LOG_I("cur parse type need recv data");
                     ret = 1; // 结束本次接收 等待服务器发数据
                 }
             }
@@ -261,6 +279,8 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
             /* 接收数据段
                 1. 处理 datalen 长度的数据, 收完设置 CRS_FINISH
                 2. 长时间处于 CRS_DATA 且没数据, 使用定时器复位接收状态 */
+            LOG_I("CRS_DATA datalen = %d, recv_len = %d, len = %d",
+                  ele_ds->client.recv_info.datalen, ele_ds->client.recv_info.recv_len, len);
             if (ele_ds->client.recv_info.datalen > 0)
             {
                 if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_WEATHER) // 天气数据写入到配置信息
@@ -269,13 +289,27 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                 }
                 else if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_CLIENTUPDATE) // 升级数据写入到文件
                 {
-                    int32_t write_len = write(ele_ds->client.recv_info.update_file_fd, buffer, len);
+#if ENABLE_SAVE_FILE
+                    // 测试时buffer是字符串, 实际应用中是二进制数据, 长度不准的
+                    LOG_I("write file, len = %d, fd = %d, bufferlen = %d",
+                          len, ele_ds->client.recv_info.update_file_fd, strlen((char *)buffer));
+                    int32_t fd = open(ele_ds->client.recv_info.update_file_name, O_WRONLY | O_CREAT | O_APPEND);
+                    if (fd < 0)
+                    {
+                        LOG_E("open file failed, ret = %d, file = %s",
+                              fd, ele_ds->client.recv_info.update_file_name);
+                        ret = -3; // 打开文件失败
+                        break;
+                    }
+                    int32_t write_len = write(fd, buffer, len);
                     if (write_len < 0)
                     {
                         LOG_E("write file failed, ret = %d", write_len);
                         ret = -3; // 写文件失败
                         break;
                     }
+                    close(fd);
+#endif /* ENABLE_SAVE_FILE */
                 }
                 else
                 {
@@ -286,6 +320,7 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                 //rt_timer_start(&ele_ds->client.tcp_recv_timer);
                 ele_ds->client.recv_info.recv_len += len; // 累加已接收的数据长度
                 ele_ds->client.recv_info.datalen -= len; // 减去已接收的数据长度
+                ret = 2; // 写完一包数据就退出, 等待收到下一包数据才写
             }
             else
                 ele_ds->client.recv_info.recv_state = CRS_FINISH;
@@ -296,6 +331,7 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
             //rt_timer_stop(&ele_ds->client.tcp_recv_timer);
             if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_CLIENTUPDATE)
             {
+#if ENABLE_SAVE_FILE
                 char *arg0 = "md5sum";
                 char *arg1 = ele_ds->client.recv_info.update_file_name;
                 char *argv[] = {arg0, arg1};
@@ -310,6 +346,7 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                     LOG_E("crc check failed, crc = %#x, expect crc = %#x", crc_result, ele_ds->client.recv_info.update_file_crc);
                     ret = -4;
                 }
+#endif /* ENABLE_SAVE_FILE */
             }
             clear_client_info(&ele_ds->client);
             return 0;
@@ -322,7 +359,10 @@ static int32_t parese_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
         // 如果发生错误，退出循环
         if (ret != 0)
         {
-            LOG_I("parse recv data failed, ret = %d", ret);
+            if (ret > 0)
+                LOG_I("exit recv loop, ret = %d", ret);
+            else
+                LOG_E("parse recv data failed, ret = %d", ret);
             break;
         }
     }
@@ -344,19 +384,23 @@ static void thread_parse_recv_data(void *parameter)
         return;
     }
     ele_ds_t ele_ds = (ele_ds_t)parameter;
-    uint8_t buffer[1500]; // tcp 的mtu一般都是 1500
+    uint8_t *buffer = rt_calloc(1, CLIENT_RECV_PACKSIZE); // tcp 的mtu一般都是 1500
+    if (buffer == RT_NULL)
+    {
+        LOG_E("rt_calloc buffer failed");
+        return;
+    }
     int32_t ret = 0;
-
     while (ele_ds->exit_flag == false)
     {
         ret = rt_sem_take(ele_ds->client.rb_sem, 500);
         if (ret == RT_EOK)
         {
-            rt_size_t len = rt_ringbuffer_get(&ele_ds->client.rb, buffer, sizeof(buffer));
+            rt_size_t len = rt_ringbuffer_get(&ele_ds->client.rb, buffer, CLIENT_RECV_PACKSIZE);
             if (len > 0)
             {
                 LOG_I("recv len: %d content: %s", len, buffer);
-                int32_t result = parese_recv_data(ele_ds, buffer, len);
+                int32_t result = parse_recv_data(ele_ds, buffer, len);
                 if (result < 0)
                 {
                     LOG_E("parse recv data failed, ret = %d", result);
@@ -412,13 +456,20 @@ static void threads_communicate_server(void *parameter)
         return;
     }
     // 连接成功发送模拟数据
+#if ENABLE_POWERON_SEND_DEVINFO
     const char *msg = "{\"type\":2,\"sensor_data\":{\"temperature\":25,\"humidity\":60,\"pressure\":101325,\"tvoc\":50,\"co2\":400},\"cfg\":{\"username\":\"test_user\",\"passwd\":\"123456\",\"cityname\":\"Beijing\",\"cityid\":101010100,\"cntserver_interval\":30,\"version\":20240328,\"battery\":85}}";
     ret = send(sock, msg, strlen(msg), 0);
     if (ret < 0)
     {
         LOG_E("send failed, ret = %d", ret);
     }
-    uint8_t recvbuf[CLIENT_RECV_PACKSIZE] = {0};
+#endif /* ENABLE_POWERON_SEND_DEVINFO */
+    uint8_t *recvbuf = rt_calloc(1, CLIENT_RECV_PACKSIZE);
+    if (recvbuf == RT_NULL)
+    {
+        LOG_E("recvbuf rt_calloc failed");
+        return;
+    }
     while (ele_ds->exit_flag == false)
     {
         int len = recv(sock, recvbuf, CLIENT_RECV_PACKSIZE, 0);
@@ -475,10 +526,10 @@ int32_t esp8266_device_init(ele_ds_t ele_ds)
 
     if (ret == 0)
     {
-        ele_ds->client.recv_buf = rt_malloc(CLIENT_RECV_PACKSIZE);
+        ele_ds->client.recv_buf = rt_calloc(1, CLIENT_RECV_BUFFSIZE);
         if (ele_ds->client.recv_buf == RT_NULL)
         {
-            LOG_E("recv_buf malloc failed\n");
+            LOG_E("recv_buf rt_calloc failed\n");
             return -4;
         }
         rt_ringbuffer_init(&ele_ds->client.rb, ele_ds->client.recv_buf, CLIENT_RECV_BUFFSIZE);
@@ -498,7 +549,7 @@ int32_t esp8266_device_init(ele_ds_t ele_ds)
         }
 
         ele_ds->client.recv_thread = rt_thread_create("th_client", threads_communicate_server, (void *)ele_ds,
-                                                      4096, RT_MAIN_THREAD_PRIORITY - 2, 20);
+                                                      2048, RT_MAIN_THREAD_PRIORITY - 2, 20);
         if (ele_ds->client.recv_thread != RT_NULL)
         {
             rt_thread_startup(ele_ds->client.recv_thread);
@@ -510,7 +561,7 @@ int32_t esp8266_device_init(ele_ds_t ele_ds)
         }
 
         ele_ds->client.parse_thread = rt_thread_create("th_recv_parse", thread_parse_recv_data, (void *)ele_ds,
-                                                       8192, RT_MAIN_THREAD_PRIORITY - 3, 20);
+                                                       2048, RT_MAIN_THREAD_PRIORITY - 3, 20);
         if (ele_ds->client.parse_thread != RT_NULL)
         {
             rt_thread_startup(ele_ds->client.parse_thread);

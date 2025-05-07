@@ -15,6 +15,11 @@
   "name": "LVGL"
  }, 
  {
+  "path": "/packages/tools/CmBacktrace", 
+  "ver": "v1.4.1", 
+  "name": "CMBACKTRACE"
+ }, 
+ {
   "path": "/packages/system/tz-database", 
   "ver": "latest", 
   "name": "TZ_DATABASE"

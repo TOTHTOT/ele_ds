@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:41
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-06 17:19:58
+ * @LastEditTime: 2025-05-07 14:54:31
  * @FilePath: \ele_ds\applications\ele_ds\client.h
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -21,11 +21,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define USER_NAME_SIZE 21 // 用户名最大长度, 实际20字节, 最后一个字节是\0
-#define USER_PASSWD_SIZE 21 // 密码最大长度
-#define CITY_NAME_SIZE 21 // 城市名字最大长度
+#define USER_NAME_SIZE 21             // 用户名最大长度, 实际20字节, 最后一个字节是\0
+#define USER_PASSWD_SIZE 21           // 密码最大长度
+#define CITY_NAME_SIZE 21             // 城市名字最大长度
 #define CLIENT_CHEAT_CONTENT_SIZE 256 // 备忘录消息最大长度
-
+#define ENABLE_SAVE_FILE 1            // 是否保存下载的文件, 默认都要开启
+#define ENABLE_POWERON_SEND_DEVINFO 0 // 是否开机发送设备信息给服务器, 默认开启, 暂时关闭
 
 typedef struct ele_ds *ele_ds_t;
 extern int32_t esp8266_device_init(ele_ds_t ele_ds);
