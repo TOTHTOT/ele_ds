@@ -153,6 +153,11 @@
 
 /* POSIX (Portable Operating System Interface) layer */
 
+#define RT_USING_POSIX_FS
+#define RT_USING_POSIX_DEVIO
+#define RT_USING_POSIX_STDIO
+#define RT_USING_POSIX_POLL
+#define RT_USING_POSIX_TERMIOS
 
 /* Interprocess Communication (IPC) */
 
@@ -257,6 +262,8 @@
 #define PKG_CMBACKTRACE_PRINT_ENGLISH
 #define PKG_USING_CMBACKTRACE_V10401
 #define PKG_CMBACKTRACE_VER_NUM 0x10401
+#define PKG_USING_MEM_SANDBOX
+#define PKG_USING_MEM_SANDBOX_LATEST_VERSION
 
 /* system packages */
 
@@ -295,6 +302,9 @@
 
 /* HC32 DDL Drivers */
 
+/* NXP HAL & SDK Drivers */
+
+
 /* sensors drivers */
 
 #define PKG_USING_SGP30
@@ -327,6 +337,26 @@
 
 /* entertainment: terminal games and other interesting software packages */
 
+#define PKG_USING_OPTPARSE
+#define PKG_USING_OPTPARSE_LATEST_VERSION
+#define PKG_USING_VI
+#define VI_SANDBOX_SIZE_KB 20
+#define VI_MAX_LEN 4096
+#define VI_ENABLE_COLON
+#define VI_ENABLE_COLON_EXPAND
+#define VI_ENABLE_YANKMARK
+#define VI_ENABLE_SEARCH
+#define VI_ENABLE_DOT_CMD
+#define VI_ENABLE_READONLY
+#define VI_ENABLE_SETOPTS
+#define VI_ENABLE_SET
+#define VI_ENABLE_WIN_RESIZE
+#define VI_ENABLE_VI_ASK_TERMINAL
+#define VI_ENABLE_UNDO
+#define VI_ENABLE_UNDO_QUEUE
+#define VI_UNDO_QUEUE_MAX 256
+#define VI_ENABLE_VERBOSE_STATUS
+#define PKG_USING_VI_LATEST_VERSION
 
 /* Arduino libraries */
 

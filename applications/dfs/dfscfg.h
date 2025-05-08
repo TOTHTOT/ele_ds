@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-05 12:21:47
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-03 08:31:11
+ * @LastEditTime: 2025-05-08 11:13:47
  * @FilePath: \ele_ds\applications\dfs\dfscfg.h
  * @Description: dfs文件系统相关配置
  */
@@ -30,7 +30,7 @@ typedef struct
     uint8_t server_addr[64]; // 服务器地址
     uint16_t server_port;    // 服务器端口
 
-#define CFGFILE_DEFATLT_CITYID 101230101
+#define CFGFILE_DEFATLT_CITYID 101010100
     uint32_t cityid;
     weather_type_t curweather;
     weather_info_t weather_info[7];

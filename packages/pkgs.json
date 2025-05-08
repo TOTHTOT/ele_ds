@@ -20,6 +20,11 @@
   "name": "CMBACKTRACE"
  }, 
  {
+  "path": "/packages/tools/mem_sandbox", 
+  "ver": "latest", 
+  "name": "MEM_SANDBOX"
+ }, 
+ {
   "path": "/packages/system/tz-database", 
   "ver": "latest", 
   "name": "TZ_DATABASE"
@@ -38,5 +43,15 @@
   "path": "/packages/peripherals/i2c-tools", 
   "ver": "latest", 
   "name": "I2C_TOOLS"
+ }, 
+ {
+  "path": "/packages/misc/optparse", 
+  "ver": "latest", 
+  "name": "OPTPARSE"
+ }, 
+ {
+  "path": "/packages/misc/vi", 
+  "ver": "latest", 
+  "name": "VI"
  }
 ]

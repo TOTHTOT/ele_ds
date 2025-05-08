@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-07 09:21:50
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-08 09:23:10
+ * @LastEditTime: 2025-05-08 11:15:56
  * @FilePath: \ele_ds\applications\dfs\dfscfg.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -38,7 +38,11 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
 static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
 {
     cJSON *root = cJSON_CreateObject();
-
+    if (root == NULL)
+    {
+        LOG_E("cJSON_CreateObject failed");
+        return NULL;
+    }
     cJSON_AddStringToObject(root, "wifi_ssid", (const char *)cfg->wifi_ssid);
     cJSON_AddStringToObject(root, "wifi_passwd", (const char *)cfg->wifi_passwd);
     cJSON_AddStringToObject(root, "server_addr", (const char *)cfg->server_addr);
@@ -87,10 +91,11 @@ static void json_to_ele_ds_cfg(ele_ds_cfg_t *cfg, const cJSON *json)
     cfg->check = CFGFILE_CHECK;
 }
 
+
 int32_t write_ele_ds_cfg(ele_ds_cfg_t *cfg)
 {
     cJSON *json = ele_ds_cfg_to_json(cfg);
-    char *json_str = cJSON_PrintUnformatted(json);
+    char *json_str = cJSON_Print(json);
 
     int fd = open(CONFIG_FILE_PATH, O_WRONLY | O_CREAT | O_TRUNC, 0);
     if (fd < 0)
@@ -111,15 +116,16 @@ int32_t write_ele_ds_cfg(ele_ds_cfg_t *cfg)
 
 int32_t read_ele_ds_cfg(ele_ds_cfg_t *cfg)
 {
-    char buf[2048] = {0}; // 必要时扩大
     int fd = open(CONFIG_FILE_PATH, O_RDONLY);
     if (fd < 0)
     {
         LOG_E("open %s failed", CONFIG_FILE_PATH);
         return -1;
     }
-
-    int len = read(fd, buf, sizeof(buf) - 1);
+    int32_t size = lseek(fd, 0, SEEK_END);
+    lseek(fd, 0, SEEK_SET);
+    char *buf = rt_calloc(1, size + 1);
+    int len = read(fd, buf, size);
     close(fd);
     if (len <= 0)
     {
@@ -136,6 +142,7 @@ int32_t read_ele_ds_cfg(ele_ds_cfg_t *cfg)
 
     json_to_ele_ds_cfg(cfg, json);
     cJSON_Delete(json);
+    free(buf);
     return 0;
 }
 
@@ -163,6 +170,7 @@ static int32_t init_cfgfile(ele_ds_cfg_t *cfg)
  */
 void ele_ds_cfg_print(ele_ds_cfg_t *cfg)
 {
+#if 1 
     rt_kprintf("config file info:\n");
     rt_kprintf("version: %s\n", cfg->version);
     rt_kprintf("cityid: %d\n", cfg->cityid);
@@ -176,6 +184,13 @@ void ele_ds_cfg_print(ele_ds_cfg_t *cfg)
         rt_kprintf("weather[%d]: %s\t", i, cfg->weather_info[i].textDay);
         rt_kprintf("tempMax: %d tempMin: %d\n", cfg->weather_info[i].tempMax, cfg->weather_info[i].tempMin);
     }
+#else
+    (void)cfg;
+    cJSON *json = ele_ds_cfg_to_json(cfg);
+    char *json_str = cJSON_Print(json);
+    rt_kprintf("%s\n", json_str);
+    cJSON_Delete(json);
+#endif
 }
 void ele_ds_cfg_print_cmd(int argc, char **argv)
 {
@@ -198,6 +213,7 @@ static int32_t sysfile_init(void)
     }
     else
     {
+#if 0 // 改为json
         int fd = open(CONFIG_FILE_PATH, O_RDONLY);
         if (fd < 0)
         {
@@ -206,14 +222,18 @@ static int32_t sysfile_init(void)
         }
         read(fd, &g_ele_ds->device_cfg, sizeof(ele_ds_cfg_t));
         close(fd);
-
+#if 0 // 使用json的话不需要校验了, 因为可以手动修改文件内容
         if (g_ele_ds->device_cfg.check != CFGFILE_CHECK)
         {
             LOG_E("config file check failed, need init");
             init_cfgfile(&g_ele_ds->device_cfg);
             return -3;
         }
+#endif
         LOG_D("filesystem already init");
+#else
+        read_ele_ds_cfg(&g_ele_ds->device_cfg);
+#endif
         // 输出配置信息
         ele_ds_cfg_print(&g_ele_ds->device_cfg);
     }
