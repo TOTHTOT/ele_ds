@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-08 14:54:49
+ * @LastEditTime: 2025-05-08 15:10:10
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -159,7 +159,7 @@ static int32_t parse_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
         break;
     case EMT_SERVERMSG_CLIENTUPDATE:
     {
-        LOG_D("recv client update info: len = %d, crc = %d, version = %d, buildinfo = %s",
+        LOG_D("recv client update info: len = %d, crc = %#x, version = %d, buildinfo = %s",
               msg->data.cs_info.len, msg->data.cs_info.crc, msg->data.cs_info.version,
               msg->data.cs_info.buildinfo);
         client->recv_info.recv_state = CRS_DATA;
@@ -219,7 +219,11 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
         return -1;
     }
 
-    int32_t ret = 0; // 状态变量，记录函数执行结果
+    /* 状态变量，记录函数执行结果, 
+    1. == 0继续循环
+    2. > 0 退出循环, 标记执行结果, 可能会在收到数据时继续本次状态机 
+    3. < 0 退出循环, 标记报错 */
+    int32_t ret = 0;
 
     while (ele_ds->client.recv_info.recv_state != CRS_END)
     {
@@ -293,7 +297,7 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                     // 测试时buffer是字符串, 实际应用中是二进制数据, 长度不准的
                     LOG_D("write file, len = %d, fd = %d, bufferlen = %d",
                           len, ele_ds->client.recv_info.update_file_fd, strlen((char *)buffer));
-                    if (ele_ds->client.recv_info.update_file_fd == 0)
+                    if (ele_ds->client.recv_info.update_file_fd <= 0)
                     {
                         ele_ds->client.recv_info.update_file_fd = open(ele_ds->client.recv_info.update_file_name, O_WRONLY | O_CREAT | O_APPEND);
                         if (ele_ds->client.recv_info.update_file_fd < 0)
@@ -323,7 +327,13 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                 //rt_timer_start(&ele_ds->client.tcp_recv_timer);
                 ele_ds->client.recv_info.recv_len += len; // 累加已接收的数据长度
                 ele_ds->client.recv_info.datalen -= len; // 减去已接收的数据长度
-                ret = 2; // 写完一包数据就退出, 等待收到下一包数据才写
+                if (ele_ds->client.recv_info.datalen <= 0) // 已经收完数据
+                {
+                    ele_ds->client.recv_info.recv_state = CRS_FINISH;
+                    ret = 0;
+                }
+                else
+                    ret = 2; // 写完一包数据就退出, 等待收到下一包数据才写
             }
             else
                 ele_ds->client.recv_info.recv_state = CRS_FINISH;
