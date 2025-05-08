@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-07 09:21:50
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-08 11:15:56
+ * @LastEditTime: 2025-05-08 13:31:02
  * @FilePath: \ele_ds\applications\dfs\dfscfg.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -267,3 +267,37 @@ int mnt_init(void)
 
     return 0;
 }
+
+
+void cmd_test_write_speed(void)
+{
+    int32_t fd = open("/sysfile/testspeed", O_RDWR | O_CREAT);
+    if (fd < 0)
+    {
+        LOG_E("open %s failed", "/sysfile/testspeed");
+        return;
+    }
+    
+    char *buf = rt_calloc(1, 1024);
+    uint32_t pack_num = 1024;
+    uint32_t start_time = rt_tick_get_millisecond();
+    for (uint32_t i = 0; i < pack_num; i++)
+    {
+        write(fd, buf, 1024);
+    }
+    uint32_t end_time = rt_tick_get_millisecond();
+    close(fd);
+    free(buf);
+
+    uint32_t total_bytes = 1024 * pack_num;  // 1MB
+    uint32_t elapsed_ticks = end_time - start_time;
+    uint32_t elapsed_ms = elapsed_ticks;
+    
+    if (elapsed_ms == 0) elapsed_ms = 1;  // 防止除零
+    uint32_t speed_kb_s = (total_bytes / 1024) * 1000 / elapsed_ms;
+
+    rt_kprintf("start_time = %d, end_time = %d, elapsed_ms = %d\nwrite speed: %d KB/s\n", start_time, end_time, elapsed_ms, speed_kb_s);
+}
+MSH_CMD_EXPORT_ALIAS(cmd_test_write_speed, testspeed, test write flash speed);
+
+
