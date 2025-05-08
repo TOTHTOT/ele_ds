@@ -82,3 +82,5 @@ packages/at_device-latest/
 packages/mem_sandbox-latest/
 packages/optparse-latest/
 packages/vi-latest/
+data_seq.txt
+received_data.txt
