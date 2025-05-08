@@ -7,7 +7,7 @@
  * @Description: 电子桌搭主要功能
  */
 #ifndef __ELE_DS_H__
-
+#define __ELE_DS_H__
 #include <board.h>
 #include <stdint.h>
 #include <rtdevice.h>

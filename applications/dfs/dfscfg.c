@@ -2,12 +2,13 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-07 09:21:50
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-21 17:44:48
+ * @LastEditTime: 2025-05-08 09:23:10
  * @FilePath: \ele_ds\applications\dfs\dfscfg.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 #include "dfscfg.h"
 #include "ele_ds.h"
+#include "cJSON.h"
 
 #define DBG_TAG "ele_ds"
 #define DBG_LVL DBG_LOG
@@ -19,11 +20,6 @@ const struct dfs_mount_tbl mount_table[] =
         {0},
 };
 
-/**
- * @description: 初始化配置文件
- * @param {ele_ds_cfg_t} *cfg
- * @return {*}
- */
 void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
 {
     memset(cfg, 0, sizeof(ele_ds_cfg_t));
@@ -31,6 +27,7 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
     cfg->check = CFGFILE_CHECK;
     cfg->cityid = CFGFILE_DEFATLT_CITYID;
     cfg->server_port = CFGFILE_DEFATLT_SERVER_PORT;
+    cfg->tcp_timeout = CFGFILE_DEFAULT_TCP_TIMEOUT;
 
     strncpy((char *)cfg->version, SOFT_VERSION, sizeof(cfg->version) - 1);
     strncpy((char *)cfg->wifi_ssid, CFGFILE_DEFATLT_WIFI_SSID, sizeof(cfg->wifi_ssid) - 1);
@@ -38,41 +35,110 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
     strncpy((char *)cfg->server_addr, CFGFILE_DEFATLT_SERVER_ADDR, sizeof(cfg->server_addr) - 1);
 }
 
-/**
- * @description: 读取配置文件
- * @param {ele_ds_cfg_t} *cfg
- * @return {*}
- */
+static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
+{
+    cJSON *root = cJSON_CreateObject();
+
+    cJSON_AddStringToObject(root, "wifi_ssid", (const char *)cfg->wifi_ssid);
+    cJSON_AddStringToObject(root, "wifi_passwd", (const char *)cfg->wifi_passwd);
+    cJSON_AddStringToObject(root, "server_addr", (const char *)cfg->server_addr);
+    cJSON_AddNumberToObject(root, "server_port", cfg->server_port);
+    cJSON_AddNumberToObject(root, "cityid", cfg->cityid);
+    cJSON_AddNumberToObject(root, "tcp_timeout", cfg->tcp_timeout);
+    cJSON_AddStringToObject(root, "version", (const char *)cfg->version);
+    cJSON_AddStringToObject(root, "memo", cfg->memo);
+
+    cJSON *weather_array = cJSON_CreateArray();
+    for (int i = 0; i < 7; i++)
+    {
+        cJSON *item = cJSON_CreateObject();
+        cJSON_AddStringToObject(item, "textDay", cfg->weather_info[i].textDay);
+        cJSON_AddNumberToObject(item, "tempMax", cfg->weather_info[i].tempMax);
+        cJSON_AddNumberToObject(item, "tempMin", cfg->weather_info[i].tempMin);
+        cJSON_AddItemToArray(weather_array, item);
+    }
+    cJSON_AddItemToObject(root, "weather_info", weather_array);
+
+    return root;
+}
+
+static void json_to_ele_ds_cfg(ele_ds_cfg_t *cfg, const cJSON *json)
+{
+    memset(cfg, 0, sizeof(ele_ds_cfg_t));
+
+    strcpy((char *)cfg->wifi_ssid, cJSON_GetObjectItem(json, "wifi_ssid")->valuestring);
+    strcpy((char *)cfg->wifi_passwd, cJSON_GetObjectItem(json, "wifi_passwd")->valuestring);
+    strcpy((char *)cfg->server_addr, cJSON_GetObjectItem(json, "server_addr")->valuestring);
+    cfg->server_port = cJSON_GetObjectItem(json, "server_port")->valueint;
+    cfg->cityid = cJSON_GetObjectItem(json, "cityid")->valueint;
+    cfg->tcp_timeout = cJSON_GetObjectItem(json, "tcp_timeout")->valueint;
+    strcpy((char *)cfg->version, cJSON_GetObjectItem(json, "version")->valuestring);
+    strcpy(cfg->memo, cJSON_GetObjectItem(json, "memo")->valuestring);
+
+    cJSON *weather_array = cJSON_GetObjectItem(json, "weather_info");
+    for (int i = 0; i < cJSON_GetArraySize(weather_array) && i < 7; i++)
+    {
+        cJSON *item = cJSON_GetArrayItem(weather_array, i);
+        strcpy(cfg->weather_info[i].textDay, cJSON_GetObjectItem(item, "textDay")->valuestring);
+        cfg->weather_info[i].tempMax = cJSON_GetObjectItem(item, "tempMax")->valueint;
+        cfg->weather_info[i].tempMin = cJSON_GetObjectItem(item, "tempMin")->valueint;
+    }
+
+    cfg->check = CFGFILE_CHECK;
+}
+
+int32_t write_ele_ds_cfg(ele_ds_cfg_t *cfg)
+{
+    cJSON *json = ele_ds_cfg_to_json(cfg);
+    char *json_str = cJSON_PrintUnformatted(json);
+
+    int fd = open(CONFIG_FILE_PATH, O_WRONLY | O_CREAT | O_TRUNC, 0);
+    if (fd < 0)
+    {
+        LOG_E("open %s failed", CONFIG_FILE_PATH);
+        cJSON_Delete(json);
+        free(json_str);
+        return -1;
+    }
+
+    write(fd, json_str, strlen(json_str));
+    close(fd);
+
+    cJSON_Delete(json);
+    free(json_str);
+    return 0;
+}
+
 int32_t read_ele_ds_cfg(ele_ds_cfg_t *cfg)
 {
+    char buf[2048] = {0}; // 必要时扩大
     int fd = open(CONFIG_FILE_PATH, O_RDONLY);
     if (fd < 0)
     {
         LOG_E("open %s failed", CONFIG_FILE_PATH);
         return -1;
     }
-    read(fd, cfg, sizeof(ele_ds_cfg_t));
+
+    int len = read(fd, buf, sizeof(buf) - 1);
     close(fd);
+    if (len <= 0)
+    {
+        LOG_E("read %s failed", CONFIG_FILE_PATH);
+        return -2;
+    }
+
+    cJSON *json = cJSON_Parse(buf);
+    if (!json)
+    {
+        LOG_E("parse json failed");
+        return -3;
+    }
+
+    json_to_ele_ds_cfg(cfg, json);
+    cJSON_Delete(json);
     return 0;
 }
 
-/**
- * @description: 写入配置文件
- * @param {ele_ds_cfg_t} *cfg
- * @return {*}
- */
-int32_t write_ele_ds_cfg(ele_ds_cfg_t *cfg)
-{
-    int fd = open(CONFIG_FILE_PATH, O_WRONLY | O_CREAT | O_TRUNC, 0);
-    if (fd < 0)
-    {
-        LOG_E("open %s failed", CONFIG_FILE_PATH);
-        return -1;
-    }
-    write(fd, cfg, sizeof(ele_ds_cfg_t));
-    close(fd);
-    return 0;
-}
 
 /**
  * @description: 初始化系统文件, 如果 SYSFILE_PATH 不存在, 则初始化基本文件
