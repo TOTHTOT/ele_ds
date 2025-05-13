@@ -163,6 +163,7 @@ static void EPD_2IN7_V2_Lut(void)
 function :	Initialize the e-Paper register
 parameter:
 ******************************************************************************/
+#if 0
 void EPD_2IN7_V2_Init(void)
 {
     EPD_2IN7_V2_Reset();
@@ -185,6 +186,39 @@ void EPD_2IN7_V2_Init(void)
     EPD_2IN7_V2_SendData(0x03);
 
 }
+#else
+void EPD_2IN7_V2_Init(void)
+{
+	EPD_2IN7_V2_Reset();
+	EPD_2IN7_V2_ReadBusy();
+
+	EPD_2IN7_V2_SendCommand(0x12); // 软复位
+	EPD_2IN7_V2_ReadBusy();
+
+	// 1. 设置 RAM-Y 地址范围（原X方向，176像素）
+	EPD_2IN7_V2_SendCommand(0x45);
+	EPD_2IN7_V2_SendData(0x00);
+	EPD_2IN7_V2_SendData(0x00);
+	EPD_2IN7_V2_SendData(0xb0);
+	EPD_2IN7_V2_SendData(0x00); // 0x15 = 21+1 *8 = 176
+
+	// 2. 设置 RAM-X 地址范围（原Y方向，264像素）
+	EPD_2IN7_V2_SendCommand(0x44);
+	EPD_2IN7_V2_SendData(0x00);
+	EPD_2IN7_V2_SendData(0x20);
+
+	// 3. 初始化 Y 地址计数器（旋转后Y=原X方向）
+	EPD_2IN7_V2_SendCommand(0x4F);
+	EPD_2IN7_V2_SendData(0x00);
+	EPD_2IN7_V2_SendData(0x00);
+
+	// 4. 设置数据写入模式：Y方向优先，X/Y递增
+	EPD_2IN7_V2_SendCommand(0x11);
+	EPD_2IN7_V2_SendData(0x03); // 0b00000111: Y++, X++, Y优先
+
+	EPD_2IN7_V2_ReadBusy();
+}
+#endif
 void EPD_2IN7_V2_Init_Fast(void)
 {
 	EPD_2IN7_V2_Reset();

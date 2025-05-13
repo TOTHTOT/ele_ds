@@ -39,8 +39,8 @@ void lv_port_disp_init(void)
     disp_drv.ver_res = MY_DISP_VER_RES;
     disp_drv.flush_cb = disp_flush;
     disp_drv.draw_buf = &draw_buf_dsc_1;
-    disp_drv.sw_rotate = 1;
-    disp_drv.rotated = LV_DISP_ROT_90;
+    // disp_drv.sw_rotate = 1;
+    // disp_drv.rotated = LV_DISP_ROT_90;
     lv_disp_drv_register(&disp_drv);
 }
 
@@ -77,7 +77,7 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     rt_uint32_t total, used, max_used;
     rt_memory_info(&total, &used, &max_used);
     // printf("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
-    // printf("x1:%d, y1:%d, x2:%d, y2:%d, w:%d, h:%d, buf_size:%d\n", area->x1, area->y1, area->x2, area->y2, w, h, buf_size);
+    printf("x1:%d, y1:%d, x2:%d, y2:%d, w:%d, h:%d, buf_size:%d\n", area->x1, area->y1, area->x2, area->y2, w, h, buf_size);
     UBYTE *temp_buf = (UBYTE *)lv_mem_alloc(buf_size);
     if (temp_buf == NULL) 
     {
@@ -85,10 +85,18 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
         return;
     }
     EPD_2IN7_V2_Init();
-    Paint_NewImage(temp_buf, w, h, 0, WHITE);
+    Paint_NewImage(temp_buf, w, h, 90, WHITE);
     Paint_SelectImage(temp_buf);
     Paint_Clear(WHITE);
     memset(temp_buf, 0xFF, buf_size);
+#if 0
+    for (uint32_t y = 0; y < h; y++) {
+        for (uint32_t x = 0; x < w; x++) {
+            Paint_SetPixel(x, y, BLACK);
+        }
+    }
+        // Paint_DrawNum(10, 33, 12, &Font12, BLACK, WHITE);
+#else
     for (uint32_t y = 0; y < h; y++) {
         for (uint32_t x = 0; x < w; x++) {
             uint32_t idx = x + y * w;
@@ -96,10 +104,15 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
             uint8_t bit_mask = 0x80 >> (x % 8);
 
             if (lv_color_to1(color_p[idx]) == 0) {
-                temp_buf[byte_idx] &= ~bit_mask;
+                Paint_SetPixel(x, y, BLACK);
+            }
+            else
+            {
+                Paint_SetPixel(x, y, WHITE);
             }
         }
     }
+#endif
 #if 0
     // 输出 temp_buf
     printf("\n");
@@ -120,38 +133,46 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     lv_disp_flush_ready(disp_drv);
 }
 #else
-#define LINE_BUF_WIDTH_BYTE ((MY_DISP_HOR_RES + 7) / 8)
-static UBYTE line_buf[LINE_BUF_WIDTH_BYTE];
-
 static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p)
 {
     uint32_t w = area->x2 - area->x1 + 1;
     uint32_t h = area->y2 - area->y1 + 1;
-    printf("x1:%d, y1:%d, x2:%d, y2:%d, w:%d, h:%d, buf_size:%d\n", area->x1, area->y1, area->x2, area->y2, w, h, 0);
+    uint32_t buf_size = ((h + 7) / 8) * w; // 注意：因为我们旋转了图像，X<->Y
+    printf("x1:%d, y1:%d, x2:%d, y2:%d, w:%d, h:%d, buf_size:%d\n", area->x1, area->y1, area->x2, area->y2, w, h, buf_size);
 
-    if (area->x1 < 0 || area->y1 < 0 || area->x2 >= MY_DISP_HOR_RES || area->y2 >= MY_DISP_VER_RES) {
-        lv_disp_flush_ready(disp_drv);
+    UBYTE *temp_buf = (UBYTE *)lv_mem_alloc(buf_size);
+    if (temp_buf == NULL) 
+    {
+        printf("lv_mem_alloc failed\n");
         return;
     }
 
+    memset(temp_buf, 0xFF, buf_size); // 默认全白
+
+    // 屏幕显示为顺时针旋转了90度 -> 我们写入 temp_buf 时需逆时针旋转
     for (uint32_t y = 0; y < h; y++) {
-        memset(line_buf, 0xFF, LINE_BUF_WIDTH_BYTE);  // 默认白底
-
         for (uint32_t x = 0; x < w; x++) {
-            uint32_t idx = x + y * w;  // color_p 是整个区域的
-            int abs_x = area->x1 + x;
-            int abs_y = area->y1 + y;
+            // 原图像坐标 (x, y)
+            uint32_t src_idx = x + y * w;
 
-            if (lv_color_to1(color_p[idx]) == 0) {
-                line_buf[abs_x / 8] &= ~(0x80 >> (abs_x % 8));
+            // 顺时针旋转90度后的坐标：(new_x = y, new_y = w - 1 - x)
+            uint32_t new_x = y;
+            uint32_t new_y = w - 1 - x;
+
+            uint32_t byte_idx = (new_x / 8) + new_y * ((h + 7) / 8); // 因为现在 width = h
+            uint8_t bit_mask = 0x80 >> (new_x % 8);
+
+            if (lv_color_to1(color_p[src_idx]) == 0) {
+                temp_buf[byte_idx] &= ~bit_mask;  // 黑色像素
             }
         }
-
-        // 刷新当前行（你也可以批量刷新多行，如果驱动支持）
-        EPD_2IN7_V2_Display_Partial(line_buf, area->x1, area->y1 + y, area->x2, area->y1 + y);
-        wait_for_idle();  // 如果必要
     }
 
+    // 显示旋转后图像（如果EPD使用AM=1 Y方向递增）
+    EPD_2IN7_V2_Display_Partial(temp_buf, area->x1, area->y1, area->x2, area->y2);
+    wait_for_idle();
+
+    lv_mem_free(temp_buf);
     lv_disp_flush_ready(disp_drv);
 }
 

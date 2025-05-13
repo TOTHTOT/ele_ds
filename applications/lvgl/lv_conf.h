@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-07 14:15:53
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-29 20:27:38
+ * @LastEditTime: 2025-05-14 17:56:50
  * @FilePath: \ele_ds\applications\lvgl\lv_conf.h
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,8 +11,11 @@
 
 #include <rtconfig.h>
 
-#define MY_DISP_HOR_RES 176
-#define MY_DISP_VER_RES 264
+#define MY_DISP_HOR_RES 264
+#define MY_DISP_VER_RES 176
+
+#define LV_HOR_RES_MAX MY_DISP_HOR_RES
+#define LV_VER_RES_MAX MY_DISP_VER_RES
 #define LV_COLOR_DEPTH 1 // 1-bit 色深，适合墨水屏
 #define LV_USE_BTN 1
 #define LV_MEM_SIZE (10U * 1024U) /*[bytes]*/

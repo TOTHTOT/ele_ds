@@ -42,7 +42,7 @@ int main(void)
 
     while (1)
     {
-        ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
+        // ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
         rt_pin_write(LED0_PIN, PIN_HIGH);
         rt_thread_mdelay(1500);
         rt_pin_write(LED0_PIN, PIN_LOW);

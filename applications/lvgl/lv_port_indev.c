@@ -363,7 +363,7 @@ void main_page(ele_ds_t dev)
 
 
     lv_obj_t* status_bar = create_status_bar(g_ele_ds, NULL, screen_layout, NULL);
-    lv_obj_t *tabview = create_tabview_layout(g_ele_ds, NULL, screen_layout, NULL);
+    // lv_obj_t *tabview = create_tabview_layout(g_ele_ds, NULL, screen_layout, NULL);
 }
 void lv_user_gui_init(void)
 {
@@ -378,7 +378,7 @@ void lv_user_gui_init(void)
     //lv_style_set_text_font(&style_large, &lv_font_montserrat_18);
     lv_style_init(&style_font);  
     lv_style_set_text_font(&style_font, &fangsong_8);
-    
+    EPD_2IN7_V2_Clear();
     main_page(g_ele_ds);
     
     // /* 1. 状态栏 */
