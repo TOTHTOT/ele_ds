@@ -36,6 +36,9 @@
 #define MAX_VBAT 4.2f
 #define MIN_VBAT 3.6f
 #define SOFT_VERSION "V1.0.0"
+#define KEY_WAKEUP_PIN GET_PIN(A, 0)
+#define KEY_1_PIN GET_PIN(B, 13)
+#define KEY_2_PIN GET_PIN(B, 12)
 
 typedef rt_err_t (*get_sensor_data)(void *data);
 
