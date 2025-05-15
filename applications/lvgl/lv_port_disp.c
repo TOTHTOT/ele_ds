@@ -35,8 +35,8 @@ void lv_port_disp_init(void)
 
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
-    disp_drv.hor_res = MY_DISP_HOR_RES;
-    disp_drv.ver_res = MY_DISP_VER_RES;
+    disp_drv.hor_res = 176;
+    disp_drv.ver_res = 264;
     disp_drv.flush_cb = disp_flush;
     disp_drv.draw_buf = &draw_buf_dsc_1;
     // disp_drv.sw_rotate = 1;
@@ -68,6 +68,44 @@ static void wait_for_idle(void)
         rt_thread_mdelay(10);
     }
 }
+
+void debug_print_color_p(const lv_color_t *color_p, uint32_t w, uint32_t h)
+{
+    for (uint32_t y = 0; y < h; y++)
+    {
+        for (uint32_t x = 0; x < w; x++)
+        {
+            uint32_t idx = x + y * w;
+            // lv_color_to1() 会自动处理色深
+            if (lv_color_to1(color_p[idx]) == 0)
+                printf("█");  // 黑色像素
+            else
+                printf(" ");  // 白色像素
+        }
+        printf("\n");
+    }
+}
+
+
+void debug_print_1bit_buffer(const uint8_t *buf, uint32_t w, uint32_t h) {
+    uint32_t bytes_per_row = (w + 7) / 8;
+
+    for (uint32_t y = 0; y < h; y++) {
+        for (uint32_t x = 0; x < w; x++) {
+            uint32_t byte_idx = y * bytes_per_row + x / 8;
+            uint8_t bit_mask = 0x80 >> (x % 8);
+            uint8_t bit = buf[byte_idx] & bit_mask;
+
+            if (bit == 0)
+                printf("█");
+            else
+                printf(" ");
+        }
+        printf("\n");
+    }
+}
+
+
 #if 1
 static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p)
 {
@@ -85,25 +123,21 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
         return;
     }
     EPD_2IN7_V2_Init();
-    Paint_NewImage(temp_buf, w, h, 90, WHITE);
+    Paint_NewImage(temp_buf, w, h, 270, WHITE);
     Paint_SelectImage(temp_buf);
     Paint_Clear(WHITE);
     memset(temp_buf, 0xFF, buf_size);
-#if 0
-    for (uint32_t y = 0; y < h; y++) {
-        for (uint32_t x = 0; x < w; x++) {
-            Paint_SetPixel(x, y, BLACK);
-        }
-    }
-        // Paint_DrawNum(10, 33, 12, &Font12, BLACK, WHITE);
-#else
-    for (uint32_t y = 0; y < h; y++) {
-        for (uint32_t x = 0; x < w; x++) {
+#if 1
+    for (uint32_t y = 0; y < h; y++)
+    {
+        for (uint32_t x = 0; x < w; x++)
+        {
             uint32_t idx = x + y * w;
             uint32_t byte_idx = (x / 8) + y * ((w + 7) / 8);
             uint8_t bit_mask = 0x80 >> (x % 8);
 
-            if (lv_color_to1(color_p[idx]) == 0) {
+            if (lv_color_to1(color_p[idx]) == 0)
+            {
                 Paint_SetPixel(x, y, BLACK);
             }
             else
@@ -112,6 +146,10 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
             }
         }
     }
+// #else
+    Paint_DrawNum(10, 33, 12, &Font12, BLACK, WHITE);
+    Paint_DrawNum(210, 33, 34, &Font12, BLACK, WHITE);
+    Paint_DrawNum(210, 133, 56, &Font12, BLACK, WHITE);
 #endif
 #if 0
     // 输出 temp_buf
@@ -126,6 +164,7 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     printf("\n");
     printf("\n");
 #endif
+    // debug_print_1bit_buffer(temp_buf, w, h);
     EPD_2IN7_V2_Display_Partial(temp_buf, area->x1, area->y1, area->x2, area->y2);
     wait_for_idle();
 
