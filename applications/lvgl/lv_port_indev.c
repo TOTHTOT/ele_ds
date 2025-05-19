@@ -97,6 +97,18 @@ static void set_wifi_icon(lv_obj_t *wifi, bool is_connected)
         lv_label_set_text(wifi, LV_SYMBOL_WARNING);
     }
 }
+
+lv_obj_t *time_label = NULL;
+
+static void update_time_cb(lv_timer_t * timer)
+{
+    time_t curtime = time(NULL);
+    struct tm *tm_info = localtime(&curtime);
+    char time_str[32];
+    strftime(time_str, sizeof(time_str), "%Y-%m-%d ( %a ) %H:%M", tm_info);
+    lv_label_set_text(time_label, time_str);
+}
+
 static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv_obj_t* down)
 {
     // 状态栏布局
@@ -136,7 +148,7 @@ static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent,
     lv_obj_align_to(wifi, vbat, LV_ALIGN_OUT_RIGHT_MID, 4, 0);
 
     // 时间初始化
-    lv_obj_t *time_label = lv_label_create(sub_cont[1]);
+    time_label = lv_label_create(sub_cont[1]);
     time_t curtime = time(NULL);
     struct tm *tm_info = localtime(&curtime);
     char time_str[32] = {0};
@@ -144,6 +156,8 @@ static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent,
     lv_obj_add_style(time_label, &style_bold, 0);
     lv_label_set_text(time_label, time_str);
     lv_obj_align(time_label, LV_ALIGN_CENTER, 0, 0);
+    // 创建定时器，周期60000ms（1分钟）调用一次更新函数
+    lv_timer_create(update_time_cb, 60000, NULL);
 
     // 新消息初始化
     lv_obj_t *newmessage = lv_label_create(sub_cont[2]);
@@ -410,7 +424,6 @@ void lv_user_gui_init(void)
     //lv_style_set_text_font(&style_large, &lv_font_montserrat_18);
     lv_style_init(&style_font);  
     lv_style_set_text_font(&style_font, &fangsong_8);
-    EPD_2IN7_V2_Clear();
     main_page(g_ele_ds);
     
     // /* 1. 状态栏 */

@@ -208,18 +208,6 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
 }
 
 #endif
-lv_obj_t *time_label;
-
-void update_time_label(void)
-{
-    time_t t = time(NULL);
-    struct tm *tm_info = localtime(&t);
-
-    char time_str[9];
-    strftime(time_str, sizeof(time_str), "%H:%M:%S", tm_info);
-    lv_label_set_text(time_label, time_str);
-}
-
 
 void disp_enable_update(void) {}
 void disp_disable_update(void) {}

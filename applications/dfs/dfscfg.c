@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-07 09:21:50
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-08 13:31:02
+ * @LastEditTime: 2025-05-19 16:09:58
  * @FilePath: \ele_ds\applications\dfs\dfscfg.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -57,6 +57,7 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
     {
         cJSON *item = cJSON_CreateObject();
         cJSON_AddStringToObject(item, "iconDay", cfg->weather_info[i].iconDay);
+        cJSON_AddStringToObject(item, "textDay", cfg->weather_info[i].textDay);
         cJSON_AddNumberToObject(item, "tempMax", cfg->weather_info[i].tempMax);
         cJSON_AddNumberToObject(item, "tempMin", cfg->weather_info[i].tempMin);
         cJSON_AddItemToArray(weather_array, item);
@@ -84,6 +85,7 @@ static void json_to_ele_ds_cfg(ele_ds_cfg_t *cfg, const cJSON *json)
     {
         cJSON *item = cJSON_GetArrayItem(weather_array, i);
         strcpy(cfg->weather_info[i].textDay, cJSON_GetObjectItem(item, "textDay")->valuestring);
+        strcpy(cfg->weather_info[i].iconDay, cJSON_GetObjectItem(item, "iconDay")->valuestring);
         cfg->weather_info[i].tempMax = cJSON_GetObjectItem(item, "tempMax")->valueint;
         cfg->weather_info[i].tempMin = cJSON_GetObjectItem(item, "tempMin")->valueint;
     }
