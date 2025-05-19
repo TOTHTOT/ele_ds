@@ -1,0 +1,39 @@
+{
+	"wifi_ssid":	"esp-2.4G",
+	"wifi_passwd":	"12345678..",
+	"server_addr":	"60.215.128.73",
+	"server_port":	12675,
+	"cityid":	101010100,
+	"tcp_timeout":	3000,
+	"version":	"V1.0.0",
+	"memo":	"",
+	"weather_info":	[{
+			"textDay":	"",
+			"tempMax":	0,
+			"tempMin":	0
+		}, {
+			"textDay":	"",
+			"tempMax":	0,
+			"tempMin":	0
+		}, {
+			"textDay":	"",
+			"tempMax":	0,
+			"tempMin":	0
+		}, {
+			"textDay":	"",
+			"tempMax":	0,
+			"tempMin":	0
+		}, {
+			"textDay":	"",
+			"tempMax":	0,
+			"tempMin":	0
+		}, {
+			"textDay":	"",
+			"tempMax":	0,
+			"tempMin":	0
+		}, {
+			"textDay":	"",
+			"tempMax":	0,
+			"tempMin":	0
+		}]
+}
