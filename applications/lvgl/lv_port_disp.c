@@ -116,7 +116,7 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
 {
     uint32_t w = area->x2 - area->x1 + 1;
     uint32_t h = area->y2 - area->y1 + 1;
-    uint32_t buf_size = ((h + 7) / 8) * w;
+    uint32_t buf_size = ((h + 7) / 8) * w; // 旋转图像后大小计算方式也要修改
     rt_uint32_t total, used, max_used;
     rt_memory_info(&total, &used, &max_used);
     // printf("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
