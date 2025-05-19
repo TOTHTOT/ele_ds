@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-20 13:23:44
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-03 09:50:56
+ * @LastEditTime: 2025-05-19 13:35:05
  * @FilePath: \ele_ds\applications\common\common.h
  * @Description: 常用函数头文件
  */
@@ -24,6 +24,15 @@
 #endif /* __RTTHREAD__ */
 
 #define MAX_PATH 256
+#include <rtthread.h>
+
+#define TIME_START(label) rt_tick_t __start_tick_##label = rt_tick_get()
+#define TIME_END(label)                                                                                                    \
+    do                                                                                                                     \
+    {                                                                                                                      \
+        rt_tick_t __end_tick_##label = rt_tick_get();                                                                      \
+        rt_kprintf("[TIME] %s: %d ms\n", #label, (__end_tick_##label - __start_tick_##label) * 1000 / RT_TICK_PER_SECOND); \
+    } while (0)
 
 extern int untar(const char *tar_path, const char *dst_dir);
 extern void print_array_with_prefix(const char *prefix, const uint8_t *array, size_t size);

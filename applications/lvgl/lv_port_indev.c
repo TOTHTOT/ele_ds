@@ -22,6 +22,15 @@ void lv_port_indev_init(void)
 #define STATUS_BAR_CENTER_WIDTH_PCT 70
 #define WEATHER_LAYOUT_WIDTH_PCT 50
 
+typedef struct 
+{
+    uint32_t icon_code;
+    int8_t temp_max;
+    int8_t temp_min;
+    int32_t day; // 0 今天, 1 明天, -1 昨天
+}epd_show_weather_info_t;
+
+
 // 设置字体
 extern lv_font_t fangsong_8;
 
@@ -146,26 +155,58 @@ static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent,
 }
 
 /**
- * @description: 根据当前天气信息返回对应后缀
- * @param {ele_ds_t} dev
+ * @description: 根据当前天气信息返回对应后缀, 都不匹配返回 qing
+ * @param {uint32_t} icon_code 当前要显示的天气图标代码
  * @return {*}
  */
-static char *get_weather_icon_suffix(ele_ds_t dev)
+static char *get_weather_icon_suffix(uint32_t icon_code)
 {
+    weather_type_t curweather = get_weather_type(icon_code);
     static const char *weather_icons[] = {
-        "baoxue", "baoyu", "bingbao", "bingjing", "bingli", "daxue", "dayu", "dawu",
-        "duoyun", "duoyun_ye", "fuchen", "leibao", "leiyu", "mai", "qing", "qing_ye",
-        "qingwu", "shachenbao", "xiaoxue", "xiaoyu", "xuemi", "yangsha", "yin",
-        "yujiayue", "zhenyu", "zhongwu", "zhongxue", "zhongyu"};
+        "qing",   // 晴
+        "duoyun", // 多云、少云、晴间多云
+        "yin",    // 阴
 
-    if (dev->device_cfg.curweather < WEATHER_TYPE_COUNT)
+        "zhenyu",   // 阵雨、强阵雨
+        "xiaoyu",   // 小雨、毛毛雨
+        "zhongyu",  // 中雨
+        "dayu",     // 大雨
+        "baoyu",    // 暴雨、大暴雨、特大暴雨、极端降雨
+        "leiyu",    // 雷阵雨、强雷阵雨
+        "leibao",   // 雷阵雨伴有冰雹
+        "yujiayue", // 雨夹雪、雨雪、阵雨夹雪
+        "bingjing", // 冻雨
+
+        "xiaoxue",  // 小雪
+        "zhongxue", // 中雪
+        "daxue",    // 大雪
+        "baoxue",   // 暴雪、大到暴雪
+        "zhenxue",  // 阵雪
+        "xuemi",    // 雪（模糊/通用）
+
+        "qingwu",  // 薄雾
+        "zhongwu", // 雾
+        "dawu",    // 浓雾、大雾、强浓雾、特强浓雾
+        "mai",     // 霾（中度、重度、严重）
+
+        "yangsha",    // 扬沙
+        "fuchen",     // 浮尘
+        "shachenbao", // 沙尘暴、强沙尘暴
+
+        "re",   // 热
+        "leng", // 冷
+
+        "qing" // 未知
+    };
+
+    if (curweather < WEATHER_TYPE_COUNT)
     {
-        return (char *)weather_icons[dev->device_cfg.curweather];
+        return (char *)weather_icons[curweather];
     }
-    return "unknown"; // 未知天气
+    return "qing"; // 未知天气
 }
 
-void day_weather(lv_obj_t* parent, ele_ds_t dev)
+void day_weather(lv_obj_t* parent, epd_show_weather_info_t *weather_info)
 {
     lv_obj_t* cont = lv_obj_create(parent);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
@@ -180,7 +221,7 @@ void day_weather(lv_obj_t* parent, ele_ds_t dev)
     // 主标签
     lv_obj_t* label = lv_label_create(cont);
     lv_obj_add_style(label, &style_font, 0);
-    lv_label_set_text(label, "今天");
+    lv_label_set_text(label, weather_info->day == 0 ? "今天" : "明天");
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     
     // 子布局
@@ -198,7 +239,7 @@ void day_weather(lv_obj_t* parent, ele_ds_t dev)
     // 图标
     lv_obj_t* icon = lv_img_create(sub_layout);
 	char iconpath[100] = {0};
-    sprintf(iconpath, "S:/sysfile/icon/tianqi_48/tianqi-%s.bin", get_weather_icon_suffix(dev));
+    sprintf(iconpath, "S:/sysfile/icon/tianqi_48/tianqi-%s.bin", get_weather_icon_suffix(weather_info->icon_code));
     lv_img_set_src(icon, iconpath);
     // lv_label_set_text(icon, LV_SYMBOL_HOME);
     // lv_obj_set_style_text_align(icon, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
@@ -213,16 +254,13 @@ void day_weather(lv_obj_t* parent, ele_ds_t dev)
     lv_obj_set_style_radius(sub_sub_cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_scrollbar_mode(sub_sub_cont, LV_SCROLLBAR_MODE_OFF);
 
+    char str[128] = {0};
     // 子标签
     lv_obj_t* sub_label1 = lv_label_create(sub_sub_cont);
     lv_obj_add_style(sub_label1, &style_font, 0);
-    lv_label_set_text(sub_label1, "温度:25C");
+    sprintf(str, "温度:\n%d-%d度", weather_info->temp_max, weather_info->temp_min);
+    lv_label_set_text(sub_label1, str);
     lv_obj_set_style_text_align(sub_label1, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
-    
-    lv_obj_t* sub_label2 = lv_label_create(sub_sub_cont);
-    lv_obj_add_style(sub_label2, &style_font, 0);
-    lv_label_set_text(sub_label2, "湿度:60%");
-    lv_obj_set_style_text_align(sub_label2, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
 }
 
 static void create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv_obj_t* down)
@@ -243,7 +281,13 @@ static void create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, 
         lv_obj_set_style_border_width(weather_cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_radius(weather_cont, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_scrollbar_mode(weather_cont, LV_SCROLLBAR_MODE_OFF);
-        day_weather(weather_cont, dev);
+        epd_show_weather_info_t weather= {
+            .temp_max = dev->device_cfg.weather_info[0].tempMax,
+            .temp_min = dev->device_cfg.weather_info[0].tempMin,
+            .icon_code = atoi(dev->device_cfg.weather_info[0].iconDay),
+            .day = i,
+        };
+        day_weather(weather_cont, &weather);
     }
 }
 lv_obj_t* tabview = NULL;
@@ -337,18 +381,6 @@ lv_obj_t *create_tabview_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv
 
     return bottom_layout;
 }
-
-void update_weather_info(ele_ds_t dev)
-{
-    lv_obj_t * img = lv_img_create(lv_scr_act());
-	char iconpath[100] = {0};
-    sprintf(iconpath, "S:/sysfile/icon/tianqi_48/tianqi-%s.bin", get_weather_icon_suffix(dev));
-    lv_img_set_src(img, iconpath);
-
-    // 将图像对象居中显示
-    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
-}
-
 
 void main_page(ele_ds_t dev)
 {

@@ -56,7 +56,7 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
     for (int i = 0; i < 7; i++)
     {
         cJSON *item = cJSON_CreateObject();
-        cJSON_AddStringToObject(item, "textDay", cfg->weather_info[i].textDay);
+        cJSON_AddStringToObject(item, "iconDay", cfg->weather_info[i].iconDay);
         cJSON_AddNumberToObject(item, "tempMax", cfg->weather_info[i].tempMax);
         cJSON_AddNumberToObject(item, "tempMin", cfg->weather_info[i].tempMin);
         cJSON_AddItemToArray(weather_array, item);

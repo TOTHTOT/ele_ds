@@ -451,7 +451,7 @@ static void threads_communicate_server(void *parameter)
         LOG_E("parameter is NULL");
         return;
     }
-    int ret = 0;
+    // int ret = 0;
     ele_ds_t ele_ds = (ele_ds_t)parameter;
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
