@@ -363,7 +363,7 @@ void main_page(ele_ds_t dev)
 
 
     lv_obj_t* status_bar = create_status_bar(g_ele_ds, NULL, screen_layout, NULL);
-    // lv_obj_t *tabview = create_tabview_layout(g_ele_ds, NULL, screen_layout, NULL);
+    lv_obj_t *tabview = create_tabview_layout(g_ele_ds, NULL, screen_layout, NULL);
 }
 void lv_user_gui_init(void)
 {

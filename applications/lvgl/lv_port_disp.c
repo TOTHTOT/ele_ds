@@ -116,7 +116,7 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
 {
     uint32_t w = area->x2 - area->x1 + 1;
     uint32_t h = area->y2 - area->y1 + 1;
-    uint32_t buf_size = ((w + 7) / 8) * h;
+    uint32_t buf_size = ((h + 7) / 8) * w;
     rt_uint32_t total, used, max_used;
     rt_memory_info(&total, &used, &max_used);
     // printf("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
@@ -132,19 +132,15 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     Paint_SelectImage(temp_buf);
     Paint_Clear(WHITE);
     memset(temp_buf, 0xFF, buf_size);
-    debug_print_color_p(color_p, w, h);
+    // 显示前先把指定位置内容刷白
+    EPD_2IN7_V2_Display_Partial(temp_buf, area->y1, area->x1, area->y2, area->x2);
+    // debug_print_color_p(color_p, w, h);
 #if 1
-    // uint32_t tmp = w;
-    // w = h;
-    // h = tmp;
     for (uint32_t y = 0; y < h; y++)
     {
         for (uint32_t x = 0; x < w; x++)
         {
             uint32_t idx = x + y * w;
-            uint32_t byte_idx = (x / 8) + y * ((w + 7) / 8);
-            uint8_t bit_mask = 0x80 >> (x % 8);
-
             if (lv_color_to1(color_p[idx]) == 0)
             {
                 Paint_SetPixel(x, y, BLACK);
@@ -160,20 +156,7 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     Paint_DrawNum(210, 33, 34, &Font12, BLACK, WHITE);
     Paint_DrawNum(210, 133, 56, &Font12, BLACK, WHITE);
 #endif
-#if 0
-    // 输出 temp_buf
-    printf("\n");
-    printf("\n");
-    for (uint32_t i = 0; i < buf_size; i++) {
-        printf("%02X ", temp_buf[i]);
-        if ((i + 1) % ((w + 7) / 8) == 0) {
-            printf("\n");
-        }
-    }
-    printf("\n");
-    printf("\n");
-#endif
-    debug_print_1bit_buffer(temp_buf, w, h);
+    // debug_print_1bit_buffer(temp_buf, w, h);
     EPD_2IN7_V2_Display_Partial(temp_buf, area->y1, area->x1, area->y2, area->x2);
     wait_for_idle();
 
