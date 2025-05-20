@@ -104,8 +104,9 @@ static void update_time_cb(lv_timer_t * timer)
 {
     time_t curtime = time(NULL);
     struct tm *tm_info = localtime(&curtime);
-    char time_str[32];
+    char time_str[32] = {0};
     strftime(time_str, sizeof(time_str), "%Y-%m-%d ( %a ) %H:%M", tm_info);
+    lv_obj_align(time_label, LV_ALIGN_CENTER, -10, 0);
     lv_label_set_text(time_label, time_str);
 }
 
