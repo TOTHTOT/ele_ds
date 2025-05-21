@@ -13,6 +13,7 @@
 #include "dfscfg.h"
 #include "client.h"
 #include <rtdevice.h>
+#include "ele_ds_pm.h"
 
 #define DBG_TAG "ele_ds"
 #define DBG_LVL DBG_LOG
@@ -316,7 +317,8 @@ int32_t devices_init(ele_ds_t ele_ds)
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(V3_3_PIN, PIN_HIGH);
-
+		ele_ds_pm_init();
+	
     if (ele_ds == RT_NULL)
     {
         LOG_E("ele_ds is NULL");

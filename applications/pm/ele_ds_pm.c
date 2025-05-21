@@ -1,0 +1,201 @@
+/*
+ * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+ * @Date: 2025-05-20 14:10:51
+ * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
+ * @LastEditTime: 2025-05-21 13:48:36
+ * @FilePath: \ele_ds\applications\pm\pm.c
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
+#include "ele_ds_pm.h"
+
+#define DBG_TAG "ele_pm"
+#define DBG_LVL DBG_LOG
+#include <rtdbg.h>
+
+void user_alarm_callback(rt_alarm_t alarm, time_t timestamp)
+{
+    struct tm p_tm;
+    time_t now = timestamp;
+	
+    localtime_r(&now, &p_tm); // 时间戳转换 
+
+    LOG_D("user alarm callback function.");
+    LOG_D("curr time: %04d-%02d-%02d %02d:%02d:%02d", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour, p_tm.tm_min, p_tm.tm_sec);  // 打印闹钟中断产生时的时间，和设定的闹钟时间比对，以确定得到的是否是想要的结果
+}
+static rt_alarm_t alarm = RT_NULL;
+void alarm_sample(void)
+{
+    time_t curr_time;
+    struct tm p_tm, alarm_tm;
+    struct rt_alarm_setup setup;
+    // uint32_t alarm_flag = 0;
+
+//    if (g_gas_detection_dev == NULL)
+//    {
+//        rt_kprintf("system not initialized\n");
+//        return;
+//    }
+
+    curr_time = time(NULL);         // 将闹钟的时间设置为当前时间的往后的 5 秒
+    gmtime_r(&curr_time, &p_tm); // 将时间戳转换为本地时间，localtime_r 是线程安全的
+    LOG_D("now time: %04d-%02d-%02d %02d:%02d:%02d", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour,
+          p_tm.tm_min, p_tm.tm_sec); // 打印当前时间
+    
+    // 当前时间+上报时间间隔，设置闹钟时间, 减去本次启动用时, 确保每次定时都一样
+    curr_time += 1 * 10 /* - (time(NULL) - g_gas_detection_dev->system_starttime) */;
+    gmtime_r(&curr_time, &alarm_tm);
+
+    // // 设置闹钟标志, 标志错误闹钟中断不对
+    // alarm_flag = cal_alarm_flag(&p_tm, &alarm_tm);
+    LOG_D("alarm time: %04d-%02d-%02d %02d:%02d:%02d",
+          alarm_tm.tm_year + 1900, alarm_tm.tm_mon + 1, alarm_tm.tm_mday, alarm_tm.tm_hour,
+          alarm_tm.tm_min, alarm_tm.tm_sec); // 打印闹钟时间
+    setup.flag = RT_ALARM_ONESHOT;
+    setup.wktime.tm_year = alarm_tm.tm_year;
+    setup.wktime.tm_mon = alarm_tm.tm_mon;
+    setup.wktime.tm_mday = alarm_tm.tm_mday;
+    setup.wktime.tm_wday = alarm_tm.tm_wday;
+    setup.wktime.tm_hour = alarm_tm.tm_hour;
+    setup.wktime.tm_min = alarm_tm.tm_min;
+    setup.wktime.tm_sec = alarm_tm.tm_sec;
+
+    alarm = rt_alarm_create(user_alarm_callback, &setup); // 创建一个闹钟并设置回调函数
+    if (RT_NULL != alarm)
+    {
+        rt_err_t ret = rt_alarm_start(alarm); // 启动闹钟
+        if (ret != RT_EOK)
+        {
+            LOG_E("rtc alarm start failed");
+        }
+    }
+    else
+    {
+        LOG_E("rtc alarm create failed");
+    }
+		extern void rt_alarm_dump(void);
+    rt_alarm_dump(); // 打印闹钟的信息
+}
+MSH_CMD_EXPORT(alarm_sample, alarm sample);
+
+static void gas_detection_entey_stadnby(void)
+{
+    __HAL_RCC_PWR_CLK_ENABLE(); // 使能PWR时钟
+    HAL_SuspendTick();
+    CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
+    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU); // 清除Wake_UP标志
+    HAL_PWR_EnterSTANDBYMode();        // 进入待机模式
+    // HAL_ResumeTick(); // 使用会导致不能正常进入待机模式
+}
+
+static void pm_entry_func(struct rt_pm *pm, uint8_t mode)
+{
+    if (mode != 0)
+        LOG_D("Enter sleep mode %d", mode);
+
+    if (rt_interrupt_get_nest() > 0)
+    {
+        LOG_E("Cannot enter low power mode in interrupt context");
+        return;
+    }
+
+    // 根据不同模式处理
+    switch (mode)
+    {
+    case PM_SLEEP_MODE_NONE:
+        break;
+
+    case PM_SLEEP_MODE_IDLE:
+        __WFI(); // Wait For Interrupt 指令，CPU 进入空闲模式
+        break;
+
+    case PM_SLEEP_MODE_LIGHT:
+        HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI); // 进入轻度睡眠模式
+        break;
+
+    case PM_SLEEP_MODE_DEEP:
+    {
+        LOG_D("Enter DEEP mode");
+
+        // 关闭非必要外设时钟
+        __HAL_RCC_GPIOA_CLK_DISABLE();
+        __HAL_RCC_GPIOB_CLK_DISABLE();
+        __HAL_RCC_GPIOC_CLK_DISABLE();
+        __HAL_RCC_GPIOD_CLK_DISABLE();
+        __HAL_RCC_GPIOE_CLK_DISABLE();
+        __HAL_RCC_GPIOF_CLK_DISABLE();
+        __HAL_RCC_GPIOG_CLK_DISABLE();
+
+        // 禁用SWD调试接口
+        // __HAL_AFIO_REMAP_SWJ_NOJTAG();
+
+        // 使能PWR时钟
+        __HAL_RCC_PWR_CLK_ENABLE();
+
+        // 停止SysTick定时器
+        HAL_SuspendTick();
+        CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
+
+        // 清除唤醒标志
+        __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+
+        // 进入STOP模式（主调节器保持开启）
+        __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+        HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
+        // // 从STOP模式唤醒后，系统时钟将被重置为HSI(16MHz)
+        // // 需要重新配置系统时钟
+
+        // // 重新配置时钟（示例：使用HSE作为系统时钟）
+        // RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+        // RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+        // // 使能HSE
+        // RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        // RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+        // HAL_RCC_OscConfig(&RCC_OscInitStruct);
+
+        // // 配置系统时钟
+        // RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+        // RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
+        // HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2);
+
+        // 恢复SysTick定时器
+        HAL_ResumeTick();
+
+        break;
+    }
+
+    case PM_SLEEP_MODE_STANDBY:
+        // 进入一次会打印两次 应该是没有及时进入停机模式导致的
+        gas_detection_entey_stadnby();
+        break;
+
+    case PM_SLEEP_MODE_SHUTDOWN:
+        // HAL_PWREx_EnterSHUTDOWNMode();  // 进入关闭模式
+        break;
+
+    default:
+        RT_ASSERT(0); // 出现未知模式时，抛出异常
+        break;
+    }
+}
+
+// static void
+
+void ele_ds_pm_init(void)
+{
+    static const struct rt_pm_ops _ops = {
+        pm_entry_func,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+    };
+
+    rt_uint8_t timer_mask = 0;
+
+    /* initialize timer mask */
+    // timer_mask = 1UL << PM_SLEEP_MODE_DEEP;
+
+    /* initialize system pm module */
+    rt_system_pm_init(&_ops, timer_mask, RT_NULL);
+}

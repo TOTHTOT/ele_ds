@@ -19,7 +19,7 @@
 #define RT_HOOK_USING_FUNC_PTR
 #define RT_USING_IDLE_HOOK
 #define RT_IDLE_HOOK_LIST_SIZE 4
-#define IDLE_THREAD_STACK_SIZE 256
+#define IDLE_THREAD_STACK_SIZE 1024
 
 /* kservice optimization */
 
@@ -124,6 +124,9 @@
 #define RT_USING_I2C
 #define RT_USING_I2C_BITOPS
 #define RT_USING_ADC
+#define RT_USING_PM
+#define PM_TICKLESS_THRESHOLD_TIME 2
+#define PM_ENABLE_DEBUG
 #define RT_USING_RTC
 #define RT_USING_ALARM
 #define RT_USING_SPI
@@ -414,7 +417,7 @@
 #define BSP_USING_ADC1
 #define BSP_USING_ON_CHIP_FLASH
 #define BSP_USING_ONCHIP_RTC
-#define BSP_RTC_USING_LSE
+#define BSP_RTC_USING_LSI
 #define BSP_USING_CRC
 
 /* Board extended module Drivers */

@@ -87,10 +87,14 @@ void HAL_IncTick(void)
 
 void HAL_SuspendTick(void)
 {
+    /* Disable SysTick Interrupt */
+    SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
 }
 
 void HAL_ResumeTick(void)
 {
+    /* Enable SysTick Interrupt */
+    SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
 }
 
 void HAL_Delay(__IO uint32_t Delay)
