@@ -320,10 +320,6 @@
 
 /* touch drivers */
 
-#define PKG_USING_I2C_TOOLS
-#define I2C_TOOLS_USE_SW_I2C
-#define I2C_TOOLS_SW_ACK_TIMEOUT 100
-#define PKG_USING_I2C_TOOLS_LATEST_VERSION
 
 /* AI packages */
 
