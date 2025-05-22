@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 12:25:00
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-07 17:50:39
+ * @LastEditTime: 2025-05-22 19:19:00
  * @FilePath: \ele_ds\README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -68,3 +68,34 @@ lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 - [ ] 接收数据长度不对, 导致服务器发完数据还没退出接收状态;
 
 - [ ] 接收数据会丢包出现 ` get rb data failed, ret = 0`和`[E/client] rb put failed, ret = 0`, 得想办法加快写入速度, 要不然只能降低esp的波特率实现慢速接收文件;
+
+## bug修复
+
+- rt-thread 在stm32f4环境下alarm不触发问题.
+  
+  - 经排查是设置alarm时没写入年份导致`sec_alarm = timegm(&alarm->wktime);`返回-1不满足if从而导致不执行回调函数.
+  
+  ```c
+    static void alarm_wakeup(struct rt_alarm *alarm, struct tm *now)
+    {
+  ...
+          case RT_ALARM_ONESHOT:
+          {
+              sec_alarm = timegm(&alarm->wktime);
+              sec_now = timegm(now);
+              if (((sec_now - sec_alarm) <= RT_ALARM_DELAY) && (sec_now >= sec_alarm))
+          }
+    }
+  ...
+
+    time_t timegm(struct tm * const t)
+    {
+    ...
+        if (t->tm_year < 70)
+        {
+            rt_set_errno(EINVAL);
+            return (time_t) -1;
+        }
+    ...
+    }
+  ```

@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-05-20 14:10:51
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-21 13:48:36
+ * @LastEditTime: 2025-05-22 20:50:02
  * @FilePath: \ele_ds\applications\pm\pm.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -12,29 +12,22 @@
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
-void user_alarm_callback(rt_alarm_t alarm, time_t timestamp)
+static rt_alarm_t alarm = RT_NULL;
+
+void user_alarm_callback(rt_alarm_t myalarm, time_t timestamp)
 {
     struct tm p_tm;
     time_t now = timestamp;
 	
     localtime_r(&now, &p_tm); // 时间戳转换 
-
     LOG_D("user alarm callback function.");
     LOG_D("curr time: %04d-%02d-%02d %02d:%02d:%02d", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour, p_tm.tm_min, p_tm.tm_sec);  // 打印闹钟中断产生时的时间，和设定的闹钟时间比对，以确定得到的是否是想要的结果
 }
-static rt_alarm_t alarm = RT_NULL;
 void alarm_sample(void)
 {
     time_t curr_time;
     struct tm p_tm, alarm_tm;
     struct rt_alarm_setup setup;
-    // uint32_t alarm_flag = 0;
-
-//    if (g_gas_detection_dev == NULL)
-//    {
-//        rt_kprintf("system not initialized\n");
-//        return;
-//    }
 
     curr_time = time(NULL);         // 将闹钟的时间设置为当前时间的往后的 5 秒
     gmtime_r(&curr_time, &p_tm); // 将时间戳转换为本地时间，localtime_r 是线程安全的
@@ -45,8 +38,7 @@ void alarm_sample(void)
     curr_time += 1 * 10 /* - (time(NULL) - g_gas_detection_dev->system_starttime) */;
     gmtime_r(&curr_time, &alarm_tm);
 
-    // // 设置闹钟标志, 标志错误闹钟中断不对
-    // alarm_flag = cal_alarm_flag(&p_tm, &alarm_tm);
+    // 设置闹钟标志, 标志错误闹钟中断不对
     LOG_D("alarm time: %04d-%02d-%02d %02d:%02d:%02d",
           alarm_tm.tm_year + 1900, alarm_tm.tm_mon + 1, alarm_tm.tm_mday, alarm_tm.tm_hour,
           alarm_tm.tm_min, alarm_tm.tm_sec); // 打印闹钟时间
@@ -58,6 +50,12 @@ void alarm_sample(void)
     setup.wktime.tm_hour = alarm_tm.tm_hour;
     setup.wktime.tm_min = alarm_tm.tm_min;
     setup.wktime.tm_sec = alarm_tm.tm_sec;
+    // 避免重复创建alarm, 不能放在回调函数执行, 不然 alarm_update() 会卡死
+    if (alarm != NULL)
+    {
+        rt_alarm_delete(alarm);
+        alarm = RT_NULL;
+    }
 
     alarm = rt_alarm_create(user_alarm_callback, &setup); // 创建一个闹钟并设置回调函数
     if (RT_NULL != alarm)

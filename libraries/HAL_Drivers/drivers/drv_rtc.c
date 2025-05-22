@@ -300,8 +300,10 @@ static rt_err_t stm32_rtc_get_alarm(struct rt_rtc_wkalarm *alarm)
 {
 #ifdef RT_USING_ALARM
     *alarm = rtc_device.wkalarm;
-    LOG_D("GET_ALARM %d:%d:%d",rtc_device.wkalarm.tm_hour,
-        rtc_device.wkalarm.tm_min,rtc_device.wkalarm.tm_sec);
+    LOG_D("GET_ALARM %d-%d-%d%d:%d:%d",
+          rtc_device.wkalarm.tm_year, rtc_device.wkalarm.tm_mon,
+          rtc_device.wkalarm.tm_mday, rtc_device.wkalarm.tm_hour,
+          rtc_device.wkalarm.tm_min, rtc_device.wkalarm.tm_sec);
     return RT_EOK;
 #else
     return -RT_ERROR;
@@ -315,6 +317,9 @@ static rt_err_t stm32_rtc_set_alarm(struct rt_rtc_wkalarm *alarm)
     if (alarm != RT_NULL)
     {
         rtc_device.wkalarm.enable = alarm->enable;
+        rtc_device.wkalarm.tm_year = alarm->tm_year;
+        rtc_device.wkalarm.tm_mon = alarm->tm_mon;
+        rtc_device.wkalarm.tm_mday = alarm->tm_mday;
         rtc_device.wkalarm.tm_hour = alarm->tm_hour;
         rtc_device.wkalarm.tm_min = alarm->tm_min;
         rtc_device.wkalarm.tm_sec = alarm->tm_sec;
