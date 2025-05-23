@@ -336,7 +336,7 @@
               <MiscControls />
               <Define>__STDC_LIMIT_MACROS, RT_USING_ARMLIBC, USE_HAL_DRIVER, RT_USING_LIBC, __CLK_TCK=RT_TICK_PER_SECOND, __RTTHREAD__, STM32F405xx</Define>
               <Undefine />
-              <IncludePath>rt-thread\components\drivers\spi;rt-thread\include;rt-thread\components\dfs\dfs_v1\filesystems\elmfat;rt-thread\components\drivers\include;rt-thread\components\drivers\hwcrypto;rt-thread\libcpu\arm\common;rt-thread\components\dfs\dfs_v1\include;libraries\HAL_Drivers\drivers\drv_flash;libraries\HAL_Drivers;rt-thread\components\drivers\include;packages\CmBacktrace-v1.4.1;libraries\STM32F4xx_HAL\CMSIS\Device\ST\STM32F4xx\Include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;applications\common;rt-thread\components\drivers\spi\sfud\inc;packages\mem_sandbox-latest;applications;libraries\HAL_Drivers\drivers\config;board\CubeMX_Config\Inc;rt-thread\components\libc\posix\ipc;rt-thread\components\drivers\include;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\libc\posix\io\poll;.;libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Inc;rt-thread\components\dfs\dfs_v1\filesystems\devfs;rt-thread\components\drivers\include;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m4;rt-thread\components\drivers\include;rt-thread\components\libc\compilers\common\extension;packages\optparse-latest;rt-thread\components\finsh;rt-thread\components\utilities\ymodem;rt-thread\components\libc\compilers\common\extension\fcntl\octal</IncludePath>
+              <IncludePath>rt-thread\components\drivers\spi;rt-thread\include;rt-thread\components\dfs\dfs_v1\filesystems\elmfat;rt-thread\components\drivers\include;rt-thread\components\drivers\hwcrypto;rt-thread\libcpu\arm\common;rt-thread\components\dfs\dfs_v1\include;libraries\HAL_Drivers\drivers\drv_flash;libraries\HAL_Drivers;rt-thread\components\drivers\include;packages\CmBacktrace-v1.4.1;libraries\STM32F4xx_HAL\CMSIS\Device\ST\STM32F4xx\Include;libraries\HAL_Drivers\drivers;rt-thread\components\libc\posix\io\eventfd;applications\common;rt-thread\components\drivers\spi\sfud\inc;packages\mem_sandbox-latest;applications;libraries\HAL_Drivers\drivers\config;board\CubeMX_Config\Inc;rt-thread\components\libc\posix\ipc;rt-thread\components\drivers\include;libraries\HAL_Drivers\CMSIS\Include;applications\update_soft;rt-thread\components\libc\posix\io\poll;.;libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Inc;rt-thread\components\dfs\dfs_v1\filesystems\devfs;rt-thread\components\drivers\include;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\posix\io\epoll;board;rt-thread\components\drivers\include;rt-thread\libcpu\arm\cortex-m4;rt-thread\components\drivers\include;rt-thread\components\libc\compilers\common\extension;packages\optparse-latest;rt-thread\components\finsh;rt-thread\components\utilities\ymodem;rt-thread\components\libc\compilers\common\extension\fcntl\octal</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -391,6 +391,13 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\main.c</FilePath>
+            </File>
+          </Files>
+          <Files>
+            <File>
+              <FileName>update_soft.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\update_soft\update_soft.c</FilePath>
             </File>
           </Files>
         </Group>

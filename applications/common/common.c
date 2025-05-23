@@ -2,11 +2,15 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-20 13:22:49
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-23 14:52:37
+ * @LastEditTime: 2025-05-23 16:25:31
  * @FilePath: \ele_ds\applications\common\common.c
  * @Description: 常用函数
  */
 #include "common.h"
+#include <dfs_fs.h>
+#include <stdint.h>
+#include <unistd.h>
+#include <stdint.h>
 
 #if 0
 /**
