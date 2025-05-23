@@ -2,11 +2,12 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-05-20 14:10:51
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-22 20:50:02
+ * @LastEditTime: 2025-05-23 09:12:17
  * @FilePath: \ele_ds\applications\pm\pm.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 #include "ele_ds_pm.h"
+#include <stdbool.h>
 
 #define DBG_TAG "ele_pm"
 #define DBG_LVL DBG_LOG
@@ -85,8 +86,38 @@ static void gas_detection_entey_stadnby(void)
     // HAL_ResumeTick(); // 使用会导致不能正常进入待机模式
 }
 
+/**
+ * @description: 低功耗时钟管理
+ * @param {bool} enable 使能或禁用时钟
+ * @return {*}
+ */
+static void pm_clock_init_pwronoff(bool enable)
+{
+    if (enable)
+    {
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+        __HAL_RCC_GPIOD_CLK_ENABLE();
+        __HAL_RCC_GPIOE_CLK_ENABLE();
+        __HAL_RCC_GPIOF_CLK_ENABLE();
+        __HAL_RCC_GPIOG_CLK_ENABLE();
+    }
+    else
+    {
+        __HAL_RCC_GPIOA_CLK_DISABLE();
+        __HAL_RCC_GPIOB_CLK_DISABLE();
+        __HAL_RCC_GPIOC_CLK_DISABLE();
+        __HAL_RCC_GPIOD_CLK_DISABLE();
+        __HAL_RCC_GPIOE_CLK_DISABLE();
+        __HAL_RCC_GPIOF_CLK_DISABLE();
+        __HAL_RCC_GPIOG_CLK_DISABLE();
+    }
+}
+
 static void pm_entry_func(struct rt_pm *pm, uint8_t mode)
 {
+    static uint32_t entry_stop_cnt = 0; // 进入待机模式需要执行这个函数才能正常进入 不知道为什么
     if (mode != 0)
         LOG_D("Enter sleep mode %d", mode);
 
@@ -112,26 +143,16 @@ static void pm_entry_func(struct rt_pm *pm, uint8_t mode)
 
     case PM_SLEEP_MODE_DEEP:
     {
+        entry_stop_cnt++;
         LOG_D("Enter DEEP mode");
 
-        // 关闭非必要外设时钟
-        __HAL_RCC_GPIOA_CLK_DISABLE();
-        __HAL_RCC_GPIOB_CLK_DISABLE();
-        __HAL_RCC_GPIOC_CLK_DISABLE();
-        __HAL_RCC_GPIOD_CLK_DISABLE();
-        __HAL_RCC_GPIOE_CLK_DISABLE();
-        __HAL_RCC_GPIOF_CLK_DISABLE();
-        __HAL_RCC_GPIOG_CLK_DISABLE();
-
-        // 禁用SWD调试接口
-        // __HAL_AFIO_REMAP_SWJ_NOJTAG();
-
+        pm_clock_init_pwronoff(false);
+        
         // 使能PWR时钟
         __HAL_RCC_PWR_CLK_ENABLE();
 
         // 停止SysTick定时器
         HAL_SuspendTick();
-        CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
 
         // 清除唤醒标志
         __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
@@ -139,25 +160,15 @@ static void pm_entry_func(struct rt_pm *pm, uint8_t mode)
         // 进入STOP模式（主调节器保持开启）
         __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
         HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
-        // // 从STOP模式唤醒后，系统时钟将被重置为HSI(16MHz)
-        // // 需要重新配置系统时钟
-
-        // // 重新配置时钟（示例：使用HSE作为系统时钟）
-        // RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-        // RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-
-        // // 使能HSE
-        // RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-        // RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-        // HAL_RCC_OscConfig(&RCC_OscInitStruct);
-
-        // // 配置系统时钟
-        // RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-        // RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
-        // HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2);
 
         // 恢复SysTick定时器
-        HAL_ResumeTick();
+        if (entry_stop_cnt >= 2)
+        {
+            entry_stop_cnt = 0;
+            HAL_ResumeTick();
+            pm_clock_init_pwronoff(true);
+            LOG_D("exit DEEP mode");
+        }
 
         break;
     }
