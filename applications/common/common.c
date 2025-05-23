@@ -2,13 +2,13 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-20 13:22:49
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-07 17:11:18
+ * @LastEditTime: 2025-05-23 14:52:37
  * @FilePath: \ele_ds\applications\common\common.c
  * @Description: 常用函数
  */
 #include "common.h"
-#include "dfscfg.h"
 
+#if 0
 /**
  * @description: 创建中间目录（递归）
  * @param {char} *dir
@@ -144,6 +144,7 @@ void untar_cmd(int argc, char **argv)
 }
 MSH_CMD_EXPORT_ALIAS(untar_cmd, untar, untar a tar file to a directory);
 #endif /* __RTTHREAD__ */
+#endif
 
 
 /**

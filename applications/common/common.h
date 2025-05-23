@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "microtar.h"
 
 #ifdef __RTTHREAD__
 #include <rtthread.h>
@@ -33,8 +32,9 @@
         rt_tick_t __end_tick_##label = rt_tick_get();                                                                      \
         rt_kprintf("[TIME] %s: %d ms\n", #label, (__end_tick_##label - __start_tick_##label) * 1000 / RT_TICK_PER_SECOND); \
     } while (0)
-
+#if 0
 extern int untar(const char *tar_path, const char *dst_dir);
+#endif
 extern void print_array_with_prefix(const char *prefix, const uint8_t *array, size_t size);
 extern bool is_json(const char *data, size_t len);
 extern uint32_t crcfile(int argc, char **argv);

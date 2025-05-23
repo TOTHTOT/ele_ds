@@ -103,12 +103,6 @@
 #define RT_DFS_ELM_REENTRANT
 #define RT_DFS_ELM_MUTEX_TIMEOUT 3000
 #define RT_USING_DFS_DEVFS
-#define RT_USING_FAL
-#define FAL_DEBUG_CONFIG
-#define FAL_DEBUG 1
-#define FAL_PART_HAS_TABLE_CFG
-#define FAL_USING_SFUD_PORT
-#define FAL_USING_NOR_FLASH_DEV_NAME "norflash0"
 
 /* Device Drivers */
 
@@ -121,20 +115,12 @@
 #define RT_USING_SERIAL_V1
 #define RT_SERIAL_USING_DMA
 #define RT_SERIAL_RB_BUFSZ 4096
-#define RT_USING_I2C
-#define RT_USING_I2C_BITOPS
-#define RT_USING_ADC
-#define RT_USING_PM
-#define PM_TICKLESS_THRESHOLD_TIME 2
-#define PM_ENABLE_DEBUG
 #define RT_USING_RTC
-#define RT_USING_ALARM
 #define RT_USING_SPI
 #define RT_USING_SFUD
 #define RT_SFUD_USING_SFDP
 #define RT_SFUD_USING_FLASH_INFO_TABLE
 #define RT_SFUD_SPI_MAX_HZ 50000000
-#define RT_USING_SENSOR
 #define RT_USING_HWCRYPTO
 #define RT_HWCRYPTO_DEFAULT_NAME "hwcryto"
 #define RT_HWCRYPTO_IV_MAX_SIZE 16
@@ -156,41 +142,15 @@
 
 /* POSIX (Portable Operating System Interface) layer */
 
-#define RT_USING_POSIX_FS
-#define RT_USING_POSIX_DEVIO
-#define RT_USING_POSIX_STDIO
-#define RT_USING_POSIX_POLL
-#define RT_USING_POSIX_TERMIOS
 
 /* Interprocess Communication (IPC) */
 
 
 /* Socket is in the 'Network' category */
 
-#define RT_USING_CPLUSPLUS
 
 /* Network */
 
-#define RT_USING_SAL
-#define SAL_INTERNET_CHECK
-
-/* Docking with protocol stacks */
-
-#define SAL_USING_AT
-#define SAL_USING_POSIX
-#define RT_USING_NETDEV
-#define NETDEV_USING_IFCONFIG
-#define NETDEV_USING_PING
-#define NETDEV_USING_NETSTAT
-#define NETDEV_USING_AUTO_DEFAULT
-#define NETDEV_IPV4 1
-#define NETDEV_IPV6 0
-#define RT_USING_AT
-#define AT_USING_CLIENT
-#define AT_CLIENT_NUM_MAX 1
-#define AT_USING_SOCKET
-#define AT_USING_CLI
-#define AT_SW_VERSION_NUM 0x10301
 
 /* Memory protection */
 
@@ -221,11 +181,6 @@
 
 /* CYW43439 WiFi */
 
-#define PKG_USING_AT_DEVICE
-#define AT_DEVICE_USING_ESP8266
-#define AT_DEVICE_ESP8266_SOCKET
-#define PKG_USING_AT_DEVICE_LATEST_VERSION
-#define PKG_AT_DEVICE_VER_NUM 0x99999
 
 /* IoT Cloud */
 
@@ -237,8 +192,6 @@
 
 /* JSON: JavaScript Object Notation, a lightweight data-interchange format */
 
-#define PKG_USING_CJSON
-#define PKG_USING_CJSON_V1717
 
 /* XML: Extensible Markup Language */
 
@@ -247,12 +200,6 @@
 
 /* LVGL: powerful and easy-to-use embedded GUI library */
 
-#define PKG_USING_LVGL
-#define PKG_LVGL_THREAD_PRIO 20
-#define PKG_LVGL_THREAD_STACK_SIZE 4096
-#define PKG_LVGL_DISP_REFR_PERIOD 1000
-#define PKG_LVGL_USING_V080311
-#define PKG_LVGL_VER_NUM 0x080311
 
 /* u8g2: a monochrome graphic library */
 
@@ -310,13 +257,6 @@
 
 /* sensors drivers */
 
-#define PKG_USING_SGP30
-#define PKG_SGP30_USING_SENSOR_V1
-#define PKG_USING_SGP30_I2C_ADDR
-#define PKG_USING_SGP30_I2C_ADDRESS 0x58
-#define PKG_USING_SGP30_LATEST_VERSION
-#define PKG_USING_SHT3X
-#define PKG_USING_SHT3X_LATEST_VERSION
 
 /* touch drivers */
 
@@ -338,24 +278,6 @@
 
 #define PKG_USING_OPTPARSE
 #define PKG_USING_OPTPARSE_LATEST_VERSION
-#define PKG_USING_VI
-#define VI_SANDBOX_SIZE_KB 20
-#define VI_MAX_LEN 4096
-#define VI_ENABLE_COLON
-#define VI_ENABLE_COLON_EXPAND
-#define VI_ENABLE_YANKMARK
-#define VI_ENABLE_SEARCH
-#define VI_ENABLE_DOT_CMD
-#define VI_ENABLE_READONLY
-#define VI_ENABLE_SETOPTS
-#define VI_ENABLE_SET
-#define VI_ENABLE_WIN_RESIZE
-#define VI_ENABLE_VI_ASK_TERMINAL
-#define VI_ENABLE_UNDO
-#define VI_ENABLE_UNDO_QUEUE
-#define VI_UNDO_QUEUE_MAX 256
-#define VI_ENABLE_VERBOSE_STATUS
-#define PKG_USING_VI_LATEST_VERSION
 
 /* Arduino libraries */
 
@@ -406,18 +328,11 @@
 #define BSP_USING_UART3
 #define BSP_USING_SPI
 #define BSP_USING_SPI1
-#define BSP_USING_I2C1
-#define BSP_I2C1_SCL_PIN 22
-#define BSP_I2C1_SDA_PIN 23
-#define BSP_USING_ADC
-#define BSP_USING_ADC1
 #define BSP_USING_ON_CHIP_FLASH
 #define BSP_USING_ONCHIP_RTC
 #define BSP_RTC_USING_LSE
-#define BSP_USING_CRC
 
 /* Board extended module Drivers */
 
-#define PKG_USING_GZP6816D_SENSOR
 
 #endif
