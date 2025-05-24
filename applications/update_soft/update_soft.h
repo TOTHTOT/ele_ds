@@ -3,10 +3,19 @@
 
 #include <dfs_fs.h>
 #include "common.h"
+#include <rtthread.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <unistd.h>
 
 /* 版本管理模块 - 常量定义 */
-#define UPDATE_DIR      "/sysfile/soft/update"
-#define CURRENT_DIR     "/sysfile/soft/current"
+#define ROOT_DIR       "/sysfile"
+#define SOFT_DIR        ROOT_DIR "/soft"
+#define UPDATE_DIR      SOFT_DIR "/update"
+#define CURRENT_DIR     SOFT_DIR "/current"
+#define BACKUP_DIR      SOFT_DIR "/backup/"
 #define VERSION_BUFF_SIZE 64
 #define FILE_COPY_BUFFER_SIZE 512
 
@@ -22,7 +31,7 @@ typedef enum {
     VERSION_ERROR_PARSE = -7,
 } version_error_t;
 
-extern bool is_need_update(char update_path[VERSION_BUFF_SIZE], char current_path[VERSION_BUFF_SIZE]);
+extern bool is_need_update(uint32_t *update_version, uint32_t *current_version);
 extern version_error_t move_file(const char *src_path, const char *dst_path);
 extern version_error_t delete_file(const char *path);
 

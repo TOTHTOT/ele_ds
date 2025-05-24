@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-23 17:32:59
+ * @LastEditTime: 2025-05-24 11:38:17
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -74,8 +74,6 @@ static int rt_hw_spi_flash_init(void)
 
 int main(void)
 {
-    int32_t ret = 0;
-    
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(V3_3_PIN, PIN_HIGH);
@@ -84,14 +82,13 @@ int main(void)
     #define VERSION_CUSTOM  01    // 自定义版本号
     uint32_t software_version = SOFTWARE_VERSION_DEC(VERSION_CUSTOM);
     rt_kprintf("ele_ds boot loader init success, date: %s, time: %s.version: %08u\n", __DATE__, __TIME__, software_version);
-    char update_path[VERSION_BUFF_SIZE] = {0};
-    char current_path[VERSION_BUFF_SIZE] = {0};
-    bool need_update = is_need_update(update_path, current_path);
+
+    uint32_t update_version = 0, current_version = 0;
+    bool need_update = is_need_update(&update_version, &current_version);
     if (need_update == true)
     {
         LOG_D("need update");
-        move_file(update_path, current_path);
-        delete_file(update_path);
+        update_app();
     }
     else
     {

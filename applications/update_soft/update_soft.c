@@ -2,18 +2,11 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-05-23 14:44:02
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-23 17:31:47
+ * @LastEditTime: 2025-05-23 20:06:21
  * @FilePath: \ele_ds\applications\update_soft\update_soft.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 #include "update_soft.h"
-
-#include <rtthread.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <unistd.h>
 
 #define DBG_TAG "upd_sft"
 #define DBG_LVL DBG_LOG
@@ -127,21 +120,20 @@ static version_error_t copy_file(const char *src_path, const char *dst_path)
  * @brief 判断是否需要更新app
  * @return true表示需要更新，false表示不需要更新
  */
-bool is_need_update(char update_path[VERSION_BUFF_SIZE], char current_path[VERSION_BUFF_SIZE])
+bool is_need_update(uint32_t *update_version, uint32_t *current_version)
 {
-    uint32_t update_version = 0, current_version = 0;
     version_error_t ret;
 
     /* 获取update目录中的最新版本 */
-    ret = get_latest_version(UPDATE_DIR, &update_version);
-    if (ret != VERSION_SUCCESS || update_version == 0)
+    ret = get_latest_version(UPDATE_DIR, update_version);
+    if (ret != VERSION_SUCCESS || *update_version == 0)
     {
         LOG_I("No update files found");
         return false;
     }
 
     /* 获取current目录中的最新版本 */
-    ret = get_latest_version(CURRENT_DIR, &current_version);
+    ret = get_latest_version(CURRENT_DIR, current_version);
     if (ret == VERSION_ERROR_OPEN_DIR)
     {
         LOG_I("Current directory not found, need update");
@@ -153,21 +145,16 @@ bool is_need_update(char update_path[VERSION_BUFF_SIZE], char current_path[VERSI
         return false;
     }
 		
-		/* 需要更新，执行文件复制 */
-    rt_snprintf(update_path, VERSION_BUFF_SIZE, "%s/%08u", UPDATE_DIR, update_version);
-    rt_snprintf(current_path, VERSION_BUFF_SIZE, "%s/%08u", CURRENT_DIR, update_version);
-    LOG_D("Update path: %s", update_path);
-    LOG_D("Current path: %s", current_path);
 		
     /* 比较版本号 */
-    if (update_version <= current_version)
+    if (*update_version <= *current_version)
     {
-        LOG_I("No need to update: current=%08u, update=%08u", current_version, update_version);
+        LOG_I("No need to update: current=%08u, update=%08u", *current_version, *update_version);
         return false;
     }
     else
     {
-        LOG_I("Need to update: current=%08u, update=%08u", current_version, update_version);
+        LOG_I("Need to update: current=%08u, update=%08u", *current_version, *update_version);
         return true;
     }
 }
@@ -206,3 +193,60 @@ version_error_t delete_file(const char *path)
     LOG_D("File deleted successfully: %s", path);
     return VERSION_SUCCESS;
 }
+
+
+void update_app(void)
+{
+    char update_path[VERSION_BUFF_SIZE] = {0};
+    char current_path[VERSION_BUFF_SIZE] = {0};
+    char old_path[VERSION_BUFF_SIZE] = {0};
+    char backup_path[VERSION_BUFF_SIZE] = {0};
+
+    /* 需要更新，执行文件复制 */
+    rt_snprintf(update_path, VERSION_BUFF_SIZE, "%s/%08u", UPDATE_DIR, update_version);
+    rt_snprintf(current_path, VERSION_BUFF_SIZE, "%s/%08u", CURRENT_DIR, update_version);
+    rt_snprintf(old_path, VERSION_BUFF_SIZE, "%s/%08u", CURRENT_DIR, current_version);
+    rt_snprintf(backup_path, VERSION_BUFF_SIZE, "%s/%08u", BACKUP_DIR, current_version);
+
+    LOG_D("Update path: %s", update_path);
+    LOG_D("Current path: %s", current_path);
+    LOG_D("Old path: %s", old_path);
+    LOG_D("Backup path: %s", backup_path);
+    
+    // 删除旧版本目录后移动旧版本到backup, 删除backup目录是为了保障backup目录下只有一份旧版本
+    rmdir(BACKUP_DIR);
+    mkdir(BACKUP_DIR, 0);
+    // rt_thread_mdelay(100);
+    move_file(old_path, backup_path);
+    
+    // 移动更新包到current, 如何烧写到flash
+    move_file(update_path, current_path);
+}
+
+
+void create_test_file(void)
+{
+    char path[VERSION_BUFF_SIZE] = {0};
+
+    // 删除 SOFT_DIR 
+    unlink(SOFT_DIR);
+    
+    // 创建文件夹
+    mkdir(ROOT_DIR, 0777);
+    mkdir(SOFT_DIR, 0777);
+    mkdir(UPDATE_DIR, 0777);
+    mkdir(CURRENT_DIR, 0777);
+    mkdir(BACKUP_DIR, 0777);
+
+    // 创建文件
+    sprintf(path, "%s/%s", UPDATE_DIR, "00000001");
+    int32_t fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    write(fd, "00000001", 8);
+    sprintf(path, "%s/%s", CURRENT_DIR, "00000000");
+    int32_t fd2 = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    write(fd2, "00000000", 8);
+    close(fd);
+    close(fd2);
+}
+MSH_CMD_EXPORT_ALIAS(create_test_file, create_test_file, create test file in bootloader);
+
