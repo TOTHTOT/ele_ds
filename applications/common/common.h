@@ -18,12 +18,9 @@
 #ifdef __RTTHREAD__
 #include <rtthread.h>
 #include <rtdevice.h>
-#include <dfs_fs.h>
-#include <dfs_file.h>
 #endif /* __RTTHREAD__ */
 
 #define MAX_PATH 256
-#include <rtthread.h>
 
 #define TIME_START(label) rt_tick_t __start_tick_##label = rt_tick_get()
 #define TIME_END(label)                                                                                                    \

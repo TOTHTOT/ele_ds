@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-24 15:03:32
+ * @LastEditTime: 2025-05-24 17:40:41
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,7 +11,7 @@
 #include <rtthread.h>
 #include <drv_gpio.h>
 #include <fal.h>
-
+#include <rthw.h>
 #include <dfs_fs.h>
 #include "drv_spi.h"
 #include "spi_flash_sfud.h"
@@ -89,6 +89,83 @@ static void bootloader_init(void)
     rt_kprintf("ele_ds boot loader init success, date: %s, time: %s.version: %08u\n", __DATE__, __TIME__, software_version);
 }
 
+
+
+/**
+ * @brief 跳转到应用程序
+ * @param app_address APP起始地址
+ * @return 成功返回0，失败返回负数错误码
+ */
+int jump_to_application(uint32_t app_address)
+{
+    typedef void (*pFunction)(void);
+    pFunction JumpToApplication;
+    uint32_t JumpAddress;
+    
+    /* 检查APP地址是否有效 */
+    if ((*(uint32_t*)app_address & 0x2FFE0000) != 0x20000000) {
+        LOG_E("Invalid stack pointer at 0x%08X", app_address);
+        return -RT_ERROR;
+    }
+    
+    if ((*(uint32_t*)(app_address + 4) & 0xFF000000) != 0x08000000) {
+        LOG_E("Invalid reset vector at 0x%08X", app_address + 4);
+        return -RT_ERROR;
+    }
+    
+    LOG_I("准备跳转到APP: 地址=0x%08X", app_address);
+    
+    /* 关闭所有中断 */
+    __set_PRIMASK(1);
+    
+    /* 禁用所有外设时钟 */
+    RCC->AHB1ENR = 0;
+    RCC->AHB2ENR = 0;
+    RCC->AHB3ENR = 0;
+    RCC->APB1ENR = 0;
+    RCC->APB2ENR = 0;
+    
+    /* 清除所有挂起的中断 */
+    SCB->ICSR = SCB_ICSR_PENDSVCLR_Msk | SCB_ICSR_PENDSTCLR_Msk;
+    
+    /* 获取APP的堆栈指针和复位向量 */
+    JumpAddress = *(uint32_t*)(app_address + 4);
+    JumpToApplication = (pFunction)JumpAddress;
+    
+    /* 设置主堆栈指针 */
+    __set_MSP(*(uint32_t*)app_address);
+    
+    /* 跳转到APP */
+    JumpToApplication();
+    
+    /* 跳转成功不会执行到这里 */
+    return RT_EOK;
+}
+
+/**
+ * @brief 检查并跳转到APP
+ * @return 成功跳转返回0，失败返回负数错误码
+ */
+int check_and_jump_to_app(void)
+{
+    const uint32_t APP_START_ADDRESS = 0x08020000; /* APP起始地址 */
+    
+    /* 检查APP是否有效（简单检查：验证堆栈指针和复位向量） */
+    if ((*(uint32_t*)APP_START_ADDRESS & 0x2FFE0000) != 0x20000000) {
+        LOG_W("APP无效: 堆栈指针校验失败");
+        return -RT_ERROR;
+    }
+    
+    if ((*(uint32_t*)(APP_START_ADDRESS + 4) & 0xFF000000) != 0x08000000) {
+        LOG_W("APP无效: 复位向量校验失败");
+        return -RT_ERROR;
+    }
+    
+    /* 跳转到APP */
+    LOG_I("跳转到APP: 地址=0x%08X", APP_START_ADDRESS);
+    return jump_to_application(APP_START_ADDRESS);
+}
+
 int main(void)
 {
     bootloader_init();
@@ -106,7 +183,7 @@ int main(void)
         LOG_D("no need update");
     }
 
-    while (1)
+    while (check_and_jump_to_app() != RT_EOK)
     {
         rt_pin_write(LED0_PIN, PIN_HIGH);
         rt_thread_mdelay(150);

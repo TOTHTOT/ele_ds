@@ -23,6 +23,9 @@
 
 /* kservice optimization */
 
+#define RT_USING_DEBUG
+#define RT_DEBUGING_COLOR
+#define RT_DEBUGING_CONTEXT
 
 /* Inter-Thread communication */
 

@@ -1,8 +1,8 @@
 #ifndef __UPDATE_SOFT_H__
 #define __UPDATE_SOFT_H__
 
-#include <dfs_fs.h>
 #include "common.h"
+#include <dfs_fs.h>
 #include <rtthread.h>
 #include <string.h>
 #include <stdlib.h>
@@ -15,7 +15,7 @@
 #define SOFT_DIR        ROOT_DIR "/soft"
 #define UPDATE_DIR      SOFT_DIR "/update"
 #define CURRENT_DIR     SOFT_DIR "/current"
-#define BACKUP_DIR      SOFT_DIR "/backup/"
+#define BACKUP_DIR      SOFT_DIR "/backup"
 #define VERSION_BUFF_SIZE 64
 #define FILE_COPY_BUFFER_SIZE 512
 
