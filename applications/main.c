@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-04-21 19:48:53
+ * @LastEditTime: 2025-05-24 21:16:23
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -49,14 +49,14 @@ int main(void)
         rt_thread_mdelay(1500);
     }
 }
-#if 0
+#if 1
 static int ota_app_vtor_reconfig(void)
 {
- #define NVIC_VTOR_MASK 0x3FFFFF80
- #define RT_APP_PART_ADDR 0x08008000
- /* ????????? */
- SCB->VTOR = RT_APP_PART_ADDR & NVIC_VTOR_MASK;
-
+//  #define NVIC_VTOR_MASK 0x3FFFFF80
+//  #define RT_APP_PART_ADDR 0x08020000
+//  /* ????????? */
+//  SCB->VTOR = RT_APP_PART_ADDR & NVIC_VTOR_MASK;
+ SCB->VTOR = FLASH_BASE | 0x020000;
  return 0;
 }
 INIT_BOARD_EXPORT(ota_app_vtor_reconfig);

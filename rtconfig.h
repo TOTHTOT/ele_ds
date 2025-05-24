@@ -413,7 +413,7 @@
 #define BSP_USING_ADC1
 #define BSP_USING_ON_CHIP_FLASH
 #define BSP_USING_ONCHIP_RTC
-#define BSP_RTC_USING_LSE
+#define BSP_RTC_USING_LSI
 #define BSP_USING_CRC
 
 /* Board extended module Drivers */
