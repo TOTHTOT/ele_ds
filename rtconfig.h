@@ -23,24 +23,16 @@
 
 /* kservice optimization */
 
-#define RT_USING_DEBUG
-#define RT_DEBUGING_COLOR
-#define RT_DEBUGING_CONTEXT
 
 /* Inter-Thread communication */
 
 #define RT_USING_SEMAPHORE
 #define RT_USING_MUTEX
 #define RT_USING_EVENT
-#define RT_USING_MAILBOX
-#define RT_USING_MESSAGEQUEUE
 
 /* Memory Management */
 
-#define RT_USING_MEMPOOL
 #define RT_USING_SMALL_MEM
-#define RT_USING_MEMHEAP
-#define RT_MEMHEAP_FAST_MODE
 #define RT_USING_SMALL_MEM_AS_HEAP
 #define RT_USING_HEAP
 #define RT_USING_DEVICE
@@ -210,14 +202,6 @@
 
 /* tools packages */
 
-#define PKG_USING_CMBACKTRACE
-#define PKG_CMBACKTRACE_PLATFORM_M4
-#define PKG_CMBACKTRACE_DUMP_STACK
-#define PKG_CMBACKTRACE_PRINT_ENGLISH
-#define PKG_USING_CMBACKTRACE_V10401
-#define PKG_CMBACKTRACE_VER_NUM 0x10401
-#define PKG_USING_MEM_SANDBOX
-#define PKG_USING_MEM_SANDBOX_LATEST_VERSION
 
 /* system packages */
 

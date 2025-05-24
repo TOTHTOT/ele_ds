@@ -34,6 +34,7 @@ typedef enum {
 extern bool is_need_update(uint32_t *update_version, uint32_t *current_version);
 extern version_error_t move_file(const char *src_path, const char *dst_path);
 extern version_error_t delete_file(const char *path);
+extern void update_app(uint32_t update_version, uint32_t current_version);
 
 #endif /* __UPDATE_SOFT_H__ */
 

@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-05-23 14:44:02
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-23 20:06:21
+ * @LastEditTime: 2025-05-24 14:52:07
  * @FilePath: \ele_ds\applications\update_soft\update_soft.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -69,6 +69,7 @@ static version_error_t get_latest_version(const char *dir_path, uint32_t *latest
     return VERSION_SUCCESS;
 }
 
+#if 0 // 没用到 但是一直警告
 /**
  * @brief 复制文件
  * @param src_path 源文件路径
@@ -115,6 +116,7 @@ static version_error_t copy_file(const char *src_path, const char *dst_path)
     close(dst_fd);
     return VERSION_SUCCESS;
 }
+#endif
 
 /**
  * @brief 判断是否需要更新app
@@ -194,8 +196,13 @@ version_error_t delete_file(const char *path)
     return VERSION_SUCCESS;
 }
 
-
-void update_app(void)
+/**
+ * @description: 更新应用程序
+ * @param {uint32_t} update_version 更新版本号
+ * @param {uint32_t} current_version 当前版本号
+ * @return {*}
+ */ 
+void update_app(uint32_t update_version, uint32_t current_version)
 {
     char update_path[VERSION_BUFF_SIZE] = {0};
     char current_path[VERSION_BUFF_SIZE] = {0};
@@ -221,6 +228,8 @@ void update_app(void)
     
     // 移动更新包到current, 如何烧写到flash
     move_file(update_path, current_path);
+
+    // 写入到flash
 }
 
 

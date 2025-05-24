@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-24 11:38:17
+ * @LastEditTime: 2025-05-24 15:03:32
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,6 +10,7 @@
 #include <board.h>
 #include <rtthread.h>
 #include <drv_gpio.h>
+#include <fal.h>
 
 #include <dfs_fs.h>
 #include "drv_spi.h"
@@ -72,28 +73,39 @@ static int rt_hw_spi_flash_init(void)
     return RT_EOK;
 }
 
-int main(void)
+static void bootloader_init(void)
 {
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(V3_3_PIN, PIN_HIGH);
+
+    fal_init();
+
     rt_hw_spi_flash_init();
     mnt_init();
-    #define VERSION_CUSTOM  01    // 自定义版本号
+#define VERSION_CUSTOM 01 // 自定义版本号
     uint32_t software_version = SOFTWARE_VERSION_DEC(VERSION_CUSTOM);
-    rt_kprintf("ele_ds boot loader init success, date: %s, time: %s.version: %08u\n", __DATE__, __TIME__, software_version);
 
+    rt_kprintf("ele_ds boot loader init success, date: %s, time: %s.version: %08u\n", __DATE__, __TIME__, software_version);
+}
+
+int main(void)
+{
+    bootloader_init();
+
+    // 检查是否需要更新app
     uint32_t update_version = 0, current_version = 0;
     bool need_update = is_need_update(&update_version, &current_version);
     if (need_update == true)
     {
         LOG_D("need update");
-        update_app();
+        update_app(update_version, current_version);
     }
     else
     {
         LOG_D("no need update");
     }
+
     while (1)
     {
         rt_pin_write(LED0_PIN, PIN_HIGH);
