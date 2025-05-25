@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-05-23 14:44:02
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-24 17:45:04
+ * @LastEditTime: 2025-05-25 11:56:12
  * @FilePath: \ele_ds\applications\update_soft\update_soft.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -264,7 +264,7 @@ int fal_app_write(uint32_t offset, const uint8_t *buffer, uint32_t size)
     LOG_I("Start writing large file: total_size=0x%x", size);
 
     // 写入当前块
-    if (fal_partition_write(app_part, offset, buffer, size) != RT_EOK)
+    if (fal_partition_write(app_part, offset, buffer, size) < 0)
     {
         LOG_E("Write failed at offset 0x%x, block_size=0x%x", offset, size);
         return -RT_ERROR;
@@ -301,8 +301,10 @@ int fal_app_read_large(uint32_t offset, uint8_t *buffer, uint32_t size) {
         uint32_t read_size = (remaining > block_size) ? block_size : remaining;
         
         // 读取当前块
-        if (fal_partition_read(app_part, current_offset, current_buffer, read_size) != RT_EOK) {
-            LOG_E("Read failed at offset 0x%x, block_size=0x%x", current_offset, read_size);
+        if (fal_partition_read(app_part, current_offset, current_buffer, read_size) != RT_EOK)
+        {
+            LOG_E("Read failed at offset 0x%x, block_size=0x%x, total_read = %d, remaining = %d",
+                  current_offset, read_size, total_read, remaining);
             return -RT_ERROR;
         }
 
@@ -327,6 +329,7 @@ int fal_app_read_large(uint32_t offset, uint8_t *buffer, uint32_t size) {
  */
 int flash_write_file(const char *filename, uint32_t flash_offset)
 {
+    int32_t ret = 0;
     int fd = open(filename, O_RDONLY);
     if (fd < 0)
     {
@@ -352,8 +355,14 @@ int flash_write_file(const char *filename, uint32_t flash_offset)
         close(fd);
         return -RT_ERROR;
     }
-    fal_partition_erase_all(app_part); // 擦除分区
-
+    ret = fal_partition_erase_all(app_part); // 擦除分区
+    if (ret < 0)
+    {
+        LOG_E("Failed to erase app partition");
+        close(fd);
+        return ret;
+    }
+    
     // 分配缓冲区（分块读取，避免内存不足）
     const uint32_t buffer_size = 4096; // 4KB 缓冲区
     uint8_t *buffer = rt_malloc(buffer_size);
@@ -385,7 +394,8 @@ int flash_write_file(const char *filename, uint32_t flash_offset)
         int write_result = fal_app_write(current_flash_offset, buffer, bytes);
         if (write_result < 0)
         {
-            LOG_E("Failed to write to flash at offset 0x%x", current_flash_offset);
+            LOG_E("Failed to write to flash at offset 0x%x, block_size=0x%x, total_written = %d, remaining = %d, fail result = %d",
+                current_flash_offset, read_size, total_written, remaining, write_result);
             result = write_result;
             break;
         }
@@ -425,18 +435,21 @@ void update_app(uint32_t update_version, uint32_t current_version)
     LOG_D("Current path: %s", current_path);
     LOG_D("Old path: %s", old_path);
     LOG_D("Backup path: %s", backup_path);
-    
+
     // 删除旧版本目录后移动旧版本到backup, 删除backup目录是为了保障backup目录下只有一份旧版本
     rmdir(BACKUP_DIR);
     mkdir(BACKUP_DIR, 0);
-    // rt_thread_mdelay(100);
+// rt_thread_mdelay(100);
+#if 1
     move_file(old_path, backup_path);
     
-    // 移动更新包到current, 如何烧写到flash
+    // 移动更新包到current, 然后烧写到flash
     move_file(update_path, current_path);
-
     // 写入到flash
     flash_write_file(current_path, 0); // 从app分区的0地址开始写入
+#else // 测试烧写到flash是否正常
+    flash_write_file(update_path, 0); // 从app分区的0地址开始写入
+#endif
 }
 
 
