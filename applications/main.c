@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-24 21:16:23
+ * @LastEditTime: 2025-05-25 17:54:26
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -22,6 +22,7 @@
 
 int main(void)
 {
+    uint32_t loop_times = 0;
     int32_t ret = 0;
     struct ele_ds ele_ds = {0};
     g_ele_ds = &ele_ds;
@@ -32,8 +33,8 @@ int main(void)
         return -RT_ERROR;
     }
     
-    extern int lvgl_thread_init(void);
-    lvgl_thread_init();
+    // extern int lvgl_thread_init(void);
+    // lvgl_thread_init();
 
     rt_kprintf("ele_ds init success, date: %s, time: %s\n", __DATE__, __TIME__);
     rt_uint32_t total, used, max_used;
@@ -43,10 +44,20 @@ int main(void)
     while (1)
     {
         // ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
-        rt_pin_write(LED0_PIN, PIN_HIGH);
-        rt_thread_mdelay(1500);
-        rt_pin_write(LED0_PIN, PIN_LOW);
-        rt_thread_mdelay(1500);
+        if(loop_times % 10 == 0)
+        {
+            if (rt_pin_read(LED0_PIN) == PIN_LOW)
+            {
+                rt_pin_write(LED0_PIN, PIN_HIGH);
+            }
+            else
+            {
+                rt_pin_write(LED0_PIN, PIN_LOW);
+            }
+        }
+        LOG_D("LEFT_KEY state: %d\n MID_KEY state: %d\n RIGHT_KEY state: %d", rt_pin_read(LEFT_KEY), rt_pin_read(MID_KEY), rt_pin_read(RIGHT_KEY));
+        loop_times++;
+        rt_thread_mdelay(50);
     }
 }
 #if 1

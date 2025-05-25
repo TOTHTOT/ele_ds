@@ -317,7 +317,13 @@ int32_t devices_init(ele_ds_t ele_ds)
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(V3_3_PIN, PIN_HIGH);
-		ele_ds_pm_init();
+	
+    // 按键初始化
+    rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP);
+    rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
+    rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP);
+    
+    ele_ds_pm_init();
 	
     if (ele_ds == RT_NULL)
     {

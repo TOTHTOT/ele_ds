@@ -33,6 +33,10 @@
 /* 参数配置 */
 #define LED0_PIN GET_PIN(C, 13)
 #define V3_3_PIN GET_PIN(C, 8)
+#define LEFT_KEY GET_PIN(A, 0)
+#define MID_KEY GET_PIN(B, 13)
+#define RIGHT_KEY GET_PIN(B, 12)
+
 #define MAX_VBAT 4.2f
 #define MIN_VBAT 3.6f
 #define SOFT_VERSION "V1.0.0"
