@@ -320,6 +320,11 @@
 
 /* touch drivers */
 
+#define PKG_USING_BEEP
+#define PKG_BEEP_ACTIVE_BUZZER
+#define PKG_BEEP_USING_MSH_CMD
+#define PKG_BEEP_THREAD_STACK_USING_HEAP
+#define PKG_USING_BEEP_V110
 
 /* AI packages */
 

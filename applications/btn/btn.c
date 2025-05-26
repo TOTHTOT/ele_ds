@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-05-26 16:25:21
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-26 16:39:17
+ * @LastEditTime: 2025-05-26 17:14:31
  * @FilePath: \ele_ds\packages\MFBD-latest\examples\btn.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -12,6 +12,7 @@
 #include "mfbd.h"
 #include "mfbd_sd.h"
 #include <drv_gpio.h>
+#include <beep.h>
 
 #define MFBD_DEMO_USE_DEFAULT_DEFINE            1       /* set to 1, you can study how to use default define APIs. */
 
@@ -130,6 +131,13 @@ unsigned char bsp_btn_check(mfbd_btn_index_t btn_index)
 
 void bsp_btn_value_report(mfbd_btn_code_t btn_value)
 {
+    // 只有按键松开蜂鸣器才响
+    if (btn_value == MFBD_UP_CODE_NAME(test_nbtn1) || 
+        btn_value == MFBD_UP_CODE_NAME(test_nbtn) || 
+        btn_value == MFBD_UP_CODE_NAME(test_nbtn2))
+    {
+        beep(1, 50, 50, 0);
+    }
     rt_kprintf("%04x\n", btn_value);
 }
 

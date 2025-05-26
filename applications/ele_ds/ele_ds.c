@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:22
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-14 14:32:40
+ * @LastEditTime: 2025-05-26 17:06:37
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -12,8 +12,9 @@
 #include "spi_flash_sfud.h"
 #include "dfscfg.h"
 #include "client.h"
-#include <rtdevice.h>
 #include "ele_ds_pm.h"
+#include "beep.h"
+#include <rtdevice.h>
 
 #define DBG_TAG "ele_ds"
 #define DBG_LVL DBG_LOG
@@ -331,6 +332,7 @@ int32_t devices_init(ele_ds_t ele_ds)
         return -1;
     }
     memset(ele_ds, 0, sizeof(ele_ds_t));
+    beep_init(GET_PIN(C, 5), PIN_LOW);
     // fal_init();
     rt_hw_spi_flash_init();
 
