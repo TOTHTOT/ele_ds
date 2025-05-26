@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-05-26 16:25:21
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-26 17:14:31
+ * @LastEditTime: 2025-05-26 17:50:35
  * @FilePath: \ele_ds\packages\MFBD-latest\examples\btn.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -13,6 +13,7 @@
 #include "mfbd_sd.h"
 #include <drv_gpio.h>
 #include <beep.h>
+#include <stdbool.h>
 
 #define MFBD_DEMO_USE_DEFAULT_DEFINE            1       /* set to 1, you can study how to use default define APIs. */
 
@@ -129,15 +130,57 @@ unsigned char bsp_btn_check(mfbd_btn_index_t btn_index)
     return MFBD_BTN_STATE_UP;
 }
 
+static bool btn_click_islong(mfbd_btn_code_t btn_value)
+{
+    if (btn_value == MFBD_LONG_CODE_NAME(test_nbtn) ||
+        btn_value == MFBD_LONG_CODE_NAME(test_nbtn1) ||
+        btn_value == MFBD_LONG_CODE_NAME(test_nbtn2))
+    {
+        return true; // 如果是长按事件
+    }
+    else
+        return false;
+}
+
+static bool btn_click_isup(mfbd_btn_code_t btn_value)
+{
+    if (btn_value == MFBD_UP_CODE_NAME(test_nbtn) ||
+        btn_value == MFBD_UP_CODE_NAME(test_nbtn1) ||
+        btn_value == MFBD_UP_CODE_NAME(test_nbtn2))
+    {
+        return true; // 如果是松开事件
+    }
+    else
+        return false;
+}
+
+static void btn_curclick_ctrbeep(mfbd_btn_code_t btn_value)
+{
+    static mfbd_btn_code_t pre_value = 0; // 保存上一次的按键值, 避免长按时多次触发
+
+    if (btn_click_isup(btn_value) || btn_click_islong(btn_value))
+    {
+        // rt_kprintf("Button value: %d %d\n", pre_value, btn_value);
+        if (pre_value != btn_value) // 避免长按时多次触发
+        {
+            // 上一个是长按本次松开不响应
+            if (btn_click_islong(pre_value))
+            {
+                // rt_kprintf("Button long pressed: %04x\n", btn_value);
+            }
+            else
+                beep(1, 50, 50, 0); // 蜂鸣器响一次
+            pre_value = btn_value;
+        }
+        else // 短按也得响
+            beep(1, 50, 50, 0); // 蜂鸣器响一次
+    }
+}
+
 void bsp_btn_value_report(mfbd_btn_code_t btn_value)
 {
     // 只有按键松开蜂鸣器才响
-    if (btn_value == MFBD_UP_CODE_NAME(test_nbtn1) || 
-        btn_value == MFBD_UP_CODE_NAME(test_nbtn) || 
-        btn_value == MFBD_UP_CODE_NAME(test_nbtn2))
-    {
-        beep(1, 50, 50, 0);
-    }
+    btn_curclick_ctrbeep(btn_value);
     rt_kprintf("%04x\n", btn_value);
 }
 
