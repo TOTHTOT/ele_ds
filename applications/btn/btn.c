@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-05-26 16:25:21
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-26 17:50:35
+ * @LastEditTime: 2025-05-26 20:45:51
  * @FilePath: \ele_ds\packages\MFBD-latest\examples\btn.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,6 +11,7 @@
 #include <board.h>
 #include "mfbd.h"
 #include "mfbd_sd.h"
+#include "ele_ds.h"
 #include <drv_gpio.h>
 #include <beep.h>
 #include <stdbool.h>
@@ -20,28 +21,8 @@
 void bsp_btn_value_report(mfbd_btn_code_t btn_value);
 unsigned char bsp_btn_check(mfbd_btn_index_t btn_index);
 
-#ifndef BTN_KEY0
-    #define BTN_KEY0 GET_PIN(B, 13)
-#endif
-
-#ifndef BTN_KEY1
-    #define BTN_KEY1 GET_PIN(B, 12)
-#endif
-
-#ifndef BTN_KEY2
-    #define BTN_KEY2 GET_PIN(C, 13)
-#endif
-
-#ifndef BTN_WK_UP
-    #define BTN_WK_UP GET_PIN(A, 0)
-#endif
-
 enum
 {
-    MFBD_DOWN_CODE_NAME(test_tbtn)      = 0x1201,
-    MFBD_UP_CODE_NAME(test_tbtn)        = 0x1200,
-    MFBD_LONG_CODE_NAME(test_tbtn)      = 0x1202,
-
     MFBD_DOWN_CODE_NAME(test_nbtn)      = 0x1301,
     MFBD_UP_CODE_NAME(test_nbtn)        = 0x1300,
     MFBD_LONG_CODE_NAME(test_nbtn)      = 0x1302,
@@ -55,15 +36,13 @@ enum
     MFBD_LONG_CODE_NAME(test_nbtn2)     = 0x1502,
 };
 
-mfbd_btn_code_t MFBD_DOWN_CODES_NAME(test_mbtn)[4] = {0x1501, 0x1511, 0x1521, 0x1531};
-
 
 /* MFBD_NBTN_DEFAULT_DEFINE(NAME, BTN_INDEX, FILTER_TIME, REPEAT_TIME, LONG_TIME) */
 MFBD_NBTN_DEFAULT_DEFINE(test_nbtn, 1, 3, 0, 100);
 MFBD_NBTN_DEFAULT_DEFINE(test_nbtn1, 2, 3, 0, 100);
 MFBD_NBTN_DEFAULT_DEFINE(test_nbtn2, 3, 3, 0, 100);
 
-MFBD_NBTN_ARRAYLIST(test_nbtn_list, &test_nbtn1, &test_nbtn);
+MFBD_NBTN_ARRAYLIST(test_nbtn_list, &test_nbtn1, &test_nbtn, &test_nbtn2);
 
 const mfbd_group_t test_btn_group =
 {
@@ -106,20 +85,20 @@ unsigned char bsp_btn_check(mfbd_btn_index_t btn_index)
 {
     switch (btn_index)
     {
-    case 3:
-        if (rt_pin_read(BTN_KEY1) == 0)
+    case 1:
+        if (rt_pin_read(LEFT_KEY) == 0)
         {
             return MFBD_BTN_STATE_DOWN;
         }
         break;
     case 2:
-        if (rt_pin_read(BTN_KEY0) == 0)
+        if (rt_pin_read(MID_KEY) == 0)
         {
             return MFBD_BTN_STATE_DOWN;
         }
         break;
-    case 1:
-        if (rt_pin_read(BTN_WK_UP) == 0)
+    case 3:
+        if (rt_pin_read(RIGHT_KEY) == 0)
         {
             return MFBD_BTN_STATE_DOWN;
         }
@@ -205,12 +184,9 @@ static void mfbd_scan(void *arg)
 
 static void user_button_init(void)
 {
-
-    rt_pin_mode(BTN_KEY0, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
-    rt_pin_mode(BTN_KEY1, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
-    // rt_pin_mode(BTN_KEY2, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
-    rt_pin_mode(BTN_WK_UP, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
-
+    rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
+    rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
+    rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
 }
 
 int mfbd_main(void)
