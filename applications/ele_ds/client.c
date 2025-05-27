@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-08 15:21:19
+ * @LastEditTime: 2025-05-27 11:23:31
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -439,6 +439,55 @@ static void thread_parse_recv_data(void *parameter)
     LOG_D("recv parse thread exit");
 }
 
+static char *build_devcfg_msg(ele_ds_t ele_ds)
+{
+    if (ele_ds == RT_NULL) {
+        LOG_E("Invalid parameters: ele_ds=%p", (void*)ele_ds);
+        return NULL;
+    }
+
+    cJSON *root = cJSON_CreateObject();
+    if (root == RT_NULL) {
+        LOG_E("Failed to create root JSON object");
+        return NULL;
+    }
+
+    // 创建并添加传感器数据
+    cJSON *sensordata = cJSON_CreateObject();
+    cJSON_AddItemToObject(root, "sensor_data", sensordata);
+    cJSON_AddNumberToObject(sensordata, "temperature", (uint32_t)ele_ds->sensor_data.sht30[0]);
+    cJSON_AddNumberToObject(sensordata, "humidity", (uint32_t)ele_ds->sensor_data.sht30[1]);
+    cJSON_AddNumberToObject(sensordata, "pressure", ele_ds->sensor_data.gzp6816d.pressure);
+    cJSON_AddNumberToObject(sensordata, "tvoc", ele_ds->sensor_data.sgp30[0]);
+    cJSON_AddNumberToObject(sensordata, "co2", ele_ds->sensor_data.sgp30[1]);
+
+    // 创建并添加配置数据
+    cJSON *cfg = cJSON_CreateObject();
+    cJSON_AddItemToObject(root, "cfg", cfg);
+    cJSON_AddStringToObject(cfg, "username", ele_ds->device_cfg.clientcfg.username);
+    cJSON_AddStringToObject(cfg, "passwd", ele_ds->device_cfg.clientcfg.passwd);
+    cJSON_AddStringToObject(cfg, "cityname", ele_ds->device_cfg.clientcfg.cityname);
+    cJSON_AddNumberToObject(cfg, "cityid", ele_ds->device_cfg.clientcfg.cityid);
+    cJSON_AddNumberToObject(cfg, "cntserver_interval", ele_ds->device_cfg.clientcfg.cntserver_interval);
+    cJSON_AddNumberToObject(cfg, "version", ele_ds->device_cfg.clientcfg.version);
+    cJSON_AddNumberToObject(cfg, "battery", ele_ds->device_cfg.clientcfg.battery);
+    
+    // 添加消息类型
+    cJSON_AddNumberToObject(root, "msgtype", EMT_CLIENTMSG_INFO);
+
+    // 转换为字符串并复制到输出缓冲区
+    char *json_str = cJSON_PrintUnformatted(root);
+    rt_kprintf("build_devcfg_msg: %s\n", json_str);
+    if (json_str == RT_NULL) {
+        LOG_E("Failed to print JSON to string");
+        cJSON_Delete(root);
+        return NULL;
+    }
+    cJSON_Delete(root);
+    
+    return json_str;
+}
+
 /**
  * @description: 客户端线程
  * @param {void} *parameter 传入参数为ele_ds_t类型
@@ -474,12 +523,18 @@ static void threads_communicate_server(void *parameter)
     }
     // 连接成功发送模拟数据
 #if ENABLE_POWERON_SEND_DEVINFO
-    const char *msg = "{\"type\":2,\"sensor_data\":{\"temperature\":25,\"humidity\":60,\"pressure\":101325,\"tvoc\":50,\"co2\":400},\"cfg\":{\"username\":\"test_user\",\"passwd\":\"123456\",\"cityname\":\"Beijing\",\"cityid\":101010100,\"cntserver_interval\":30,\"version\":20240328,\"battery\":85}}";
-    ret = send(sock, msg, strlen(msg), 0);
+    // const char *msg = "{\"type\":2,\"sensor_data\":{\"temperature\":25,\"humidity\":60,\"pressure\":101325,\"tvoc\":50,\"co2\":400},\"cfg\":{\"username\":\"test_user\",\"passwd\":\"123456\",\"cityname\":\"Beijing\",\"cityid\":101010100,\"cntserver_interval\":30,\"version\":20240328,\"battery\":85}}";
+    char *msg = build_devcfg_msg(ele_ds);
+    if (msg == RT_NULL)
+    {
+        LOG_W("build devcfg msg failed");
+    }
+    int32_t ret = send(sock, msg, strlen(msg), 0);
     if (ret < 0)
     {
         LOG_E("send failed, ret = %d", ret);
     }
+    free(msg);
 #endif /* ENABLE_POWERON_SEND_DEVINFO */
     uint8_t *recvbuf = rt_calloc(1, CLIENT_RECV_PACKSIZE);
     if (recvbuf == RT_NULL)

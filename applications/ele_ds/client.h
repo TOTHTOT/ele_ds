@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:41
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-07 14:54:31
+ * @LastEditTime: 2025-05-27 11:27:40
  * @FilePath: \ele_ds\applications\ele_ds\client.h
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -26,11 +26,12 @@
 #define CITY_NAME_SIZE 21             // 城市名字最大长度
 #define CLIENT_CHEAT_CONTENT_SIZE 256 // 备忘录消息最大长度
 #define ENABLE_SAVE_FILE 1            // 是否保存下载的文件, 默认都要开启
-#define ENABLE_POWERON_SEND_DEVINFO 0 // 是否开机发送设备信息给服务器, 默认开启, 暂时关闭
+#define ENABLE_POWERON_SEND_DEVINFO 1 // 是否开机发送设备信息给服务器, 默认开启, 暂时关闭
 
 typedef struct ele_ds *ele_ds_t;
 extern int32_t esp8266_device_init(ele_ds_t ele_ds);
 
+/* 此部分内容需要和服务器同步 开始*/
 typedef enum
 {
     CRS_NONE = 0,      // 没有数据
@@ -64,7 +65,7 @@ typedef struct
     uint32_t pressure;    // 气压
     uint16_t tvoc;         // VOC
     uint16_t co2;          // CO2
-} ele_client_sensor_data_t; // 客户端传感器数据结构体
+} ele_client_sensor_data_t; // 客户端传感器数据结构体, 没用到 采用json发送
 
 typedef struct
 {
@@ -75,13 +76,13 @@ typedef struct
     uint16_t cntserver_interval; // 连接服务器间隔时间
     uint32_t version;            // 客户端版本号
     uint8_t battery;             // 电池电量
-} ele_client_cfg_t;              // 客户端配置结构体
+} ele_client_cfg_t;              // 客户端配置结构体, 没用到 采用json发送
 
 typedef struct
 {
     ele_client_sensor_data_t sensor_data; // 客户端本地传感器采集到的数据
     ele_client_cfg_t cfg;                 // 客户端配置
-} ele_client_info_t;                      // 客户端连接到服务器要发送过来的消息
+} ele_client_info_t;                      // 客户端连接到服务器要发送过来的消息, 没用到 采用json发送
 
 typedef struct
 {
@@ -89,16 +90,6 @@ typedef struct
     char target_username[USER_NAME_SIZE]; // 目标用户名
     char msg[CLIENT_CHEAT_CONTENT_SIZE];  // 消息内容
 } ele_client_cheat_t; // 客户端间聊天信息结构体
-
-typedef struct ele_client_msg
-{
-    ele_msg_type_t type; // 消息类型
-    union
-    {
-        ele_client_cheat_t cheat; // 客户端间聊天信息
-        ele_client_info_t client_info; // 客户端设备信息
-    }msg;
-}ele_client_msg_t; // 客户端消息结构体
 
 #pragma pack(1)
 typedef struct client_software_updateinfo
@@ -117,12 +108,16 @@ typedef struct
         char *memo;                           // 备忘录消息
         int8_t weatherdays;                   // 天气消息, 天数
         client_software_updateinfo_t cs_info; // 客户端升级包信息
+        ele_client_cheat_t cheat;             // 客户端间聊天信息
+        char *client_info;        // 客户端设备信息
     } data;
     uint32_t len;           // 消息长度
     uint32_t packcnt;       // 消息包序号
     ele_msg_type_t msgtype; // 消息类型
 
 } ele_msg_t; // 消息结构体, 和服务器同步
+
+/* 此部分内容需要和服务器同步 结束 */
 
 typedef struct ele_ds_client
 {

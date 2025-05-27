@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-05 12:21:47
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-08 11:13:47
+ * @LastEditTime: 2025-05-27 11:33:23
  * @FilePath: \ele_ds\applications\dfs\dfscfg.h
  * @Description: dfs文件系统相关配置
  */
@@ -14,12 +14,14 @@
 #include <unistd.h>
 #include <stdint.h>
 #include "weather.h"
+#include "client.h"
 
 #define SYSFILE_PATH "/sysfile"
 #define CONFIG_FILE_PATH SYSFILE_PATH "/config"
 #define SOFTWARE_UPDATE_FILE_PATH SYSFILE_PATH
 typedef struct
 {
+    ele_client_cfg_t clientcfg; // 设备登录到服务器的配置信息
 #define CFGFILE_DEFATLT_WIFI_SSID "esp-2.4G"
 #define CFGFILE_DEFATLT_WIFI_PASS "12345678.."
     uint8_t wifi_ssid[32];   // wifi ssid
@@ -41,7 +43,6 @@ typedef struct
 #define CFGFILE_DEFAULT_TCP_TIMEOUT (3 * 1000) // 3s
     uint32_t tcp_timeout; // tcp传输数据软件定时器超时时间
 
-    uint8_t version[16];
 #define CFGFILE_CHECK 0xA5A5A5A5
     uint32_t check;
 } ele_ds_cfg_t; // 掉电信息

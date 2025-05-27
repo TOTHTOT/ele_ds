@@ -357,12 +357,12 @@ int32_t devices_init(ele_ds_t ele_ds)
     
     // 初始化文件系统并加载系统配置
     mnt_init();
-    // ret = esp8266_device_init(ele_ds);
-    // if (ret != 0)
-    // {
-    //     LOG_E("esp8266 device register failed, ret = %d", ret);
-    //     return -5;
-    // }
+    ret = esp8266_device_init(ele_ds);
+    if (ret != 0)
+    {
+        LOG_E("esp8266 device register failed, ret = %d", ret);
+        return -5;
+    }
 
     ele_ds->ops = ele_ds_ops;
     // 初始化设备基本信息

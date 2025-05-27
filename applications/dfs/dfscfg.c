@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-07 09:21:50
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-19 16:09:58
+ * @LastEditTime: 2025-05-27 11:41:51
  * @FilePath: \ele_ds\applications\dfs\dfscfg.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -43,13 +43,28 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
         LOG_E("cJSON_CreateObject failed");
         return NULL;
     }
+    cJSON *clientcfg = cJSON_CreateObject();
+    if (clientcfg == NULL)
+    {
+        LOG_E("cJSON_CreateObject for clientcfg failed");
+        cJSON_Delete(root);
+        return NULL;
+    }
+    cJSON_AddStringToObject(clientcfg, "username", (const char *)cfg->clientcfg.username);
+    cJSON_AddStringToObject(clientcfg, "passwd", (const char *)cfg->clientcfg.passwd);
+    cJSON_AddStringToObject(clientcfg, "cityname", (const char *)cfg->clientcfg.cityname);
+    cJSON_AddStringToObject(clientcfg, "cityid", (const char *)cfg->clientcfg.cityid);
+    cJSON_AddNumberToObject(clientcfg, "cntserver_interval", cfg->clientcfg.cntserver_interval);
+    cJSON_AddNumberToObject(clientcfg, "version", cfg->clientcfg.version);
+    cJSON_AddNumberToObject(clientcfg, "battery", cfg->clientcfg.battery);
+    cJSON_AddItemToObject(root, "clientcfg", clientcfg);
+
     cJSON_AddStringToObject(root, "wifi_ssid", (const char *)cfg->wifi_ssid);
     cJSON_AddStringToObject(root, "wifi_passwd", (const char *)cfg->wifi_passwd);
     cJSON_AddStringToObject(root, "server_addr", (const char *)cfg->server_addr);
     cJSON_AddNumberToObject(root, "server_port", cfg->server_port);
     cJSON_AddNumberToObject(root, "cityid", cfg->cityid);
     cJSON_AddNumberToObject(root, "tcp_timeout", cfg->tcp_timeout);
-    cJSON_AddStringToObject(root, "version", (const char *)cfg->version);
     cJSON_AddStringToObject(root, "memo", cfg->memo);
 
     cJSON *weather_array = cJSON_CreateArray();
@@ -70,6 +85,25 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
 static void json_to_ele_ds_cfg(ele_ds_cfg_t *cfg, const cJSON *json)
 {
     memset(cfg, 0, sizeof(ele_ds_cfg_t));
+
+    strcpy(cfg->clientcfg.username, cJSON_GetObjectItem(json, "username")->valuestring);
+    strcpy(cfg->clientcfg.passwd, cJSON_GetObjectItem(json, "passwd")->valuestring);
+    strcpy(cfg->clientcfg.cityname, cJSON_GetObjectItem(json, "cityname")->valuestring);
+    strcpy(cfg->clientcfg.cityid, cJSON_GetObjectItem(json, "cityid")->valueint);
+
+    cJSON *clientcfg = cJSON_GetObjectItem(json, "clientcfg");
+    if (clientcfg == NULL)
+    {
+        LOG_E("clientcfg not found in json");
+        return;
+    }
+    strcpy((char *)cfg->clientcfg.username, cJSON_GetObjectItem(clientcfg, "username")->valuestring);
+    strcpy((char *)cfg->clientcfg.passwd, cJSON_GetObjectItem(clientcfg, "passwd")->valuestring);
+    strcpy((char *)cfg->clientcfg.cityname, cJSON_GetObjectItem(clientcfg, "cityname")->valuestring);
+    cfg->clientcfg.cityid = cJSON_GetObjectItem(clientcfg, "cityid")->valueint;
+    cfg->clientcfg.cntserver_interval = cJSON_GetObjectItem(clientcfg, "cntserver_interval")->valueint;
+    cfg->clientcfg.version = cJSON_GetObjectItem(clientcfg, "version")->valueint;
+    cfg->clientcfg.battery = cJSON_GetObjectItem(clientcfg, "battery")->valueint;
 
     strcpy((char *)cfg->wifi_ssid, cJSON_GetObjectItem(json, "wifi_ssid")->valuestring);
     strcpy((char *)cfg->wifi_passwd, cJSON_GetObjectItem(json, "wifi_passwd")->valuestring);

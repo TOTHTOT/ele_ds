@@ -159,7 +159,7 @@ static void btn_curclick_ctrbeep(mfbd_btn_code_t btn_value)
 void bsp_btn_value_report(mfbd_btn_code_t btn_value)
 {
     // 只有按键松开蜂鸣器才响
-    btn_curclick_ctrbeep(btn_value);
+    // btn_curclick_ctrbeep(btn_value);
     rt_kprintf("%04x\n", btn_value);
 }
 
