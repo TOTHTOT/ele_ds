@@ -31,7 +31,6 @@
 typedef struct ele_ds *ele_ds_t;
 extern int32_t esp8266_device_init(ele_ds_t ele_ds);
 
-/* 此部分内容需要和服务器同步 开始*/
 typedef enum
 {
     CRS_NONE = 0,      // 没有数据
@@ -42,6 +41,7 @@ typedef enum
     CSR_MAX,           // 最大数据长度
 } client_recv_state_t; // 客户端接收数据状态
 
+/* 此部分内容需要和服务器同步 开始*/
 typedef enum
 {
     EMT_CLIENTMSG_NONE = -1,   // 客户端消息类型无效
@@ -109,7 +109,11 @@ typedef struct
         int8_t weatherdays;                   // 天气消息, 天数
         client_software_updateinfo_t cs_info; // 客户端升级包信息
         ele_client_cheat_t cheat;             // 客户端间聊天信息
-        char *client_info;        // 客户端设备信息
+        union
+        {
+            ele_client_info_t client_info; // 客户端设备信息
+            char *client_info_str;         // 客户端设备信息
+        } client_info;
     } data;
     uint32_t len;           // 消息长度
     uint32_t packcnt;       // 消息包序号
