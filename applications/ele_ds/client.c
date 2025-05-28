@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-28 14:18:45
+ * @LastEditTime: 2025-05-28 17:44:23
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -94,7 +94,7 @@ static int32_t parse_json_data(ele_msg_t *msg, uint8_t *buffer, int32_t len)
         msg->data.memo = cJSON_GetObjectItem(packinfo, "message")->valuestring;
         break;
     case EMT_SERVERMSG_WEATHER:
-        msg->data.weatherdays = cJSON_GetObjectItem(packinfo, "days")->valueint;
+        msg->data.weatherdays = cJSON_GetObjectItem(packinfo, "weatherdays")->valueint;
         break;
     case EMT_SERVERMSG_CLIENTUPDATE:
     {
@@ -155,6 +155,8 @@ static int32_t parse_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
         break;
     case EMT_SERVERMSG_WEATHER:
         LOG_D("recv weather days: %d", msg->data.weatherdays);
+        client->recv_info.datalen = msg->len;
+        client->recv_info.datalen = msg->len;
         client->recv_info.recv_state = CRS_DATA;
         break;
     case EMT_SERVERMSG_CLIENTUPDATE:
@@ -233,7 +235,7 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
             if (is_json((char *)buffer, strlen((char *)buffer)) == true)
             {
                 ele_ds->client.recv_info.recv_state = CRS_HEAD;
-                LOG_D("recv json data, len = %d", len);
+                LOG_D("recv json data[%s], len = %d", (char *)buffer, len);
             }
             else
             {
