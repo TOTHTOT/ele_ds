@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-16 19:11:27
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-02 12:29:07
+ * @LastEditTime: 2025-05-28 14:05:43
  * @FilePath: \ele_ds\applications\ele_ds\ele_ds.h
  * @Description: 电子桌搭主要功能
  */
@@ -39,7 +39,8 @@
 
 #define MAX_VBAT 4.2f
 #define MIN_VBAT 3.6f
-#define SOFT_VERSION "V1.0.0"
+#define SOFT_VERSION 0x25052801
+#define DEFATLT_CITYID 101010100
 
 typedef rt_err_t (*get_sensor_data)(void *data);
 

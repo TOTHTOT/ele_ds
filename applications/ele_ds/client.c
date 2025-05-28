@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-27 11:23:31
+ * @LastEditTime: 2025-05-28 14:18:45
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -477,7 +477,7 @@ static char *build_devcfg_msg(ele_ds_t ele_ds)
 
     // 转换为字符串并复制到输出缓冲区
     char *json_str = cJSON_PrintUnformatted(root);
-    rt_kprintf("build_devcfg_msg: %s\n", json_str);
+    LOG_D("devcfg msg: %s\n", json_str);
     if (json_str == RT_NULL) {
         LOG_E("Failed to print JSON to string");
         cJSON_Delete(root);

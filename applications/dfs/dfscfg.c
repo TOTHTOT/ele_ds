@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-07 09:21:50
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-27 11:41:51
+ * @LastEditTime: 2025-05-28 14:12:03
  * @FilePath: \ele_ds\applications\dfs\dfscfg.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -25,11 +25,11 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
     memset(cfg, 0, sizeof(ele_ds_cfg_t));
     memset(cfg->weather_info, 0, sizeof(cfg->weather_info));
     cfg->check = CFGFILE_CHECK;
-    cfg->cityid = CFGFILE_DEFATLT_CITYID;
     cfg->server_port = CFGFILE_DEFATLT_SERVER_PORT;
     cfg->tcp_timeout = CFGFILE_DEFAULT_TCP_TIMEOUT;
-
-    strncpy((char *)cfg->version, SOFT_VERSION, sizeof(cfg->version) - 1);
+    cfg->clientcfg.cityid = DEFATLT_CITYID;
+	cfg->clientcfg.version = SOFT_VERSION;
+	
     strncpy((char *)cfg->wifi_ssid, CFGFILE_DEFATLT_WIFI_SSID, sizeof(cfg->wifi_ssid) - 1);
     strncpy((char *)cfg->wifi_passwd, CFGFILE_DEFATLT_WIFI_PASS, sizeof(cfg->wifi_passwd) - 1);
     strncpy((char *)cfg->server_addr, CFGFILE_DEFATLT_SERVER_ADDR, sizeof(cfg->server_addr) - 1);
@@ -53,7 +53,7 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
     cJSON_AddStringToObject(clientcfg, "username", (const char *)cfg->clientcfg.username);
     cJSON_AddStringToObject(clientcfg, "passwd", (const char *)cfg->clientcfg.passwd);
     cJSON_AddStringToObject(clientcfg, "cityname", (const char *)cfg->clientcfg.cityname);
-    cJSON_AddStringToObject(clientcfg, "cityid", (const char *)cfg->clientcfg.cityid);
+    cJSON_AddNumberToObject(clientcfg, "cityid", cfg->clientcfg.cityid);
     cJSON_AddNumberToObject(clientcfg, "cntserver_interval", cfg->clientcfg.cntserver_interval);
     cJSON_AddNumberToObject(clientcfg, "version", cfg->clientcfg.version);
     cJSON_AddNumberToObject(clientcfg, "battery", cfg->clientcfg.battery);
@@ -63,7 +63,6 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
     cJSON_AddStringToObject(root, "wifi_passwd", (const char *)cfg->wifi_passwd);
     cJSON_AddStringToObject(root, "server_addr", (const char *)cfg->server_addr);
     cJSON_AddNumberToObject(root, "server_port", cfg->server_port);
-    cJSON_AddNumberToObject(root, "cityid", cfg->cityid);
     cJSON_AddNumberToObject(root, "tcp_timeout", cfg->tcp_timeout);
     cJSON_AddStringToObject(root, "memo", cfg->memo);
 
@@ -86,11 +85,6 @@ static void json_to_ele_ds_cfg(ele_ds_cfg_t *cfg, const cJSON *json)
 {
     memset(cfg, 0, sizeof(ele_ds_cfg_t));
 
-    strcpy(cfg->clientcfg.username, cJSON_GetObjectItem(json, "username")->valuestring);
-    strcpy(cfg->clientcfg.passwd, cJSON_GetObjectItem(json, "passwd")->valuestring);
-    strcpy(cfg->clientcfg.cityname, cJSON_GetObjectItem(json, "cityname")->valuestring);
-    strcpy(cfg->clientcfg.cityid, cJSON_GetObjectItem(json, "cityid")->valueint);
-
     cJSON *clientcfg = cJSON_GetObjectItem(json, "clientcfg");
     if (clientcfg == NULL)
     {
@@ -109,9 +103,8 @@ static void json_to_ele_ds_cfg(ele_ds_cfg_t *cfg, const cJSON *json)
     strcpy((char *)cfg->wifi_passwd, cJSON_GetObjectItem(json, "wifi_passwd")->valuestring);
     strcpy((char *)cfg->server_addr, cJSON_GetObjectItem(json, "server_addr")->valuestring);
     cfg->server_port = cJSON_GetObjectItem(json, "server_port")->valueint;
-    cfg->cityid = cJSON_GetObjectItem(json, "cityid")->valueint;
     cfg->tcp_timeout = cJSON_GetObjectItem(json, "tcp_timeout")->valueint;
-    strcpy((char *)cfg->version, cJSON_GetObjectItem(json, "version")->valuestring);
+    cfg->clientcfg.version = cJSON_GetObjectItem(json, "version")->valueint;
     strcpy(cfg->memo, cJSON_GetObjectItem(json, "memo")->valuestring);
 
     cJSON *weather_array = cJSON_GetObjectItem(json, "weather_info");
@@ -208,8 +201,8 @@ void ele_ds_cfg_print(ele_ds_cfg_t *cfg)
 {
 #if 1 
     rt_kprintf("config file info:\n");
-    rt_kprintf("version: %s\n", cfg->version);
-    rt_kprintf("cityid: %d\n", cfg->cityid);
+    rt_kprintf("version: %08u\n", cfg->clientcfg.version);
+    rt_kprintf("cityid: %d\n", cfg->clientcfg.cityid);
     rt_kprintf("wifi_ssid: %s\n", cfg->wifi_ssid);
     rt_kprintf("wifi_passwd: %s\n", cfg->wifi_passwd);
     rt_kprintf("server_addr: %s\n", cfg->server_addr);
