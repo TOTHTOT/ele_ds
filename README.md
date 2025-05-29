@@ -71,6 +71,30 @@ lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
 ## bug修复
 
+- 修复终端不能交互问题, 现象为输入一个字符后就卡住了, 程序还在运行, 原因是接收完数据调用`clear_client_info()`清空接收信息, 这里`update_file_fd`等于0,关闭了标准输入的文件.
+
+```c
+static int32_t clear_client_info(ele_ds_client_t *client)
+{
+    if (client == RT_NULL)
+    {
+        LOG_E("client is NULL");
+        return -1;
+    }
+    client->recv_info.recv_state = CRS_NONE;
+    client->recv_info.curparse_type = EMT_CLIENTMSG_NONE;
+    client->recv_info.datalen = 0;
+    client->recv_info.recv_len = 0;
+    if (client->recv_info.update_file_fd >= 0)// 这里的问题 >= 0
+    {
+        LOG_I("close update file fd = %d", client->recv_info.update_file_fd);
+        close(client->recv_info.update_file_fd);
+        client->recv_info.update_file_fd = -1;
+    }
+    return 0;
+}
+```
+
 - rt-thread 在stm32f4环境下alarm不触发问题.
   
   - 经排查是设置alarm时没写入年份导致`sec_alarm = timegm(&alarm->wktime);`返回-1不满足if从而导致不执行回调函数.
@@ -87,7 +111,7 @@ lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
           }
     }
   ...
-
+  
     time_t timegm(struct tm * const t)
     {
     ...

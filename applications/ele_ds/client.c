@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-28 17:44:23
+ * @LastEditTime: 2025-05-29 16:00:57
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -48,8 +48,9 @@ static int32_t clear_client_info(ele_ds_client_t *client)
     client->recv_info.curparse_type = EMT_CLIENTMSG_NONE;
     client->recv_info.datalen = 0;
     client->recv_info.recv_len = 0;
-    if (client->recv_info.update_file_fd >= 0)
+    if (client->recv_info.update_file_fd > 0)
     {
+        LOG_I("close update file fd = %d", client->recv_info.update_file_fd);
         close(client->recv_info.update_file_fd);
         client->recv_info.update_file_fd = -1;
     }
@@ -155,7 +156,6 @@ static int32_t parse_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
         break;
     case EMT_SERVERMSG_WEATHER:
         LOG_D("recv weather days: %d", msg->data.weatherdays);
-        client->recv_info.datalen = msg->len;
         client->recv_info.datalen = msg->len;
         client->recv_info.recv_state = CRS_DATA;
         break;
@@ -292,6 +292,11 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                 if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_WEATHER) // 天气数据写入到配置信息
                 {
                     memcpy((char *)ele_ds->device_cfg.weather_info + ele_ds->client.recv_info.recv_len, buffer, len);
+                    ret = write_ele_ds_cfg(&ele_ds->device_cfg); // 写入配置文件
+                    if (ret < 0)
+                    {
+                        LOG_E("save weather info failed, ret = %d", ret);
+                    }
                 }
                 else if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_CLIENTUPDATE) // 升级数据写入到文件
                 {
