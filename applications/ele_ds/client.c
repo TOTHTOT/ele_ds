@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-30 14:20:54
+ * @LastEditTime: 2025-05-30 14:47:22
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -48,6 +48,7 @@ static int32_t clear_client_info(ele_ds_client_t *client)
     client->recv_info.curparse_type = EMT_CLIENTMSG_NONE;
     client->recv_info.datalen = 0;
     client->recv_info.recv_len = 0;
+    memset(client->recv_info.update_file_name, 0, sizeof(client->recv_info.update_file_name));
     if (client->recv_info.update_file_fd > 0)
     {
         LOG_I("close update file fd = %d", client->recv_info.update_file_fd);
@@ -107,7 +108,7 @@ static int32_t parse_json_data(ele_msg_t *msg, uint8_t *buffer, int32_t len)
         if (len && crc && version && buildinfo)
         {
             msg->data.cs_info.len = (uint32_t)len->valueint;
-            msg->data.cs_info.crc = (uint32_t)crc->valueint;
+            msg->data.cs_info.crc = (uint32_t)crc->valuedouble;
             msg->data.cs_info.version = (uint32_t)version->valueint;
             strncpy(msg->data.cs_info.buildinfo, buildinfo->valuestring,
                     sizeof(msg->data.cs_info.buildinfo) - 1);
