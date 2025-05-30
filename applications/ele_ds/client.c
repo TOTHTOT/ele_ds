@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-30 14:47:22
+ * @LastEditTime: 2025-05-30 15:49:34
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -307,7 +307,7 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                           len, ele_ds->client.recv_info.update_file_fd, strlen((char *)buffer));
                     if (ele_ds->client.recv_info.update_file_fd <= 0)
                     {
-                        ele_ds->client.recv_info.update_file_fd = open(ele_ds->client.recv_info.update_file_name, O_WRONLY | O_CREAT | O_APPEND);
+                        ele_ds->client.recv_info.update_file_fd = open(ele_ds->client.recv_info.update_file_name, O_WRONLY | O_CREAT | O_TRUNC);
                         if (ele_ds->client.recv_info.update_file_fd < 0)
                         {
                             LOG_E("open file failed, ret = %d, file = %s",
@@ -352,24 +352,33 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
             //rt_timer_stop(&ele_ds->client.tcp_recv_timer);
             if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_CLIENTUPDATE)
             {
-#if ENABLE_SAVE_FILE
-                char *arg0 = "md5sum";
-                char *arg1 = ele_ds->client.recv_info.update_file_name;
+                #if ENABLE_SAVE_FILE
+                char *arg0 = "crcfile";
+                char arg1[256] = {0};
                 char *argv[] = {arg0, arg1};
+                uint32_t target_crc = ele_ds->client.recv_info.update_file_crc;
+                
+                strcpy(arg1, ele_ds->client.recv_info.update_file_name);
+
+                // 提早清空接收相关信息, 不然crc计算需要重复打开文件, 读数据时会出问题
+                clear_client_info(&ele_ds->client);
+
+                // rt_thread_mdelay(500);
                 uint32_t crc_result = crcfile(2, argv);
-                if (crc_result == ele_ds->client.recv_info.update_file_crc)
+                if (crc_result == target_crc)
                 {
                     LOG_D("crc check success, crc = %d", crc_result);
                     ret = 1; // CRC 校验成功
                 }
                 else
                 {
-                    LOG_E("crc check failed, crc = %#x, expect crc = %#x", crc_result, ele_ds->client.recv_info.update_file_crc);
+                    LOG_E("crc check failed, crc = %#x, expect crc = %#x", crc_result, target_crc);
                     ret = -4;
                 }
 #endif /* ENABLE_SAVE_FILE */
             }
-            clear_client_info(&ele_ds->client);
+            else
+                clear_client_info(&ele_ds->client);
             return 0;
         default:
             LOG_E("recv data error, state = %d", ele_ds->client.recv_info.recv_state);

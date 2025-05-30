@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-02-15 18:01:01
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-26 15:12:39
+ * @LastEditTime: 2025-05-30 15:10:58
  * @FilePath: \ele_ds\applications\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -44,16 +44,9 @@ int main(void)
     while (1)
     {
         // ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
-        if(loop_times % 50 == 0)
+        if (loop_times % 50 == 0)
         {
-            if (rt_pin_read(LED0_PIN) == PIN_LOW)
-            {
-                rt_pin_write(LED0_PIN, PIN_HIGH);
-            }
-            else
-            {
-                rt_pin_write(LED0_PIN, PIN_LOW);
-            }
+            rt_pin_write(LED0_PIN, !rt_pin_read(LED0_PIN));
         }
         // LOG_D("LEFT_KEY state: %d\n MID_KEY state: %d\n RIGHT_KEY state: %d", rt_pin_read(LEFT_KEY), rt_pin_read(MID_KEY), rt_pin_read(RIGHT_KEY));
         loop_times++;
