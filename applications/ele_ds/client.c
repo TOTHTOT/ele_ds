@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-30 15:49:34
+ * @LastEditTime: 2025-05-30 16:00:34
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -367,7 +367,7 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                 uint32_t crc_result = crcfile(2, argv);
                 if (crc_result == target_crc)
                 {
-                    LOG_D("crc check success, crc = %d", crc_result);
+                    LOG_D("crc check success, crc = %#x, expect crc = %#x", crc_result, target_crc);
                     ret = 1; // CRC 校验成功
                 }
                 else
