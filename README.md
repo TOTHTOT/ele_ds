@@ -65,9 +65,9 @@ lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
 ## 存在问题
 
-- [ ] 接收数据长度不对, 导致服务器发完数据还没退出接收状态;
+- [x] 接收数据长度不对, 导致服务器发完数据还没退出接收状态; 修改计算文件长度方式解决.
 
-- [ ] 接收数据会丢包出现 ` get rb data failed, ret = 0`和`[E/client] rb put failed, ret = 0`, 得想办法加快写入速度, 要不然只能降低esp的波特率实现慢速接收文件;
+- [x] 接收数据会丢包出现 ` get rb data failed, ret = 0`和`[E/client] rb put failed, ret = 0`, 得想办法加快写入速度, 要不然只能降低esp的波特率实现慢速接收文件; 关闭频繁的文件打开关闭操作提高写入速度就解决了.
 
 ## bug修复
 
@@ -120,6 +120,16 @@ static int32_t clear_client_info(ele_ds_client_t *client)
             rt_set_errno(EINVAL);
             return (time_t) -1;
         }
+    ...
+    }
+    
+    // 修复方法
+    static rt_err_t stm32_rtc_set_alarm(struct rt_rtc_wkalarm *alarm)
+    {
+    ...
+        rtc_device.wkalarm.tm_year = alarm->tm_year;
+        rtc_device.wkalarm.tm_mon = alarm->tm_mon;
+        rtc_device.wkalarm.tm_mday = alarm->tm_mday;
     ...
     }
   ```

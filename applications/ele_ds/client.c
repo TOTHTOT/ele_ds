@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-30 13:45:33
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-29 16:00:57
+ * @LastEditTime: 2025-05-30 14:20:54
  * @FilePath: \ele_ds\applications\ele_ds\client.c
  * @Description: 电子卓搭客户端, 和服务器进行数据交互
  */
@@ -239,7 +239,7 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
             }
             else
             {
-                LOG_W("recv data is not json, len = %d", len);
+                LOG_W("recv data is not json, len = %d, buf = %s", len, (char *)buffer);
                 ele_ds->client.recv_info.recv_state = CRS_NONE;
                 ret = -1; // 数据格式错误
                 break;
@@ -500,7 +500,7 @@ static char *build_devcfg_msg(ele_ds_t ele_ds)
  * @param {void} *parameter 传入参数为ele_ds_t类型
  * @return {*}
  */
-static void threads_communicate_server(void *parameter)
+static void thread_communicate_server(void *parameter)
 {
     if (parameter == RT_NULL)
     {
@@ -554,8 +554,9 @@ static void threads_communicate_server(void *parameter)
         int len = recv(sock, recvbuf, CLIENT_RECV_PACKSIZE, 0);
         if (len > 0)
         {
-            recvbuf[len++] = '\0';
+            // recvbuf[len++] = '\0';
             int32_t result =  rt_ringbuffer_put(&ele_ds->client.rb, recvbuf, len);
+            // LOG_I("recv data len = %d", )
             if (result <= 0)
             {
                 LOG_E("rb put failed, ret = %d, read_index = %d, write_index = %d",
@@ -630,7 +631,7 @@ int32_t esp8266_device_init(ele_ds_t ele_ds)
             return -4;
         }
 
-        ele_ds->client.recv_thread = rt_thread_create("th_client", threads_communicate_server, (void *)ele_ds,
+        ele_ds->client.recv_thread = rt_thread_create("th_client", thread_communicate_server, (void *)ele_ds,
                                                       2048, RT_MAIN_THREAD_PRIORITY - 2, 20);
         if (ele_ds->client.recv_thread != RT_NULL)
         {
