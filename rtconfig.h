@@ -127,6 +127,7 @@
 #define RT_USING_PM
 #define PM_TICKLESS_THRESHOLD_TIME 2
 #define PM_ENABLE_DEBUG
+#define PM_ENABLE_SUSPEND_SLEEP_MODE
 #define RT_USING_RTC
 #define RT_USING_ALARM
 #define RT_USING_SPI
@@ -152,7 +153,10 @@
 
 /* Timezone and Daylight Saving Time */
 
-#define RT_LIBC_USING_FULL_TZ_DST
+#define RT_LIBC_USING_LIGHT_TZ_DST
+#define RT_LIBC_TZ_DEFAULT_HOUR 8
+#define RT_LIBC_TZ_DEFAULT_MIN 0
+#define RT_LIBC_TZ_DEFAULT_SEC 0
 
 /* POSIX (Portable Operating System Interface) layer */
 

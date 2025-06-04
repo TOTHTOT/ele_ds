@@ -2,7 +2,7 @@
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-05-20 14:10:51
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
- * @LastEditTime: 2025-05-23 09:12:17
+ * @LastEditTime: 2025-06-04 16:59:06
  * @FilePath: \ele_ds\applications\pm\pm.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -24,11 +24,19 @@ void user_alarm_callback(rt_alarm_t myalarm, time_t timestamp)
     LOG_D("user alarm callback function.");
     LOG_D("curr time: %04d-%02d-%02d %02d:%02d:%02d", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour, p_tm.tm_min, p_tm.tm_sec);  // 打印闹钟中断产生时的时间，和设定的闹钟时间比对，以确定得到的是否是想要的结果
 }
-void alarm_sample(void)
+void alarm_sample(int argc, char **argv)
 {
     time_t curr_time;
     struct tm p_tm, alarm_tm;
     struct rt_alarm_setup setup;
+    
+    if (argc < 2)
+    {
+        rt_kprintf("Usage: alarm_sample <interval_in_seconds>");
+        return;
+    }
+
+    uint32_t alarm_time = atoi(argv[1]); // 从命令行参数获取闹钟时间间隔，单位为秒
 
     curr_time = time(NULL);         // 将闹钟的时间设置为当前时间的往后的 5 秒
     gmtime_r(&curr_time, &p_tm); // 将时间戳转换为本地时间，localtime_r 是线程安全的
@@ -36,7 +44,7 @@ void alarm_sample(void)
           p_tm.tm_min, p_tm.tm_sec); // 打印当前时间
     
     // 当前时间+上报时间间隔，设置闹钟时间, 减去本次启动用时, 确保每次定时都一样
-    curr_time += 1 * 10 /* - (time(NULL) - g_gas_detection_dev->system_starttime) */;
+    curr_time += 1 * alarm_time /* - (time(NULL) - g_gas_detection_dev->system_starttime) */;
     gmtime_r(&curr_time, &alarm_tm);
 
     // 设置闹钟标志, 标志错误闹钟中断不对
@@ -75,6 +83,19 @@ void alarm_sample(void)
     rt_alarm_dump(); // 打印闹钟的信息
 }
 MSH_CMD_EXPORT(alarm_sample, alarm sample);
+
+
+void cmd_entry_sleep_mode(void)
+{
+    alarm_sample(2, (char *[]){"alarm_sample", "10"});
+
+    LOG_D("Entering sleep mode...");
+
+    // 先申请一个深度睡眠, 再释放PM_SLEEP_MODE_NONE, pm框架优先运行等级高的模式, PM_SLEEP_MODE_NONE 为0时才有机会执行别的模式
+    rt_pm_request(PM_SLEEP_MODE_DEEP); // 进入深度睡眠模式
+    rt_pm_release(PM_SLEEP_MODE_NONE); //释放运行模式
+}
+MSH_CMD_EXPORT_ALIAS(cmd_entry_sleep_mode, sleep_mode, enter sleep mode);
 
 static void gas_detection_entey_stadnby(void)
 {
@@ -164,10 +185,14 @@ static void pm_entry_func(struct rt_pm *pm, uint8_t mode)
         // 恢复SysTick定时器
         if (entry_stop_cnt >= 2)
         {
+            // 这里要重新初始化时钟, 可能还需要重新初始化外部设备
+            SystemClock_Config();
             entry_stop_cnt = 0;
             HAL_ResumeTick();
             pm_clock_init_pwronoff(true);
             LOG_D("exit DEEP mode");
+            rt_pm_release(PM_SLEEP_MODE_DEEP); // 退出深度睡眠模式
+            rt_pm_request(PM_SLEEP_MODE_NONE); // 退出深度睡眠模式, 进入正常运行模式
         }
 
         break;
