@@ -89,7 +89,6 @@ static int32_t parse_json_data(ele_msg_t *msg, uint8_t *buffer, int32_t len)
     msg->len = cJSON_GetObjectItem(packinfo, "len")->valueint;
     msg->packcnt = cJSON_GetObjectItem(root, "packcnt")->valueint;
     msg->msgtype = (ele_msg_type_t)cJSON_GetObjectItem(root, "msgtype")->valueint;
-
     switch (msg->msgtype)
     {
     case EMT_SERVERMSG_MEMO:

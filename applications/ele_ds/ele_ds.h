@@ -93,8 +93,10 @@ struct ele_ds
         bool cnt_wifi;
         float current_vbat;
         time_t current_time;
+        rt_alarm_t alarm;
+        bool alarm_stop_beep; // 闹钟启动后退出蜂鸣器循环标志
     }device_status;
-    
+
     ele_ds_cfg_t device_cfg; // 设备配置
     ele_ds_client_t client; // 终端相关内容
     struct ele_ds_ops ops;

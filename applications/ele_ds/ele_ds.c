@@ -14,11 +14,14 @@
 #include "client.h"
 #include "ele_ds_pm.h"
 #include "beep.h"
+#include "ele_ds_alarm.h"
 #include <rtdevice.h>
 
 #define DBG_TAG "ele_ds"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
+
+#include "applications/alarm/ele_ds_alarm.h"
 
 // 全局变量
 ele_ds_t g_ele_ds = RT_NULL; // 全局设备函数指针
@@ -362,6 +365,13 @@ int32_t devices_init(ele_ds_t ele_ds)
     {
         LOG_E("esp8266 device register failed, ret = %d", ret);
         return -5;
+    }
+
+    ret = ele_ds_alarm_init(ele_ds->device_status.alarm, ele_ds->device_status.alarm_time, ele_ds->device_cfg.alarm_enable);
+    if (ret != 0)
+    {
+        LOG_E("alarm init failed, ret = %d", ret);
+        return -6;
     }
 
     ele_ds->ops = ele_ds_ops;

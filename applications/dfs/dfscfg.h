@@ -41,6 +41,10 @@ typedef struct
 #define CFGFILE_DEFAULT_TCP_TIMEOUT (3 * 1000) // 3s
     uint32_t tcp_timeout; // tcp传输数据软件定时器超时时间
 
+    bool alarm_enable; // 是否启用闹钟, 默认false
+#define CFGFILE_DEFAULT_ALARM_TIME 0 // 默认闹钟时间为0
+    time_t alarm_time; // 闹钟响铃时间
+
 #define CFGFILE_CHECK 0xA5A5A5A5
     uint32_t check;
 } ele_ds_cfg_t; // 掉电信息

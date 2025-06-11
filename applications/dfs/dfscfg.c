@@ -27,6 +27,8 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
     cfg->check = CFGFILE_CHECK;
     cfg->server_port = CFGFILE_DEFATLT_SERVER_PORT;
     cfg->tcp_timeout = CFGFILE_DEFAULT_TCP_TIMEOUT;
+    cfg->alarm_enable = false;
+    cfg->alarm_time = CFGFILE_DEFAULT_ALARM_TIME;
     cfg->clientcfg.cityid = DEFATLT_CITYID;
 	cfg->clientcfg.version = SOFT_VERSION;
 	
@@ -64,6 +66,8 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
     cJSON_AddStringToObject(root, "server_addr", (const char *)cfg->server_addr);
     cJSON_AddNumberToObject(root, "server_port", cfg->server_port);
     cJSON_AddNumberToObject(root, "tcp_timeout", cfg->tcp_timeout);
+    cJSON_AddNumberToObject(root, "alarm_enable", cfg->alarm_enable);
+    cJSON_AddNumberToObject(root, "alarm_time", cfg->alarm_time);
     cJSON_AddStringToObject(root, "memo", cfg->memo);
 
     cJSON *weather_array = cJSON_CreateArray();
@@ -104,6 +108,8 @@ static void json_to_ele_ds_cfg(ele_ds_cfg_t *cfg, const cJSON *json)
     strcpy((char *)cfg->server_addr, cJSON_GetObjectItem(json, "server_addr")->valuestring);
     cfg->server_port = cJSON_GetObjectItem(json, "server_port")->valueint;
     cfg->tcp_timeout = cJSON_GetObjectItem(json, "tcp_timeout")->valueint;
+    cfg->alarm_enable = cJSON_GetObjectItem(json, "alarm_enable")->valueint;
+    cfg->alarm_time = cJSON_GetObjectItem(json, "alarm_time")->valueint;
     cfg->clientcfg.version = cJSON_GetObjectItem(json, "version")->valueint;
     strcpy(cfg->memo, cJSON_GetObjectItem(json, "memo")->valuestring);
 

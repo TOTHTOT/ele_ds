@@ -3082,4 +3082,6 @@ add_executable(ele_ds
         rt-thread/src/slab.c
         rt-thread/src/thread.c
         rt-thread/src/timer.c
-        rtconfig.h)
+        rtconfig.h
+        applications/alarm/ele_ds_alarm.h
+        applications/alarm/ele_ds_alarm.c)
