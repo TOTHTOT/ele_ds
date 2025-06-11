@@ -367,7 +367,7 @@ int32_t devices_init(ele_ds_t ele_ds)
         return -5;
     }
 
-    ret = ele_ds_alarm_init(ele_ds->device_status.alarm, ele_ds->device_status.alarm_time, ele_ds->device_cfg.alarm_enable);
+    ret = ele_ds_alarm_init(ele_ds->device_status.alarm, ele_ds->device_cfg.alarm_time, ele_ds->device_cfg.alarm_enable);
     if (ret != 0)
     {
         LOG_E("alarm init failed, ret = %d", ret);
