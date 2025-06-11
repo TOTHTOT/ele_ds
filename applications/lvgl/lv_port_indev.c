@@ -12,6 +12,7 @@
 #include <rtdevice.h>
 #include <board.h>
 #include <ele_ds.h>
+#include <time.h>
 
 void lv_port_indev_init(void)
 {
@@ -355,10 +356,11 @@ void tabview_create(ele_ds_t dev, lv_obj_t* parent)
 
     lv_obj_t* label2 = lv_label_create(tab2);
     lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 0, 0);
-    lv_label_set_text(label2, "Hello World");
+    lv_obj_add_style(label2, &style_font, 0);
+    lv_label_set_text(label2, g_ele_ds->device_cfg.memo);
 }
 
-void switch_tabview_cmd(int argc,char *argv[])
+void switch_tabview_cmd(const int argc,char *argv[])
 {
     if (tabview == NULL) {
         rt_kprintf("tabview is NULL\n");
