@@ -83,8 +83,8 @@ int32_t ele_ds_alarm_init(rt_alarm_t alarm, const time_t set_alarm_time, const b
     {
         if (enable)
         {
-            const rt_err_t ret = rt_alarm_start(alarm); // 启动闹钟
-            if (ret != RT_EOK)
+            const rt_err_t rtret = rt_alarm_start(alarm); // 启动闹钟
+            if (rtret != RT_EOK)
             {
                 LOG_E("rtc alarm start failed");
                 ret = -2;
