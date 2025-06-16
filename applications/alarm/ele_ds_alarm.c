@@ -56,12 +56,6 @@ int32_t ele_ds_alarm_init(rt_alarm_t alarm, const time_t set_alarm_time, const b
     struct rt_alarm_setup setup;
     int32_t ret = 0;
 
-    if (alarm == RT_NULL)
-    {
-        LOG_E("alarm is null");
-        ret = -1;
-        goto err;
-    }
     // 根据时区设置闹钟
     localtime_r(&set_alarm_time, &alarm_tm);
 
