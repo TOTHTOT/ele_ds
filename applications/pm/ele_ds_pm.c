@@ -7,13 +7,14 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 #include "ele_ds_pm.h"
+#include "ele_ds.h"
 #include <stdbool.h>
 
 #define DBG_TAG "ele_pm"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
-static rt_alarm_t alarm = RT_NULL;
+static rt_alarm_t myalarm = RT_NULL;
 
 void user_alarm_callback(rt_alarm_t myalarm, time_t timestamp)
 {
@@ -32,7 +33,7 @@ void alarm_sample(int argc, char **argv)
     
     if (argc < 2)
     {
-        rt_kprintf("Usage: alarm_sample <interval_in_seconds>");
+        rt_kprintf("Usage: alarm_sample <interval_in_seconds>\n");
         return;
     }
 
@@ -60,16 +61,16 @@ void alarm_sample(int argc, char **argv)
     setup.wktime.tm_min = alarm_tm.tm_min;
     setup.wktime.tm_sec = alarm_tm.tm_sec;
     // 避免重复创建alarm, 不能放在回调函数执行, 不然 alarm_update() 会卡死
-    if (alarm != NULL)
+    if (myalarm != NULL)
     {
-        rt_alarm_delete(alarm);
-        alarm = RT_NULL;
+        rt_alarm_delete(myalarm);
+        myalarm = RT_NULL;
     }
 
-    alarm = rt_alarm_create(user_alarm_callback, &setup); // 创建一个闹钟并设置回调函数
-    if (RT_NULL != alarm)
+    myalarm = rt_alarm_create(user_alarm_callback, &setup); // 创建一个闹钟并设置回调函数
+    if (RT_NULL != myalarm)
     {
-        rt_err_t ret = rt_alarm_start(alarm); // 启动闹钟
+        rt_err_t ret = rt_alarm_start(myalarm); // 启动闹钟
         if (ret != RT_EOK)
         {
             LOG_E("rtc alarm start failed");
@@ -79,7 +80,7 @@ void alarm_sample(int argc, char **argv)
     {
         LOG_E("rtc alarm create failed");
     }
-		extern void rt_alarm_dump(void);
+    extern void rt_alarm_dump(void);
     rt_alarm_dump(); // 打印闹钟的信息
 }
 MSH_CMD_EXPORT(alarm_sample, alarm sample);
@@ -108,7 +109,7 @@ static void gas_detection_entey_stadnby(void)
 }
 
 /**
- * @description: 低功耗时钟管理
+ * @description: 低功耗时钟管理, gpio 使能或禁用
  * @param {bool} enable 使能或禁用时钟
  * @return {*}
  */
@@ -123,9 +124,11 @@ static void pm_clock_init_pwronoff(bool enable)
         __HAL_RCC_GPIOE_CLK_ENABLE();
         __HAL_RCC_GPIOF_CLK_ENABLE();
         __HAL_RCC_GPIOG_CLK_ENABLE();
+        ele_ds_gpio_init();
     }
     else
     {
+        ele_ds_gpio_deinit();
         __HAL_RCC_GPIOA_CLK_DISABLE();
         __HAL_RCC_GPIOB_CLK_DISABLE();
         __HAL_RCC_GPIOC_CLK_DISABLE();
@@ -212,8 +215,6 @@ static void pm_entry_func(struct rt_pm *pm, uint8_t mode)
         break;
     }
 }
-
-// static void
 
 void ele_ds_pm_init(void)
 {

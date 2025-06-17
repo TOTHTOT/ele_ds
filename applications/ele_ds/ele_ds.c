@@ -249,7 +249,9 @@ int rt_hw_sgp30_port(void)
     cfg.intf.type = RT_SENSOR_INTF_I2C;
     cfg.intf.dev_name = "i2c1";
     cfg.intf.user_data = (void *)PKG_USING_SGP30_I2C_ADDRESS;
-    rt_hw_sgp30_init("sg3", &cfg);
+    rt_err_t ret = rt_hw_sgp30_init("sg3", &cfg);
+    if (ret != RT_EOK)
+        LOG_E("sgp30 init failed, ret = %d", ret);
 
     return RT_EOK;
 }
@@ -310,6 +312,41 @@ static int rt_hw_spi_flash_init(void)
 }
 
 /**
+ * @brief 解除相关初始化, 进入低功耗模式调用
+ */
+void ele_ds_gpio_deinit(void)
+{
+    // 设备3.3v电源关闭
+    // rt_pin_write(V3_3_PIN, PIN_LOW);
+    // led 关闭
+    rt_pin_write(LED0_PIN, PIN_HIGH);
+
+    // rt_pin_mode(LED0_PIN, PIN_MODE_INPUT);
+    // rt_pin_mode(V3_3_PIN, PIN_MODE_INPUT);
+
+    // 按键初始化
+    // rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP); 要做开机唤醒 不解除
+    // rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
+    // rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP);
+}
+
+/**
+ * @brief 初始化相关gpio
+ */
+void ele_ds_gpio_init(void)
+{
+    // rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
+    // rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
+    rt_pin_write(V3_3_PIN, PIN_HIGH);
+    rt_pin_write(LED0_PIN, PIN_LOW);
+
+    // 按键初始化
+    // rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP);
+    // rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
+    // rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP);
+}
+
+/**
  * @description: 初始化设备
  * @param {ele_ds_t} ele_ds 设备指针
  * @return {int32_t} 函数执行结果, 0表示成功
@@ -318,15 +355,8 @@ int32_t devices_init(ele_ds_t ele_ds)
 {
     int32_t ret = 0;
 
-    rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
-    rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
-    rt_pin_write(V3_3_PIN, PIN_HIGH);
-	
-    // 按键初始化
-    rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP);
-    rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
-    rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP);
-    
+    ele_ds_gpio_init();
+
     ele_ds_pm_init();
 	
     if (ele_ds == RT_NULL)
@@ -366,7 +396,7 @@ int32_t devices_init(ele_ds_t ele_ds)
         LOG_E("esp8266 device register failed, ret = %d", ret);
         return -5;
     }
-
+    ele_ds->device_cfg.alarm_time = time(NULL) + 10;
     ret = ele_ds_alarm_init(ele_ds->device_status.alarm, ele_ds->device_cfg.alarm_time, ele_ds->device_cfg.alarm_enable);
     if (ret != 0)
     {

@@ -9,7 +9,7 @@
 #include <drv_gpio.h>
 
 
-void ele_ds_pm_init(void);
+extern void ele_ds_pm_init(void);
 
 #endif /* __ELE_DS_PM_H__ */
 

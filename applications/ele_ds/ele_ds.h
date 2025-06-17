@@ -108,4 +108,7 @@ extern ele_ds_t g_ele_ds;
 extern rt_err_t get_sht30_data(void *para);
 extern rt_err_t get_sgp30_data(void *para);
 extern int rt_hw_sgp30_port(void);
+extern void ele_ds_gpio_init(void);
+extern void ele_ds_gpio_deinit(void);
+
 #endif /* __ELE_DS_H__ */
