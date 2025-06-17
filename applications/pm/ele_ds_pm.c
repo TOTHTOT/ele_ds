@@ -129,6 +129,7 @@ static void pm_clock_init_pwronoff(bool enable)
     else
     {
         ele_ds_gpio_deinit();
+        rt_thread_mdelay(100);
         __HAL_RCC_GPIOA_CLK_DISABLE();
         __HAL_RCC_GPIOB_CLK_DISABLE();
         __HAL_RCC_GPIOC_CLK_DISABLE();
