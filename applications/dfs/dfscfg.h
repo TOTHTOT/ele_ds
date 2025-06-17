@@ -19,10 +19,18 @@
 #define SYSFILE_PATH "/sysfile"
 #define CONFIG_FILE_PATH SYSFILE_PATH "/config"
 #define SOFTWARE_UPDATE_FILE_PATH SYSFILE_PATH
+
+// 这段代码移植自 bootlader
+#define ROOT_DIR SYSFILE_PATH
+#define SOFT_DIR ROOT_DIR "/soft"
+#define UPDATE_DIR SOFT_DIR "/update"
+#define CURRENT_DIR SOFT_DIR "/current"
+#define BACKUP_DIR SOFT_DIR "/backup"
+
 typedef struct
 {
     ele_client_cfg_t clientcfg; // 设备登录到服务器的配置信息
-#define CFGFILE_DEFATLT_WIFI_SSID "esp-2.4G"
+#define CFGFILE_DEFATLT_WIFI_SSID "esp32-2.4G"
 #define CFGFILE_DEFATLT_WIFI_PASS "12345678.."
     uint8_t wifi_ssid[32];   // wifi ssid
     uint8_t wifi_passwd[32]; // wifi 密码

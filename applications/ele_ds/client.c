@@ -168,7 +168,7 @@ static int32_t parse_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
         client->recv_info.update_file_crc = msg->data.cs_info.crc;
         client->recv_info.datalen = msg->data.cs_info.len;
         memset(client->recv_info.update_file_name, 0, sizeof(client->recv_info.update_file_name));
-        sprintf(client->recv_info.update_file_name, "%s/soft_%x.bin", SOFTWARE_UPDATE_FILE_PATH, msg->data.cs_info.version);
+        sprintf(client->recv_info.update_file_name, "%s/%s", UPDATE_DIR, msg->data.cs_info.buildinfo);
 #if 0   // 不知道为什么, 这里打开文件 CRS_DATA 里写数据回写不了, 只能在 CRS_DATA 里打开文件
         // 收到数据头后创建文件, 如果文件存在就删除
         // fd = open(argv[2], O_RDWR | O_APPEND | O_CREAT, 0);
