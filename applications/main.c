@@ -37,10 +37,6 @@ int main(void)
     // lvgl_thread_init();
 
     rt_kprintf("ele_ds init success, date: %s, time: %s\n", __DATE__, __TIME__);
-    rt_uint32_t total, used, max_used;
-    rt_memory_info(&total, &used, &max_used);
-    rt_kprintf("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
-
     while (1)
     {
         // ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据

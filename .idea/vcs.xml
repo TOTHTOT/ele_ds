@@ -2,6 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/MFBD-latest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/at_device-latest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/mem_sandbox-latest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/optparse-latest" vcs="Git" />
@@ -9,6 +10,5 @@
     <mapping directory="$PROJECT_DIR$/packages/sht3x-latest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/tz-database-latest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/vi-latest" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/packages/zlib-latest" vcs="Git" />
   </component>
 </project>
