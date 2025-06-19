@@ -26,6 +26,7 @@ int main(void)
     int32_t ret = 0;
     struct ele_ds ele_ds = {0};
     g_ele_ds = &ele_ds;
+
     ret = devices_init(&ele_ds);
     if (ret != RT_EOK)
     {

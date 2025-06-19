@@ -21,11 +21,16 @@
 
 #define DRAW_BUF_LINES MY_DISP_VER_RES
 #define DRAW_BUF_SIZE (MY_DISP_HOR_RES * DRAW_BUF_LINES)  // 横向一整行 × 行数
+
 CCMRAM static lv_color_t buf1[DRAW_BUF_SIZE];
 static lv_disp_draw_buf_t draw_buf_dsc_1;
 
 static void disp_init(void);
 static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p);
+
+#define DBG_TAG "epddisp"
+#define DBG_LVL DBG_LOG
+#include <rtdbg.h>
 
 void lv_port_disp_init(void)
 {
@@ -50,15 +55,12 @@ static void disp_init(void)
     rt_err_t err = ele_ds_epaper_init(g_ele_ds);
     if (err != RT_EOK)
     {
-        rt_kprintf("ele_ds_epaper_init failed\n");
+        LOG_E("ele_ds_epaper_init failed");
         return;
     }
-    //LV_FONT_DECLARE(字体名);
-    // LV_FONT_DECLARE(hz_12_4);
     DEV_Module_Init();
     EPD_2IN7_V2_Init();
     EPD_2IN7_V2_Clear();
-    EPD_2IN7_V2_Display_Base_color(WHITE);
 }
 
 static void wait_for_idle(void)
@@ -119,12 +121,12 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     uint32_t buf_size = ((h + 7) / 8) * w; // 旋转图像后大小计算方式也要修改
     rt_uint32_t total, used, max_used;
     rt_memory_info(&total, &used, &max_used);
-    // printf("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
-    printf("x1:%d, y1:%d, x2:%d, y2:%d, w:%d, h:%d, buf_size:%d\n", area->x1, area->y1, area->x2, area->y2, w, h, buf_size);
+    // LOG_D("Heap total: %d, used: %d, max_used: %d\n", total, used, max_used);
+    LOG_D("x1:%d, y1:%d, x2:%d, y2:%d, w:%d, h:%d, buf_size:%d", area->x1, area->y1, area->x2, area->y2, w, h, buf_size);
     UBYTE *temp_buf = (UBYTE *)lv_mem_alloc(buf_size);
     if (temp_buf == NULL) 
     {
-        printf("lv_mem_alloc failed\n");
+        LOG_E("lv_mem_alloc failed");
         return;
     }
     EPD_2IN7_V2_Init();
@@ -162,6 +164,7 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
 
     lv_mem_free(temp_buf);
     lv_disp_flush_ready(disp_drv);
+    LOG_D("disp_flush done");
 }
 #else
 static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p)

@@ -46,7 +46,9 @@ extern int __bss_end;
 #define HEAP_END        STM32_SRAM_END
 
 // ccm 内存段
-#define CCMRAM  __attribute__((section (".CCM_RAM")))
+#define CCMRAM __attribute__((section(".ccmram")))
+#define CCMRAM_DATA __attribute__((section(".ccmram_data")))
+#define CCMRAM_BSS __attribute__((section(".ccmram_bss")))
 
 void SystemClock_Config(void);
 

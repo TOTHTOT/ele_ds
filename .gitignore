@@ -85,3 +85,4 @@ packages/vi-latest/
 data_seq.txt
 received_data.txt
 *.log
+/packages
