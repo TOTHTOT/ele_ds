@@ -33,8 +33,8 @@ int main(void)
         return -RT_ERROR;
     }
     
-    // extern int lvgl_thread_init(void);
-    // lvgl_thread_init();
+    extern int lvgl_thread_init(void);
+    lvgl_thread_init();
 
     rt_kprintf("ele_ds init success, date: %s, time: %s\n", __DATE__, __TIME__);
     while (1)

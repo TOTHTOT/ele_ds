@@ -317,7 +317,7 @@ static int rt_hw_spi_flash_init(void)
 void ele_ds_gpio_deinit(void)
 {
     // 设备3.3v电源关闭
-    // rt_pin_write(V3_3_PIN, PIN_LOW);
+    rt_pin_write(V3_3_PIN, PIN_LOW);
     // led 关闭
     rt_pin_write(LED0_PIN, PIN_HIGH);
 
@@ -335,15 +335,15 @@ void ele_ds_gpio_deinit(void)
  */
 void ele_ds_gpio_init(void)
 {
-    // rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
-    // rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
+    rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
+    rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(V3_3_PIN, PIN_HIGH);
     rt_pin_write(LED0_PIN, PIN_LOW);
 
     // 按键初始化
-    // rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP);
-    // rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
-    // rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP);
+    rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP);
+    rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
+    rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP);
 }
 
 /**
