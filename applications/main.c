@@ -88,9 +88,37 @@ static void bootloader_init(void)
 
     rt_kprintf("ele_ds boot loader init success, date: %s, time: %s.version: %08u\n", __DATE__, __TIME__, software_version);
 }
+#if 1
+/* Bootloader中的跳转代码 */
+typedef void (*pFunction)(void);
 
-
-
+int jump_to_application(uint32_t app_address)
+{
+    uint32_t JumpAddress;
+    pFunction JumpToApp;
+    
+    /* 检查应用程序是否有效 */
+    if (((*(__IO uint32_t*)app_address) & 0x2FFE0000) == 0x20000000)
+    {
+        /* 禁用所有中断 */
+        __disable_irq();
+        
+        /* 清除所有中断挂起位 */
+        SCB->ICSR = SCB_ICSR_PENDSVCLR_Msk | SCB_ICSR_PENDSTCLR_Msk;
+        
+        /* 获取复位向量地址 */
+        JumpAddress = *(__IO uint32_t*)(app_address + 4);
+        
+        /* 设置主堆栈指针(MSP) */
+        __set_MSP(*(__IO uint32_t*)app_address);
+        
+        /* 跳转到应用程序 */
+        JumpToApp = (pFunction)JumpAddress;
+        JumpToApp();
+    }
+		return 0;
+}
+#else
 /**
  * @brief 跳转到应用程序
  * @param app_address APP起始地址
@@ -141,7 +169,7 @@ int jump_to_application(uint32_t app_address)
     /* 跳转成功不会执行到这里 */
     return RT_EOK;
 }
-
+#endif
 /**
  * @brief 检查并跳转到APP
  * @return 成功跳转返回0，失败返回负数错误码
