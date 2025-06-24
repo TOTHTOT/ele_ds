@@ -40,7 +40,7 @@ int main(void)
     rt_kprintf("ele_ds init success, date: %s, time: %s\n", __DATE__, __TIME__);
     while (1)
     {
-        // ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
+        ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
         if (loop_times % 50 == 0)
         {
             rt_pin_write(LED0_PIN, !rt_pin_read(LED0_PIN));

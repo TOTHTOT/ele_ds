@@ -10,5 +10,6 @@
     <mapping directory="$PROJECT_DIR$/packages/sht3x-latest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/tz-database-latest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/vi-latest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/zlib-latest" vcs="Git" />
   </component>
 </project>

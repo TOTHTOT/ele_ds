@@ -40,6 +40,11 @@
   "name": "SHT3X"
  }, 
  {
+  "path": "/packages/peripherals/i2c-tools", 
+  "ver": "latest", 
+  "name": "I2C_TOOLS"
+ }, 
+ {
   "path": "/packages/peripherals/beep", 
   "ver": "v1.1.0", 
   "name": "BEEP"
