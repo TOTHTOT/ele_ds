@@ -471,11 +471,19 @@ static char *build_devcfg_msg(ele_ds_t ele_ds)
     // 创建并添加传感器数据
     cJSON *sensordata = cJSON_CreateObject();
     cJSON_AddItemToObject(root, "sensor_data", sensordata);
+#ifdef PKG_USING_SHT3X
     cJSON_AddNumberToObject(sensordata, "temperature", (uint32_t)ele_ds->sensor_data.sht30[0]);
     cJSON_AddNumberToObject(sensordata, "humidity", (uint32_t)ele_ds->sensor_data.sht30[1]);
+#endif /* PKG_USING_SHT3X */
+
+#ifdef PKG_USING_GZP6816D_SENSOR
     cJSON_AddNumberToObject(sensordata, "pressure", ele_ds->sensor_data.gzp6816d.pressure);
+#endif /* PKG_USING_GZP6816D_SENSOR */
+
+#ifdef PKG_USING_SGP30
     cJSON_AddNumberToObject(sensordata, "tvoc", ele_ds->sensor_data.sgp30[0]);
     cJSON_AddNumberToObject(sensordata, "co2", ele_ds->sensor_data.sgp30[1]);
+#endif /* PKG_USING_SGP30 */
 
     // 创建并添加配置数据
     cJSON *cfg = cJSON_CreateObject();

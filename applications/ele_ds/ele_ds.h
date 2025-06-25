@@ -80,7 +80,9 @@ struct ele_ds
     struct
     {
         float sht30[2];   // 温湿度传感器数据, 0 温度, 1 湿度
+#ifdef PKG_USING_SGP30
         int32_t sgp30[2]; // 空气质量传感器数据, 0 TVOC, 1 eCO2
+#endif
 #ifdef PKG_USING_GZP6816D_SENSOR
         gzp6816d_data_t gzp6816d;
 #endif
