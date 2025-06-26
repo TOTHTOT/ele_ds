@@ -46,7 +46,9 @@ static uint8_t __g_font_buf[30];//如bin文件存在SPI FLASH可使用此buff
 static uint8_t *__user_font_getdata(int offset, int size){
     //如字模保存在SPI FLASH, SPIFLASH_Read(__g_font_buf,offset,size);
     //如字模已加载到SDRAM,直接返回偏移地址即可如:return (uint8_t*)(sdram_fontddr+offset);
-    int fd = open("/sysfile/font/fangsong_8.bin", O_RDONLY);
+    static int fd = -1;
+    if (fd == -1)
+        fd = open("/sysfile/font/fangsong_8.bin", O_RDONLY);
     if (fd < 0) {
         // printf("打开文件失败！\n");
         return NULL;
@@ -63,7 +65,7 @@ static uint8_t *__user_font_getdata(int offset, int size){
         }
     }
 #endif
-    close(fd);
+    // close(fd);
     return __g_font_buf;
 }
 
