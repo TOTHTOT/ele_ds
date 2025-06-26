@@ -26,7 +26,7 @@
 #define LV_COLOR_DEPTH 1
 #define LV_USE_ANIMATION 0
 #define LV_FONT_MONTSERRAT_10 1
-#define LV_FONT_MONTSERRAT_12 1
+#define LV_FONT_MONTSERRAT_16 1
 
 // 解决最大刷新行数'38'问题, 增大缓冲区, 10240/MY_DISP_VER_RES = 38, 10240 是默认值
 #define LV_DISP_ROT_MAX_BUF (50*1024)

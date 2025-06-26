@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2006-2022, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -13,6 +13,7 @@
 #include <board.h>
 #include <ele_ds.h>
 #include <time.h>
+#include "custom_symbol_16.h"
 
 void lv_port_indev_init(void)
 {
@@ -31,6 +32,10 @@ struct real_time_change_lvobj
     lv_obj_t *memo_lab; // 备忘录标签
     lv_obj_t *weather_icon[2]; // 天气图标
     lv_obj_t *weather_info_lab[2]; // 天气信息标签, 温度
+    lv_obj_t *vbat; // 电池图标
+    lv_obj_t *wifi; // wifi图标
+    lv_obj_t *time_label; // 时间标签
+    lv_obj_t *message; // 消息图标
 } rtc_lvobj;
 
 typedef struct 
@@ -50,6 +55,7 @@ static lv_style_t style_small;
 static lv_style_t style_bold;
 static lv_style_t style_large;
 static lv_style_t style_font;
+static lv_style_t style_custom_symbol_16;
 
 /**
  * @description: 设置电量图标
@@ -100,11 +106,11 @@ static void set_wifi_icon(lv_obj_t *wifi, bool is_connected)
 
     if (is_connected)
     {
-        lv_label_set_text(wifi, LV_SYMBOL_WIFI);
+        lv_label_set_text(wifi, LV_SYMBOL_WIFI_LINK);
     }
     else
     {
-        lv_label_set_text(wifi, LV_SYMBOL_WARNING);
+        lv_label_set_text(wifi, LV_SYMBOL_WIFI_UNLINK);
     }
 }
 
@@ -115,15 +121,20 @@ static void update_time_cb(lv_timer_t * timer)
     time_t curtime = time(NULL);
     struct tm *tm_info = localtime(&curtime);
     char str[100] = {0};
-    strftime(str, sizeof(str), "%Y-%m-%d ( %a ) %H:%M", tm_info);
+    strftime(str, sizeof(str), "%Y-%m-%d %H:%M", tm_info);
     lv_obj_align(time_label, LV_ALIGN_CENTER, -10, 0);
     lv_label_set_text(time_label, str);
 
-    sprintf(str, DEFAULT_SHT30_LABFMT, g_ele_ds->sensor_data.sht30[0], g_ele_ds->sensor_data.sht30[1]);
-    lv_label_set_text(rtc_lvobj.sht3x_lab, str);
-
-    sprintf(str, DEFAULT_GZP6816_LABFMT, g_ele_ds->sensor_data.gzp6816d.pressure);
-    lv_label_set_text(rtc_lvobj.gzp6816_lab, str);
+    if (rtc_lvobj.sht3x_lab != NULL)
+    {
+        sprintf(str, DEFAULT_SHT30_LABFMT, g_ele_ds->sensor_data.sht30[0], g_ele_ds->sensor_data.sht30[1]);
+        lv_label_set_text(rtc_lvobj.sht3x_lab, str);
+    }
+    if (rtc_lvobj.gzp6816_lab != NULL)
+    {
+        sprintf(str, DEFAULT_GZP6816_LABFMT, g_ele_ds->sensor_data.gzp6816d.pressure);
+        lv_label_set_text(rtc_lvobj.gzp6816_lab, str);
+    }
 }
 
 static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv_obj_t* down)
@@ -139,10 +150,13 @@ static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent,
     lv_obj_set_style_border_width(status_bar, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     // lv_obj_align_to(status_bar, up, LV_ALIGN_BOTTOM_MID, 0, -20);
 
-    lv_obj_t* sub_cont[3];
-    for (int i = 0; i < 3; i++) {
+    lv_obj_t *sub_cont[3];
+    for (int i = 0; i < sizeof(sub_cont) / sizeof(sub_cont[0]); i++)
+    {
+        // uint32_t width_tab[3] = {20, 60, 20};
         sub_cont[i] = lv_obj_create(status_bar);
-        lv_obj_set_size(sub_cont[i], LV_PCT(STATUS_BAR_WIDTH_PCT), LV_SIZE_CONTENT);
+        lv_obj_set_flex_flow(status_bar, LV_FLEX_FLOW_ROW);
+        lv_obj_set_size(sub_cont[i], LV_SIZE_CONTENT, LV_SIZE_CONTENT);
         lv_obj_set_style_bg_color(sub_cont[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_border_width(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_pad_all(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -158,9 +172,8 @@ static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent,
     
     // wifi 信号初始化
     lv_obj_t *wifi = lv_label_create(sub_cont[0]);
-    lv_obj_add_style(wifi, &style_bold, 0);
+    lv_obj_add_style(wifi, &style_custom_symbol_16, 0);
     set_wifi_icon(wifi, dev->device_status.cnt_wifi);
-    lv_label_set_text(wifi, LV_SYMBOL_WIFI);
     lv_obj_align_to(wifi, vbat, LV_ALIGN_OUT_RIGHT_MID, 4, 0);
 
     // 时间初始化
@@ -168,7 +181,7 @@ static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent,
     time_t curtime = time(NULL);
     struct tm *tm_info = localtime(&curtime);
     char time_str[32] = {0};
-    strftime(time_str, sizeof(time_str), "%Y-%m-%d ( %a ) %H:%M", tm_info);
+    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M", tm_info);
     lv_obj_add_style(time_label, &style_bold, 0);
     lv_label_set_text(time_label, time_str);
     lv_obj_align(time_label, LV_ALIGN_CENTER, 0, 0);
@@ -177,9 +190,9 @@ static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent,
 
     // 新消息初始化
     lv_obj_t *newmessage = lv_label_create(sub_cont[2]);
-    lv_obj_add_style(newmessage, &style_bold, 0);
-    lv_label_set_text(newmessage, LV_SYMBOL_NEW_LINE);
-    lv_obj_align(newmessage, LV_ALIGN_CENTER, -3, 0);
+    lv_obj_add_style(newmessage, &style_custom_symbol_16, 0);
+    lv_label_set_text(newmessage, LV_SYMBOL_MESSAGE);
+    lv_obj_align(newmessage, LV_ALIGN_LEFT_MID, 0, 0);
     
     return status_bar;
 }
@@ -321,6 +334,7 @@ static lv_obj_t *create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* par
         };
         day_weather(weather_cont, &weather);
     }
+    return cont;
 }
 
 void tabview_create(ele_ds_t dev, lv_obj_t* parent)
@@ -449,11 +463,13 @@ void lv_user_gui_init(void)
     lv_style_init(&style_small);
     lv_style_set_text_font(&style_small, &lv_font_montserrat_10);
     lv_style_init(&style_bold);
-    lv_style_set_text_font(&style_bold, &lv_font_montserrat_12);
+    lv_style_set_text_font(&style_bold, &lv_font_montserrat_16);
     lv_style_init(&style_large);
     //lv_style_set_text_font(&style_large, &lv_font_montserrat_18);
     lv_style_init(&style_font);  
     lv_style_set_text_font(&style_font, &fangsong_8);
+    lv_style_init(&style_custom_symbol_16);
+    lv_style_set_text_font(&style_custom_symbol_16, &custom_symbol_16);
     main_page(g_ele_ds);
     
     // /* 1. 状态栏 */

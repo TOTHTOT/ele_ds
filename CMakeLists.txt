@@ -350,6 +350,7 @@ add_executable(ele_ds
         applications/lvgl/lv_port_disp.c
         applications/lvgl/lv_port_disp.h
         applications/lvgl/lv_port_indev.c
+        applications/lvgl/custom_symbol_16.c
         applications/microtar/microtar.c
         applications/microtar/microtar.h
         applications/pm/ele_ds_pm.c
@@ -3084,4 +3085,5 @@ add_executable(ele_ds
         rt-thread/src/timer.c
         rtconfig.h
         applications/alarm/ele_ds_alarm.h
-        applications/alarm/ele_ds_alarm.c)
+        applications/alarm/ele_ds_alarm.c
+        applications/lvgl/custom_symbol_16.h)
