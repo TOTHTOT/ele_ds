@@ -45,6 +45,10 @@
 
 #define SOFT_VERSION 0x25052801
 #define DEFATLT_CITYID 101010100
+/**
+ * 1: 打开epd测试, 这时不等待 EPD_BUSY_PIN, 切不刷新屏幕只串口打印显存内容, 0: 关闭epd测试
+ */
+#define EPD_ON_TEST 1
 
 typedef rt_err_t (*get_sensor_data)(void *data);
 
@@ -100,7 +104,6 @@ struct ele_ds
     struct 
     {
         bool cnt_wifi;
-        float current_vbat;
         time_t current_time;
         rt_alarm_t alarm;
         bool alarm_stop_beep; // 闹钟启动后退出蜂鸣器循环标志

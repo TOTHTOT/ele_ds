@@ -53,7 +53,7 @@ static void set_vbat_icon(lv_obj_t *vbat, uint8_t vbat_percent)
     {
         return;
     }
-
+    rt_kprintf("vbat_percent = %d\n", vbat_percent);
     if (vbat_percent > 100)
     {
         lv_label_set_text(vbat, LV_SYMBOL_BATTERY_FULL);
@@ -138,8 +138,7 @@ static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent,
     // 电量初始化
     lv_obj_t *vbat = lv_label_create(sub_cont[0]);
     lv_obj_add_style(vbat, &style_bold, 0);
-    uint8_t vbat_percent = (dev->device_status.current_vbat - MIN_VBAT) / (MAX_VBAT - MIN_VBAT) * 100;
-    set_vbat_icon(vbat, vbat_percent);
+    set_vbat_icon(vbat, (uint8_t)dev->sensor_data.curvbat_percent);
     lv_obj_align(vbat, LV_ALIGN_LEFT_MID, 3, 0);
     
     // wifi 信号初始化

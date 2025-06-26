@@ -452,7 +452,6 @@ int32_t devices_init(ele_ds_t ele_ds)
     ele_ds->ops = ele_ds_ops;
     // 初始化设备基本信息
     ele_ds->device_status.cnt_wifi = false;
-    ele_ds->device_status.current_vbat = 4.15f;
     ele_ds->device_status.current_time = 0;
     ele_ds->exit_flag = false;
     ele_ds->init_flag = true;

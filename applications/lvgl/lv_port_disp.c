@@ -65,10 +65,12 @@ static void disp_init(void)
 
 static void wait_for_idle(void)
 {
+#if (EPD_ON_TEST == 0)
     while (DEV_Digital_Read(EPD_BUSY_PIN) == 1)
     {
         rt_thread_mdelay(10);
     }
+#endif /* EPD_ON_TEST */
 }
 
 void debug_print_color_p(const lv_color_t *color_p, uint32_t w, uint32_t h)
@@ -136,7 +138,12 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     memset(temp_buf, 0xFF, buf_size);
     // 显示前先把指定位置内容刷白
     EPD_2IN7_V2_Display_Partial(temp_buf, area->y1, area->x1, area->y2, area->x2);
-    // debug_print_color_p(color_p, w, h);
+
+#if (EPD_ON_TEST == 1)
+    debug_print_color_p(color_p, w, h);
+#endif /* EPD_ON_TEST */
+
+#if (EPD_ON_TEST == 0)
 #if 1
     for (uint32_t y = 0; y < h; y++)
     {
@@ -158,6 +165,8 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     Paint_DrawNum(210, 33, 34, &Font12, BLACK, WHITE);
     Paint_DrawNum(210, 133, 56, &Font12, BLACK, WHITE);
 #endif
+#endif /* EPD_ON_TEST */
+
     // debug_print_1bit_buffer(temp_buf, w, h);
     EPD_2IN7_V2_Display_Partial(temp_buf, area->y1, area->x1, area->y2, area->x2);
     wait_for_idle();

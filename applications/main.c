@@ -33,7 +33,9 @@ int main(void)
         LOG_E("devices_init() failed, ret = %d", ret);
         return -RT_ERROR;
     }
-    
+    // 先读一次保证屏幕刷新时有数据
+    ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds);
+    ele_ds.ops.get_curvbat(&ele_ds);
     extern int lvgl_thread_init(void);
     lvgl_thread_init();
 

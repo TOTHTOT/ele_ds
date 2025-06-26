@@ -30,6 +30,7 @@
 ******************************************************************************/
 #include "EPD_2in7_V2.h"
 #include "Debug.h"
+#include "ele_ds.h"
 
 UBYTE LUT_DATA_4Gray[159] =
 {
@@ -100,6 +101,7 @@ parameter:
 ******************************************************************************/
 static void EPD_2IN7_V2_ReadBusy(void)
 {
+#if (EPD_ON_TEST == 0)
     Debug("e-Paper busy\r\n");
     do {
         if(DEV_Digital_Read(EPD_BUSY_PIN) == 0)
@@ -108,6 +110,7 @@ static void EPD_2IN7_V2_ReadBusy(void)
     } while(1);
     DEV_Delay_ms(20);
     Debug("e-Paper busy release\r\n");
+#endif /* EPD_ON_TEST */
 }
 
 /******************************************************************************
