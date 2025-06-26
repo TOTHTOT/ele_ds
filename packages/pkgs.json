@@ -30,11 +30,6 @@
   "name": "TZ_DATABASE"
  }, 
  {
-  "path": "/packages/peripherals/sensors/sgp30", 
-  "ver": "latest", 
-  "name": "SGP30"
- }, 
- {
   "path": "/packages/peripherals/sensors/sht3x", 
   "ver": "latest", 
   "name": "SHT3X"

@@ -41,6 +41,7 @@ int main(void)
     while (1)
     {
         ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
+        ele_ds.ops.get_curvbat(&ele_ds);           //获取当前电压
         if (loop_times % 50 == 0)
         {
             rt_pin_write(LED0_PIN, !rt_pin_read(LED0_PIN));

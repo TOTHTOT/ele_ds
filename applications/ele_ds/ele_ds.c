@@ -16,15 +16,20 @@
 #include "beep.h"
 #include "ele_ds_alarm.h"
 #include <rtdevice.h>
+#include "applications/alarm/ele_ds_alarm.h"
 
 #define DBG_TAG "ele_ds"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
-#include "applications/alarm/ele_ds_alarm.h"
 
 // 全局变量
 ele_ds_t g_ele_ds = RT_NULL; // 全局设备函数指针
+
+/**
+ * 内部函数声明
+ */
+static int32_t ele_ds_get_curvbat(ele_ds_t dev);
 
 #ifdef PKG_USING_GZP6816D_SENSOR
 /**
@@ -224,21 +229,26 @@ void ele_ds_print_status(void)
 #ifdef PKG_USING_SGP30
     rt_kprintf("[SGP30]TVOC: %d ppb, eCO2: %d ppm\n", g_ele_ds->sensor_data.sgp30[0], g_ele_ds->sensor_data.sgp30[1]);
 #endif /* PKG_USING_SGP30 */
+
+    sprintf(str, "[BAT]Voltage: %f percent = %f%%\n",
+            g_ele_ds->sensor_data.curvbat, g_ele_ds->sensor_data.curvbat_percent);
+    rt_kprintf(str);
 }
 MSH_CMD_EXPORT_ALIAS(ele_ds_print_status, status, ele_ds_print_status);
 
 ele_ds_ops_t ele_ds_ops =
-    {
+{
 #ifdef PKG_USING_GZP6816D_SENSOR
-        .sensor_data[SENSOR_GZP6816D_INDEX] = get_gzp6816d_data,
+    .sensor_data[SENSOR_GZP6816D_INDEX] = get_gzp6816d_data,
 #endif /* PKG_USING_GZP6816D_SENSOR */
 #ifdef PKG_USING_SHT3X
-        .sensor_data[SENSOR_SHT3X_INDEX] = get_sht30_data,
+    .sensor_data[SENSOR_SHT3X_INDEX] = get_sht30_data,
 #endif /* PKG_USING_SHT3X */
 #ifdef PKG_USING_SGP30
         .sensor_data[SENSOR_SGP30_INDEX] = get_sgp30_data,
 #endif /* PKG_USING_SGP30 */
-        .sensor_data[SENSOR_MAX] = get_all_sensor_data,
+    .sensor_data[SENSOR_MAX] = get_all_sensor_data,
+    .get_curvbat = ele_ds_get_curvbat,
 };
 
 #ifdef PKG_USING_SGP30
@@ -328,6 +338,41 @@ void ele_ds_gpio_deinit(void)
     // rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP); 要做开机唤醒 不解除
     // rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
     // rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP);
+}
+
+/**
+ * @brief 获取设备电量, 会写入数据到dev
+ * @param dev 设备指针
+ * @return >= 0 电压, < 0 错误码
+ */
+static int32_t ele_ds_get_curvbat(ele_ds_t dev)
+{
+    rt_err_t rt_ret = RT_EOK;
+    float raw_adc_f = 0.0f;
+    uint32_t raw_adc = 0;
+
+    rt_adc_device_t adc = (rt_adc_device_t)rt_device_find("adc1");
+    if (adc == RT_NULL)
+        return -1; // 设备查找失败
+
+    rt_ret = rt_adc_enable(adc, BAT_ADC_CH);
+    if (rt_ret != RT_EOK)
+        return -2; // 使能失败
+    raw_adc = rt_adc_read(adc, BAT_ADC_CH) ;
+    raw_adc_f = (float)raw_adc / (float)ADC_CONVERT_MAXVAL * ADC_REFVAL;
+    dev->sensor_data.curvbat = raw_adc_f;
+    dev->sensor_data.curvbat_percent = raw_adc_f / MAX_VBAT * 100;
+
+#if 0
+    char str[100] = {0};
+    sprintf(str, "raw_adc = %d, raw_adc_f = %f percent = %f%%",
+            raw_adc, raw_adc_f, dev->sensor_data.curvbat_percent);
+    LOG_E(str);
+#endif
+
+    rt_adc_disable(adc, BAT_ADC_CH);
+
+    return dev->sensor_data.curvbat;
 }
 
 /**

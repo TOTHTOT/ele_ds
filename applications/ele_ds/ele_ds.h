@@ -37,8 +37,12 @@
 #define MID_KEY GET_PIN(B, 13)
 #define RIGHT_KEY GET_PIN(B, 12)
 
+#define BAT_ADC_CH 9 // 电池电压adc通道
 #define MAX_VBAT 4.2f
-#define MIN_VBAT 3.6f
+#define MIN_VBAT 3.0f
+#define ADC_REFVAL 3.3f
+#define ADC_CONVERT_MAXVAL 4096 // 采样最大值
+
 #define SOFT_VERSION 0x25052801
 #define DEFATLT_CITYID 101010100
 
@@ -62,6 +66,7 @@ typedef enum
 struct ele_ds_ops
 {
     get_sensor_data sensor_data[SENSOR_MAX + 1];
+    int32_t (*get_curvbat)(ele_ds_t dev);
 };
 typedef struct ele_ds_ops ele_ds_ops_t;
 
@@ -79,14 +84,16 @@ struct ele_ds
     } devices; // 设备
     struct
     {
-        float sht30[2];   // 温湿度传感器数据, 0 温度, 1 湿度
+        float sht30[2]; // 温湿度传感器数据, 0 温度, 1 湿度
 #ifdef PKG_USING_SGP30
         int32_t sgp30[2]; // 空气质量传感器数据, 0 TVOC, 1 eCO2
 #endif
 #ifdef PKG_USING_GZP6816D_SENSOR
         gzp6816d_data_t gzp6816d;
 #endif
-    } sensor_data;  // 传感器数据
+        float curvbat; // 电池电压
+        float curvbat_percent; // 电池电压百分比
+    } sensor_data; // 传感器数据
     bool init_flag; // 系统是否初始化成功, == true 表示初始化成功, == false 表示初始化失败
     
     bool exit_flag;
