@@ -53,7 +53,6 @@ static void set_vbat_icon(lv_obj_t *vbat, uint8_t vbat_percent)
     {
         return;
     }
-    rt_kprintf("vbat_percent = %d\n", vbat_percent);
     if (vbat_percent > 100)
     {
         lv_label_set_text(vbat, LV_SYMBOL_BATTERY_FULL);
