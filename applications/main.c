@@ -56,12 +56,8 @@ int main(void)
 #if 1
 static int ota_app_vtor_reconfig(void)
 {
-//  #define NVIC_VTOR_MASK 0x3FFFFF80
-//  #define RT_APP_PART_ADDR 0x08020000
-//  /* ????????? */
-//  SCB->VTOR = RT_APP_PART_ADDR & NVIC_VTOR_MASK;
- SCB->VTOR = FLASH_BASE | 0x020000;
- return 0;
+    SCB->VTOR = FLASH_BASE | 0x020000;
+    return 0;
 }
 INIT_BOARD_EXPORT(ota_app_vtor_reconfig);
 #endif
