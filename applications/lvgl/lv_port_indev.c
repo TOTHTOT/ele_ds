@@ -114,10 +114,16 @@ static void update_time_cb(lv_timer_t * timer)
 {
     time_t curtime = time(NULL);
     struct tm *tm_info = localtime(&curtime);
-    char time_str[32] = {0};
-    strftime(time_str, sizeof(time_str), "%Y-%m-%d ( %a ) %H:%M", tm_info);
+    char str[100] = {0};
+    strftime(str, sizeof(str), "%Y-%m-%d ( %a ) %H:%M", tm_info);
     lv_obj_align(time_label, LV_ALIGN_CENTER, -10, 0);
-    lv_label_set_text(time_label, time_str);
+    lv_label_set_text(time_label, str);
+
+    sprintf(str, DEFAULT_SHT30_LABFMT, g_ele_ds->sensor_data.sht30[0], g_ele_ds->sensor_data.sht30[1]);
+    lv_label_set_text(rtc_lvobj.sht3x_lab, str);
+
+    sprintf(str, DEFAULT_GZP6816_LABFMT, g_ele_ds->sensor_data.gzp6816d.pressure);
+    lv_label_set_text(rtc_lvobj.gzp6816_lab, str);
 }
 
 static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv_obj_t* down)
@@ -270,7 +276,7 @@ void day_weather(lv_obj_t* parent, epd_show_weather_info_t *weather_info)
     // lv_label_set_text(icon, LV_SYMBOL_HOME);
     // lv_obj_set_style_text_align(icon, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT); // 确保文本居中
     lv_obj_align(rtc_lvobj.weather_icon[days_flag], LV_ALIGN_LEFT_MID, 0, 0);
-    
+
     // 子子容器
     lv_obj_t* sub_sub_cont = lv_obj_create(sub_layout);
     lv_obj_set_flex_flow(sub_sub_cont, LV_FLEX_FLOW_COLUMN); // 设置为垂直排列
@@ -366,13 +372,13 @@ void tabview_create(ele_ds_t dev, lv_obj_t* parent)
     rtc_lvobj.sht3x_lab = lv_label_create(tab1);
     lv_obj_add_style(rtc_lvobj.sht3x_lab, &style_font, 0);
     lv_obj_align(rtc_lvobj.sht3x_lab, LV_ALIGN_BOTTOM_LEFT, 0, 10);
-    sprintf(str, "温度:%2.0fC\n湿度:%2.0f%%", dev->sensor_data.sht30[0], dev->sensor_data.sht30[1]);
+    sprintf(str, DEFAULT_SHT30_LABFMT, dev->sensor_data.sht30[0], dev->sensor_data.sht30[1]);
     lv_label_set_text(rtc_lvobj.sht3x_lab, str);
 
     rtc_lvobj.gzp6816_lab = lv_label_create(tab1);
     lv_obj_add_style(rtc_lvobj.gzp6816_lab, &style_font, 0);
     lv_obj_align_to(rtc_lvobj.gzp6816_lab, rtc_lvobj.sht3x_lab, LV_ALIGN_OUT_RIGHT_TOP, 50, 0);
-    sprintf(str, "气压:%2.2fhPa", dev->sensor_data.gzp6816d.pressure);
+    sprintf(str, DEFAULT_GZP6816_LABFMT, dev->sensor_data.gzp6816d.pressure);
     lv_label_set_text(rtc_lvobj.gzp6816_lab, str);
 
     rtc_lvobj.memo_lab = lv_label_create(tab2);

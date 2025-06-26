@@ -43,8 +43,13 @@
 #define ADC_REFVAL 3.3f
 #define ADC_CONVERT_MAXVAL 4096 // 采样最大值
 
+/**
+ * 关于ui的一些宏定义
+ */
 // 默认图标保存位置
 #define DEFATLT_WEATHER_ICON_PATH "S:/sysfile/icon/tianqi_48/tianqi-%s.bin"
+#define DEFAULT_SHT30_LABFMT "温度:%2.0fC\n湿度:%2.0f%%"
+#define DEFAULT_GZP6816_LABFMT "气压:%2.2fhPa"
 
 #define SOFT_VERSION 0x25052801
 #define DEFATLT_CITYID 101010100
