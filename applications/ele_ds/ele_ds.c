@@ -358,7 +358,7 @@ static int32_t ele_ds_get_curvbat(ele_ds_t dev)
     rt_ret = rt_adc_enable(adc, BAT_ADC_CH);
     if (rt_ret != RT_EOK)
         return -2; // 使能失败
-    raw_adc = rt_adc_read(adc, BAT_ADC_CH) ;
+    raw_adc = rt_adc_read(adc, BAT_ADC_CH) * 2;
     raw_adc_f = (float)raw_adc / (float)ADC_CONVERT_MAXVAL * ADC_REFVAL;
     dev->sensor_data.curvbat = raw_adc_f;
     dev->sensor_data.curvbat_percent = raw_adc_f / MAX_VBAT * 100;

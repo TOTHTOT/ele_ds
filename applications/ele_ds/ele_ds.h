@@ -56,7 +56,7 @@
 /**
  * 1: 打开epd测试, 这时不等待 EPD_BUSY_PIN, 切不刷新屏幕只串口打印显存内容, 0: 关闭epd测试
  */
-#define EPD_ON_TEST 1
+#define EPD_ON_TEST 0
 
 typedef rt_err_t (*get_sensor_data)(void *data);
 
