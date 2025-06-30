@@ -171,6 +171,8 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     EPD_2IN7_V2_Display_Partial(temp_buf, area->y1, area->x1, area->y2, area->x2);
     wait_for_idle();
 
+    EPD_2IN7_V2_Sleep();
+
     lv_mem_free(temp_buf);
     lv_disp_flush_ready(disp_drv);
     LOG_D("disp_flush done");
