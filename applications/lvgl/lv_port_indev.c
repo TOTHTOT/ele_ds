@@ -27,8 +27,7 @@ void lv_port_indev_init(void)
 struct real_time_change_lvobj
 {
     lv_obj_t *tabview; // 底部导航栏
-    lv_obj_t *sht3x_lab; // sht30的温湿度标签
-    lv_obj_t *gzp6816_lab; // gzp6816的气压标签
+    lv_obj_t *sensor_lab; // 传感器数据标签
     lv_obj_t *memo_lab; // 备忘录标签
     lv_obj_t *weather_icon[2]; // 天气图标
     lv_obj_t *weather_info_lab[2]; // 天气信息标签, 温度
@@ -122,18 +121,13 @@ static void update_time_cb(lv_timer_t * timer)
     struct tm *tm_info = localtime(&curtime);
     char str[100] = {0};
     strftime(str, sizeof(str), "%Y-%m-%d %H:%M", tm_info);
-    lv_obj_align(time_label, LV_ALIGN_CENTER, -10, 0);
+    // lv_obj_align(time_label, LV_ALIGN_CENTER, -10, 0);
     lv_label_set_text(time_label, str);
 
-    if (rtc_lvobj.sht3x_lab != NULL)
+    if (rtc_lvobj.sensor_lab != NULL)
     {
-        sprintf(str, DEFAULT_SHT30_LABFMT, g_ele_ds->sensor_data.sht30[0], g_ele_ds->sensor_data.sht30[1]);
-        lv_label_set_text(rtc_lvobj.sht3x_lab, str);
-    }
-    if (rtc_lvobj.gzp6816_lab != NULL)
-    {
-        sprintf(str, DEFAULT_GZP6816_LABFMT, g_ele_ds->sensor_data.gzp6816d.pressure);
-        lv_label_set_text(rtc_lvobj.gzp6816_lab, str);
+        sprintf(str, DEFAULT_SENSOR_LABFMT, g_ele_ds->sensor_data.sht30[0], g_ele_ds->sensor_data.sht30[1], g_ele_ds->sensor_data.gzp6816d.pressure);
+        lv_label_set_text(rtc_lvobj.sensor_lab, str);
     }
 }
 
@@ -186,7 +180,7 @@ static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent,
     lv_label_set_text(time_label, time_str);
     lv_obj_align(time_label, LV_ALIGN_CENTER, 0, 0);
     // 创建定时器，周期60000ms（1分钟）调用一次更新函数
-    lv_timer_create(update_time_cb, 60000, NULL);
+    lv_timer_create(update_time_cb, 20 * 1000, NULL);
 
     // 新消息初始化
     lv_obj_t *newmessage = lv_label_create(sub_cont[2]);
@@ -206,37 +200,37 @@ static char *get_weather_icon_suffix(uint32_t icon_code)
 {
     weather_type_t curweather = get_weather_type(icon_code);
     static const char *weather_icons[] = {
-        "qing",   // 晴
+        "qing", // 晴
         "duoyun", // 多云、少云、晴间多云
-        "yin",    // 阴
+        "yin", // 阴
 
-        "zhenyu",   // 阵雨、强阵雨
-        "xiaoyu",   // 小雨、毛毛雨
-        "zhongyu",  // 中雨
-        "dayu",     // 大雨
-        "baoyu",    // 暴雨、大暴雨、特大暴雨、极端降雨
-        "leiyu",    // 雷阵雨、强雷阵雨
-        "leibao",   // 雷阵雨伴有冰雹
+        "zhenyu", // 阵雨、强阵雨
+        "xiaoyu", // 小雨、毛毛雨
+        "zhongyu", // 中雨
+        "dayu", // 大雨
+        "baoyu", // 暴雨、大暴雨、特大暴雨、极端降雨
+        "leiyu", // 雷阵雨、强雷阵雨
+        "leibao", // 雷阵雨伴有冰雹
         "yujiayue", // 雨夹雪、雨雪、阵雨夹雪
         "bingjing", // 冻雨
 
-        "xiaoxue",  // 小雪
+        "xiaoxue", // 小雪
         "zhongxue", // 中雪
-        "daxue",    // 大雪
-        "baoxue",   // 暴雪、大到暴雪
-        "zhenxue",  // 阵雪
-        "xuemi",    // 雪（模糊/通用）
+        "daxue", // 大雪
+        "baoxue", // 暴雪、大到暴雪
+        "zhenxue", // 阵雪
+        "xuemi", // 雪（模糊/通用）
 
-        "qingwu",  // 薄雾
+        "qingwu", // 薄雾
         "zhongwu", // 雾
-        "dawu",    // 浓雾、大雾、强浓雾、特强浓雾
-        "mai",     // 霾（中度、重度、严重）
+        "dawu", // 浓雾、大雾、强浓雾、特强浓雾
+        "mai", // 霾（中度、重度、严重）
 
-        "yangsha",    // 扬沙
-        "fuchen",     // 浮尘
+        "yangsha", // 扬沙
+        "fuchen", // 浮尘
         "shachenbao", // 沙尘暴、强沙尘暴
 
-        "re",   // 热
+        "re", // 热
         "leng", // 冷
 
         "qing" // 未知
@@ -244,7 +238,7 @@ static char *get_weather_icon_suffix(uint32_t icon_code)
 
     if (curweather < WEATHER_TYPE_COUNT)
     {
-        return (char *)weather_icons[curweather];
+        return (char *) weather_icons[curweather];
     }
     return "qing"; // 未知天气
 }
@@ -337,16 +331,16 @@ static lv_obj_t *create_weather_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* par
     return cont;
 }
 
-void tabview_create(ele_ds_t dev, lv_obj_t* parent)
+void tabview_create(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent)
 {
     rtc_lvobj.tabview = lv_tabview_create(parent, LV_DIR_BOTTOM, LV_DIR_ALL);
-    lv_obj_set_size(rtc_lvobj.tabview, LV_PCT(100), LV_PCT(100)); // 宽度全屏，高度自适应
+    lv_obj_set_size(rtc_lvobj.tabview, LV_PCT(100), LV_PCT(100));
     lv_obj_set_style_pad_all(rtc_lvobj.tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
     lv_obj_set_style_radius(rtc_lvobj.tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
     lv_obj_set_scrollbar_mode(rtc_lvobj.tabview, LV_SCROLLBAR_MODE_OFF); // 禁用滚动条
     lv_obj_set_style_border_width(rtc_lvobj.tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉边框
     lv_obj_set_style_border_color(rtc_lvobj.tabview, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT); // 设置边框颜色
-    lv_obj_align_to(rtc_lvobj.tabview, parent, LV_ALIGN_BOTTOM_MID, 0, 0); // 对齐到屏幕底部
+    lv_obj_align_to(rtc_lvobj.tabview, up, LV_ALIGN_OUT_BOTTOM_MID, 0, 0); // 对齐到屏幕底部
     // 获取 TabView 的按钮容器
     lv_obj_t* tab_btns = lv_tabview_get_tab_btns(rtc_lvobj.tabview);
 
@@ -383,17 +377,11 @@ void tabview_create(ele_ds_t dev, lv_obj_t* parent)
 
     char str[50] = {0};
     lv_obj_t *_weather_layout = create_weather_layout(dev, rtc_lvobj.tabview, tab1, NULL);
-    rtc_lvobj.sht3x_lab = lv_label_create(tab1);
-    lv_obj_add_style(rtc_lvobj.sht3x_lab, &style_font, 0);
-    lv_obj_align(rtc_lvobj.sht3x_lab, LV_ALIGN_BOTTOM_LEFT, 0, 10);
-    sprintf(str, DEFAULT_SHT30_LABFMT, dev->sensor_data.sht30[0], dev->sensor_data.sht30[1]);
-    lv_label_set_text(rtc_lvobj.sht3x_lab, str);
-
-    rtc_lvobj.gzp6816_lab = lv_label_create(tab1);
-    lv_obj_add_style(rtc_lvobj.gzp6816_lab, &style_font, 0);
-    lv_obj_align_to(rtc_lvobj.gzp6816_lab, rtc_lvobj.sht3x_lab, LV_ALIGN_OUT_RIGHT_TOP, 50, 0);
-    sprintf(str, DEFAULT_GZP6816_LABFMT, dev->sensor_data.gzp6816d.pressure);
-    lv_label_set_text(rtc_lvobj.gzp6816_lab, str);
+    rtc_lvobj.sensor_lab = lv_label_create(tab1);
+    lv_obj_add_style(rtc_lvobj.sensor_lab, &style_font, 0);
+    sprintf(str, DEFAULT_SENSOR_LABFMT, dev->sensor_data.sht30[0], dev->sensor_data.sht30[1], dev->sensor_data.gzp6816d.pressure);
+    lv_label_set_text(rtc_lvobj.sensor_lab, str);
+    lv_obj_align_to(rtc_lvobj.sensor_lab, _weather_layout, LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
 
     rtc_lvobj.memo_lab = lv_label_create(tab2);
     lv_obj_align(rtc_lvobj.memo_lab, LV_ALIGN_TOP_LEFT, 0, 0);
@@ -428,14 +416,14 @@ lv_obj_t *create_tabview_layout(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent, lv
     lv_obj_set_style_border_color(bottom_layout, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT); // 设置边框颜色
     lv_obj_set_style_radius(bottom_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
     lv_obj_set_scrollbar_mode(bottom_layout, LV_SCROLLBAR_MODE_OFF); // 禁用滚动条
-    lv_obj_align_to(bottom_layout, parent, LV_ALIGN_BOTTOM_MID, 0, 0); // 对齐到屏幕底部
+    lv_obj_align_to(bottom_layout, up, LV_ALIGN_OUT_BOTTOM_MID, 0, 0); // 对齐到屏幕底部
 
     // // 在底部布局中添加内容（示例）
     // lv_obj_t* label = lv_label_create(bottom_layout);
     // lv_label_set_text(label, "This is the bottom layout.");
     // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0); // 居中对齐
 
-    tabview_create(dev, bottom_layout);
+    tabview_create(dev, up, bottom_layout);
 
     return bottom_layout;
 }
@@ -453,7 +441,7 @@ void main_page(ele_ds_t dev)
 
 
     lv_obj_t* status_bar = create_status_bar(g_ele_ds, NULL, screen_layout, NULL);
-    lv_obj_t *tabview = create_tabview_layout(g_ele_ds, NULL, screen_layout, NULL);
+    lv_obj_t *tabview = create_tabview_layout(g_ele_ds, status_bar, screen_layout, NULL);
 }
 void lv_user_gui_init(void)
 {
