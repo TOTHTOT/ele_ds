@@ -139,8 +139,9 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     // 显示前先把指定位置内容刷白
     EPD_2IN7_V2_Display_Partial(temp_buf, area->y1, area->x1, area->y2, area->x2);
 
-#if (EPD_ON_TEST == 1)
-    debug_print_color_p(color_p, w, h);
+#if (EPD_ON_TEST == 0)
+    if (buf_size < 1000)
+        debug_print_color_p(color_p, w, h);
 #endif /* EPD_ON_TEST */
 
 #if (EPD_ON_TEST == 0)
@@ -167,7 +168,8 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
 #endif
 #endif /* EPD_ON_TEST */
 
-    // debug_print_1bit_buffer(temp_buf, w, h);
+    if (buf_size < 1000)
+        debug_print_1bit_buffer(temp_buf, h, w);
     EPD_2IN7_V2_Display_Partial(temp_buf, area->y1, area->x1, area->y2, area->x2);
     wait_for_idle();
 

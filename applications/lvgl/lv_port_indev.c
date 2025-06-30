@@ -33,7 +33,7 @@ struct real_time_change_lvobj
     lv_obj_t *weather_info_lab[2]; // 天气信息标签, 温度
     lv_obj_t *vbat; // 电池图标
     lv_obj_t *wifi; // wifi图标
-    lv_obj_t *time_label; // 时间标签
+    lv_obj_t *time_lab; // 时间标签
     lv_obj_t *message; // 消息图标
 } rtc_lvobj;
 
@@ -113,8 +113,6 @@ static void set_wifi_icon(lv_obj_t *wifi, bool is_connected)
     }
 }
 
-lv_obj_t *time_label = NULL;
-
 static void update_time_cb(lv_timer_t * timer)
 {
     time_t curtime = time(NULL);
@@ -122,12 +120,16 @@ static void update_time_cb(lv_timer_t * timer)
     char str[100] = {0};
     strftime(str, sizeof(str), "%Y-%m-%d %H:%M", tm_info);
     // lv_obj_align(time_label, LV_ALIGN_CENTER, -10, 0);
-    lv_label_set_text(time_label, str);
+    lv_label_set_text(rtc_lvobj.time_lab, str);
 
     if (rtc_lvobj.sensor_lab != NULL)
     {
         sprintf(str, DEFAULT_SENSOR_LABFMT, g_ele_ds->sensor_data.sht30[0], g_ele_ds->sensor_data.sht30[1], g_ele_ds->sensor_data.gzp6816d.pressure);
         lv_label_set_text(rtc_lvobj.sensor_lab, str);
+    }
+    if (rtc_lvobj.vbat != NULL)
+    {
+        set_vbat_icon(rtc_lvobj.vbat, 20);
     }
 }
 
@@ -142,52 +144,48 @@ static lv_obj_t* create_status_bar(ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent,
     lv_obj_set_style_radius(status_bar, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_scrollbar_mode(status_bar, LV_SCROLLBAR_MODE_OFF);
     lv_obj_set_style_border_width(status_bar, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // lv_obj_align_to(status_bar, up, LV_ALIGN_BOTTOM_MID, 0, -20);
+    lv_obj_set_flex_flow(status_bar, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(status_bar,
+                          LV_FLEX_ALIGN_SPACE_BETWEEN, // 主轴两端对齐
+                          LV_FLEX_ALIGN_CENTER, // 交叉轴居中对齐
+                          LV_FLEX_ALIGN_CENTER); // 行对齐
+    lv_obj_align(status_bar, LV_ALIGN_TOP_MID, 0, 0);
 
-    lv_obj_t *sub_cont[3];
-    for (int i = 0; i < sizeof(sub_cont) / sizeof(sub_cont[0]); i++)
-    {
-        // uint32_t width_tab[3] = {20, 60, 20};
-        sub_cont[i] = lv_obj_create(status_bar);
-        lv_obj_set_flex_flow(status_bar, LV_FLEX_FLOW_ROW);
-        lv_obj_set_size(sub_cont[i], LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-        lv_obj_set_style_bg_color(sub_cont[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_border_width(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_pad_all(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_radius(sub_cont[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    }
-    lv_obj_set_size(sub_cont[1], LV_PCT(STATUS_BAR_CENTER_WIDTH_PCT), LV_SIZE_CONTENT);
-
-    // 电量初始化
-    lv_obj_t *vbat = lv_label_create(sub_cont[0]);
-    lv_obj_add_style(vbat, &style_bold, 0);
-    set_vbat_icon(vbat, (uint8_t)dev->sensor_data.curvbat_percent);
-    lv_obj_align(vbat, LV_ALIGN_LEFT_MID, 3, 0);
-    
-    // wifi 信号初始化
-    lv_obj_t *wifi = lv_label_create(sub_cont[0]);
-    lv_obj_add_style(wifi, &style_custom_symbol_16, 0);
-    set_wifi_icon(wifi, dev->device_status.cnt_wifi);
-    lv_obj_align_to(wifi, vbat, LV_ALIGN_OUT_RIGHT_MID, 4, 0);
+    // /* 左侧容器 - 包含电量和WiFi图标 */
+    // lv_obj_t* left_cont = lv_obj_create(status_bar);
+    // lv_obj_set_flex_flow(left_cont, LV_FLEX_FLOW_ROW);
+    // lv_obj_set_flex_align(left_cont,
+    //                      LV_FLEX_ALIGN_START,      // 主轴起点对齐
+    //                      LV_FLEX_ALIGN_CENTER,     // 交叉轴居中对齐
+    //                      LV_FLEX_ALIGN_CENTER);    // 行对齐
+    // lv_obj_set_size(left_cont, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    // // 电量初始化
+    // rtc_lvobj.vbat = lv_label_create(left_cont);
+    // lv_obj_add_style(rtc_lvobj.vbat, &style_bold, 0);
+    // set_vbat_icon(rtc_lvobj.vbat, (uint8_t)dev->sensor_data.curvbat_percent);
+    //
+    // // wifi 初始化
+    // rtc_lvobj.wifi = lv_label_create(left_cont);
+    // lv_obj_add_style(rtc_lvobj.wifi, &style_custom_symbol_16, 0);
+    // set_wifi_icon(rtc_lvobj.wifi, dev->device_status.cnt_wifi);
 
     // 时间初始化
-    time_label = lv_label_create(sub_cont[1]);
+    rtc_lvobj.time_lab = lv_label_create(status_bar);
     time_t curtime = time(NULL);
     struct tm *tm_info = localtime(&curtime);
     char time_str[32] = {0};
     strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M", tm_info);
-    lv_obj_add_style(time_label, &style_bold, 0);
-    lv_label_set_text(time_label, time_str);
-    lv_obj_align(time_label, LV_ALIGN_CENTER, 0, 0);
-    // 创建定时器，周期60000ms（1分钟）调用一次更新函数
-    lv_timer_create(update_time_cb, 20 * 1000, NULL);
+    lv_obj_add_style(rtc_lvobj.time_lab, &style_bold, 0);
+    lv_label_set_text(rtc_lvobj.time_lab, time_str);
 
     // 新消息初始化
-    lv_obj_t *newmessage = lv_label_create(sub_cont[2]);
-    lv_obj_add_style(newmessage, &style_custom_symbol_16, 0);
-    lv_label_set_text(newmessage, LV_SYMBOL_MESSAGE);
-    lv_obj_align(newmessage, LV_ALIGN_LEFT_MID, 0, 0);
-    
+    // rtc_lvobj.message = lv_label_create(status_bar);
+    // lv_obj_add_style(rtc_lvobj.message, &style_custom_symbol_16, 0);
+    // lv_label_set_text(rtc_lvobj.message, LV_SYMBOL_MESSAGE);
+
+    // 创建定时器，周期 20s 更新状态
+    lv_timer_create(update_time_cb, 20000, NULL);
+
     return status_bar;
 }
 
