@@ -216,8 +216,9 @@ static lv_obj_t *create_tabview_weather(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *
 #endif
     ui->rtc_lvobj.sensor_lab = lv_label_create(cont);
     lv_obj_add_style(ui->rtc_lvobj.sensor_lab, &ui->style.default_chinese, 0);
-    lv_label_set_text_fmt(ui->rtc_lvobj.sensor_lab, DEFAULT_SENSOR_LABFMT, dev->sensor_data.sht30[0],
-                          dev->sensor_data.sht30[1], dev->sensor_data.gzp6816d.pressure);
+    char str[100] = {0};
+    sprintf(str, DEFAULT_SENSOR_LABFMT, dev->sensor_data.sht30[0], dev->sensor_data.sht30[1], dev->sensor_data.gzp6816d.pressure);
+    lv_label_set_text(ui->rtc_lvobj.sensor_lab, str);
     return  cont;
 }
 
@@ -290,8 +291,8 @@ static void update_rtc_labobj_cb(lv_timer_t * timer)
     }
     if (ui->rtc_lvobj.sensor_lab != NULL)
     {
-        lv_label_set_text_fmt(ui->rtc_lvobj.sensor_lab, DEFAULT_SENSOR_LABFMT, dev->sensor_data.sht30[0],
-                      dev->sensor_data.sht30[1], dev->sensor_data.gzp6816d.pressure);
+        sprintf(str, DEFAULT_SENSOR_LABFMT, dev->sensor_data.sht30[0], dev->sensor_data.sht30[1], dev->sensor_data.gzp6816d.pressure);
+        lv_label_set_text(ui->rtc_lvobj.sensor_lab, str);
     }
 
     // 标记脏屏幕 导致全刷 不然会出现控件错位问题
