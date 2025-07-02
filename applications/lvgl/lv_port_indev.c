@@ -279,7 +279,10 @@ lv_obj_t *create_tabview_layout(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *up, lv_o
     lv_obj_set_style_pad_all(tab1, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
     create_tabview_weather(ui, dev, up, tab1);
 
-    // lv_tabview_set_act(weather_page_lvobj_st.tabview, 1, LV_ANIM_OFF); // 1 表示第二个标签页，LV_ANIM_OFF 表示无动画切换
+    ui->rtc_lvobj.memo_lab = lv_label_create(tab2);
+    lv_obj_add_style(ui->rtc_lvobj.memo_lab, &ui->style.default_chinese, 0);
+    lv_label_set_text(ui->rtc_lvobj.memo_lab, "你好");
+
     return ui->rtc_lvobj.tabview;
 }
 
