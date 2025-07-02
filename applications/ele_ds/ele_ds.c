@@ -449,6 +449,8 @@ int32_t devices_init(ele_ds_t ele_ds)
     //     return -6;
     // }
 
+    ele_ds->ui_btn_mq = rt_mq_create("ui_btn_mq", sizeof(ele_ds_ui_btn_t), 10, RT_IPC_FLAG_FIFO);
+
     ele_ds->ops = ele_ds_ops;
     // 初始化设备基本信息
     ele_ds->device_status.cnt_wifi = false;

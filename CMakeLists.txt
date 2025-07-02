@@ -332,7 +332,7 @@ include_directories(rt-thread/libcpu/arm/sep4020)
 include_directories(rt-thread/libcpu/arm/zynqmp-r5)
 
 add_executable(ele_ds
-        applications/btn/btn.c
+        applications/btn/ele_ds_btn.c
         applications/common/common.c
         applications/common/common.h
         applications/dfs/dfscfg.c
@@ -3086,4 +3086,5 @@ add_executable(ele_ds
         rtconfig.h
         applications/alarm/ele_ds_alarm.h
         applications/alarm/ele_ds_alarm.c
-        applications/lvgl/custom_symbol_16.h)
+        applications/lvgl/custom_symbol_16.h
+        applications/btn/ele_ds_btn.h)

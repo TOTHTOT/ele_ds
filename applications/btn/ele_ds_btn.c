@@ -11,10 +11,12 @@
 #include <board.h>
 #include "mfbd.h"
 #include "mfbd_sd.h"
-#include "ele_ds.h"
+#include "ele_ds_btn.h"
 #include <drv_gpio.h>
 #include <beep.h>
 #include <stdbool.h>
+#include <lvgl.h>
+#include "ele_ds.h"
 
 #define MFBD_DEMO_USE_DEFAULT_DEFINE            1       /* set to 1, you can study how to use default define APIs. */
 
@@ -36,6 +38,15 @@ enum
     MFBD_LONG_CODE_NAME(test_nbtn2)     = 0x1502,
 };
 
+/**
+ * @brief 给ui使用的映射表
+ */
+const ui_btnval_map_t ui_btnval_map[4] = {
+    {0x1501, LV_KEY_LEFT},
+    {0x1401, LV_KEY_ENTER},
+    {0x1301, LV_KEY_RIGHT},
+    {0x1402, LV_KEY_ESC},
+};
 
 /* MFBD_NBTN_DEFAULT_DEFINE(NAME, BTN_INDEX, FILTER_TIME, REPEAT_TIME, LONG_TIME) */
 MFBD_NBTN_DEFAULT_DEFINE(test_nbtn, 1, 3, 0, 100);
@@ -160,7 +171,12 @@ void bsp_btn_value_report(mfbd_btn_code_t btn_value)
 {
     // 只有按键松开蜂鸣器才响
     // btn_curclick_ctrbeep(btn_value);
-    rt_kprintf("%04x\n", btn_value);
+    // rt_kprintf("%04x\n", btn_value);
+    ele_ds_ui_btn_t btn_msg = {0};
+    btn_msg.btnval = btn_value;
+    btn_msg.release_press = LV_INDEV_STATE_PR;
+    rt_mq_send(g_ele_ds->ui_btn_mq, &btn_msg, sizeof
+               (ele_ds_ui_btn_t));
 }
 
 static void mfbd_scan(void *arg)

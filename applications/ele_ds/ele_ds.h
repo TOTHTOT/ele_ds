@@ -30,6 +30,9 @@
 #include "EPD_2in7_V2.h"
 #include "dfscfg.h"
 #include "common.h"
+#include "lvgl.h"
+#include "ele_ds_btn.h"
+
 /* 参数配置 */
 #define LED0_PIN GET_PIN(C, 13)
 #define V3_3_PIN GET_PIN(C, 8)
@@ -123,6 +126,9 @@ struct ele_ds
 
     ele_ds_cfg_t device_cfg; // 设备配置
     ele_ds_client_t client; // 终端相关内容
+
+    rt_mq_t ui_btn_mq; // 物理按钮事件消息队列, 按下的键值转为lvgl的键值通道
+
     struct ele_ds_ops ops;
 };
 typedef struct ele_ds *ele_ds_t;
