@@ -351,12 +351,12 @@ static lv_obj_t *create_devinfo_layout(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *u
 
     ui->rtc_lvobj.date_lab = lv_label_create(cont[1]);
     lv_obj_add_style(ui->rtc_lvobj.date_lab, &ui->style.date, 0);
-    strftime(str, sizeof(str), DATE_LABFMT, tm_info);
+    strftime(str, sizeof(str), DEFAULT_DATE_LABFMT, tm_info);
     lv_label_set_text(ui->rtc_lvobj.date_lab, str);
 
     ui->rtc_lvobj.time_lab = lv_label_create(cont[1]);
     lv_obj_add_style(ui->rtc_lvobj.time_lab, &ui->style.time, 0);
-    strftime(str, sizeof(str), TIME_LABFMT, tm_info);
+    strftime(str, sizeof(str), DEFAULT_TIME_LABFMT, tm_info);
     lv_label_set_text(ui->rtc_lvobj.time_lab, str);
 
     lv_timer_create(update_rtc_labobj_cb, 20 * 1000, ui);
