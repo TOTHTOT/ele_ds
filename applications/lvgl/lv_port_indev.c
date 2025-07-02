@@ -173,6 +173,8 @@ MSH_CMD_EXPORT_ALIAS(switch_tabview_cmd, switch_tabview, Switch tabview page);
 
 static lv_obj_t *create_tabview_weather(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent)
 {
+    char str[100] = {0};
+
     lv_obj_t *cont = lv_obj_create(parent);
     lv_obj_set_size(cont, LV_PCT(100), LV_PCT(100));
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
@@ -191,7 +193,8 @@ static lv_obj_t *create_tabview_weather(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *
 
     lv_obj_t *today_lab = lv_label_create(weather_layout);
     lv_obj_add_style(today_lab, &ui->style.default_chinese, 0);
-    lv_label_set_text(today_lab, "今天");
+    sprintf(str, "今天: %s", dev->device_cfg.weather_info[0].textDay);
+    lv_label_set_text(today_lab, str);
     ui->rtc_lvobj.weather_info_lab[0] = lv_label_create(weather_layout);
     lv_obj_add_style(ui->rtc_lvobj.weather_info_lab[0], &ui->style.default_chinese, 0);
     lv_label_set_text_fmt(ui->rtc_lvobj.weather_info_lab[0], DEFAULT_WEATHER_LABFMT,
@@ -200,7 +203,8 @@ static lv_obj_t *create_tabview_weather(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *
 
     lv_obj_t *tomorrow_lab = lv_label_create(weather_layout);
     lv_obj_add_style(tomorrow_lab, &ui->style.default_chinese, 0);
-    lv_label_set_text(tomorrow_lab, "明天");
+    sprintf(str, "明天: %s", dev->device_cfg.weather_info[1].textDay);
+    lv_label_set_text(tomorrow_lab, str);
     ui->rtc_lvobj.weather_info_lab[1] = lv_label_create(weather_layout);
     lv_obj_add_style(ui->rtc_lvobj.weather_info_lab[1], &ui->style.default_chinese, 0);
     lv_label_set_text_fmt(ui->rtc_lvobj.weather_info_lab[1], DEFAULT_WEATHER_LABFMT,
@@ -216,7 +220,7 @@ static lv_obj_t *create_tabview_weather(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *
 #endif
     ui->rtc_lvobj.sensor_lab = lv_label_create(cont);
     lv_obj_add_style(ui->rtc_lvobj.sensor_lab, &ui->style.default_chinese, 0);
-    char str[100] = {0};
+
     sprintf(str, DEFAULT_SENSOR_LABFMT, dev->sensor_data.sht30[0], dev->sensor_data.sht30[1], dev->sensor_data.gzp6816d.pressure);
     lv_label_set_text(ui->rtc_lvobj.sensor_lab, str);
     return  cont;
