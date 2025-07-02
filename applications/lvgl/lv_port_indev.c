@@ -21,6 +21,7 @@ struct ele_ds_uistyle
     lv_style_t date; // 日期样式
     lv_style_t default_chinese; // 中文字体样式
     lv_style_t custom_symbol_16; // 自定义图标字体样式
+    lv_style_t default_symbol_16;// 自带符号的字体大小
 };
 typedef struct ele_ds_uistyle *ele_ds_uistyle_t;
 
@@ -230,18 +231,48 @@ static lv_obj_t *create_devinfo_layout(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *u
     lv_obj_set_style_border_color(devinfo_layout, lv_color_black(), LV_PART_MAIN);
     lv_obj_set_style_radius(devinfo_layout, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_scrollbar_mode(devinfo_layout, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_set_flex_align(devinfo_layout, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_flex_align(devinfo_layout, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    /** 添加顶部图标容器 **/
+    lv_obj_t *cont[3] = {0};
+    for (uint32_t i = 0; i < sizeof(cont) / sizeof(cont[0]); i++)
+    {
+        cont[i] = lv_obj_create(devinfo_layout);
+        lv_obj_set_size(cont[i], LV_PCT(100), LV_PCT(33));
+        lv_obj_set_flex_flow(cont[i], LV_FLEX_FLOW_ROW);
+        lv_obj_set_style_pad_all(cont[i], 0, LV_PART_MAIN);
+        lv_obj_set_style_border_width(cont[i], 0, LV_PART_MAIN);
+        lv_obj_set_scrollbar_mode(cont[i], LV_SCROLLBAR_MODE_OFF);
+        lv_obj_set_style_bg_opa(cont[i], LV_OPA_TRANSP, LV_PART_MAIN); // 透明背景
+        lv_obj_set_flex_align(cont[i], LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    }
+    // 中间的布局要居中
+    lv_obj_set_flex_flow(cont[1], LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(cont[1], LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    // 顶部容器的组件,
+    ui->rtc_lvobj.vbat = lv_label_create(cont[0]);
+    lv_obj_add_style(ui->rtc_lvobj.vbat, &ui->style.default_symbol_16, 0);
+    set_vbat_icon(ui->rtc_lvobj.vbat, (uint8_t)dev->sensor_data.curvbat_percent);
+
+    ui->rtc_lvobj.wifi = lv_label_create(cont[0]);
+    lv_obj_add_style(ui->rtc_lvobj.wifi, &ui->style.custom_symbol_16, 0);
+    set_wifi_icon(ui->rtc_lvobj.wifi, dev->device_status.cnt_wifi);
+
+    ui->rtc_lvobj.message = lv_label_create(cont[0]);
+    lv_obj_add_style(ui->rtc_lvobj.message, &ui->style.custom_symbol_16, 0);
+    lv_label_set_text(ui->rtc_lvobj.message, LV_SYMBOL_MESSAGE);
 
     time_t curtime = time(NULL);
     struct tm *tm_info = localtime(&curtime);
     char str[100] = {0};
 
-    ui->rtc_lvobj.date_lab = lv_label_create(devinfo_layout);
+    ui->rtc_lvobj.date_lab = lv_label_create(cont[1]);
     lv_obj_add_style(ui->rtc_lvobj.date_lab, &ui->style.date, 0);
     strftime(str, sizeof(str), DATE_LABFMT, tm_info);
     lv_label_set_text(ui->rtc_lvobj.date_lab, str);
 
-    ui->rtc_lvobj.time_lab = lv_label_create(devinfo_layout);
+    ui->rtc_lvobj.time_lab = lv_label_create(cont[1]);
     lv_obj_add_style(ui->rtc_lvobj.time_lab, &ui->style.time, 0);
     strftime(str, sizeof(str), TIME_LABFMT, tm_info);
     lv_label_set_text(ui->rtc_lvobj.time_lab, str);
@@ -287,6 +318,9 @@ static void style_init(ele_ds_uistyle_t style)
 
     lv_style_init(&style->custom_symbol_16);
     lv_style_set_text_font(&style->custom_symbol_16, &custom_symbol_16);
+
+    lv_style_init(&style->default_symbol_16);
+    lv_style_set_text_font(&style->default_symbol_16, &lv_font_montserrat_16);
 }
 
 void lv_user_gui_init(void)
