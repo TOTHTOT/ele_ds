@@ -71,8 +71,25 @@ typedef struct
 // 设置字体
 extern lv_font_t fangsong_8;
 
-/* 样式 */
-
+/**
+ * @brief 设置对象开启或者关闭边框
+ * @param obj 对象
+ * @param onoff true 开启, false 关闭
+ * @return
+ */
+static inline void ctrl_obj_border(lv_obj_t *obj, bool onoff)
+{
+    if (onoff)
+    {
+        lv_obj_set_style_border_width(obj, 2, LV_PART_MAIN);
+        lv_obj_set_style_border_color(obj, lv_color_black(), LV_PART_MAIN);
+    }
+    else
+    {
+        lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN);
+        lv_obj_set_style_border_color(obj, lv_color_black(), LV_PART_MAIN);
+    }
+}
 
 /**
  * @description: 设置电量图标
@@ -154,15 +171,64 @@ void switch_tabview_cmd(const int argc,char *argv[])
 }
 MSH_CMD_EXPORT_ALIAS(switch_tabview_cmd, switch_tabview, Switch tabview page);
 
-void tabview_create(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent)
+static lv_obj_t *create_tabview_weather(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent)
+{
+    lv_obj_t *cont = lv_obj_create(parent);
+    lv_obj_set_size(cont, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_all(cont, 1, LV_PART_MAIN);
+    lv_obj_set_flex_align(cont, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    // 边框显示
+    ctrl_obj_border(cont, false);
+
+    lv_obj_t *weather_layout = lv_obj_create(cont);
+    lv_obj_set_style_pad_all(weather_layout, 1, LV_PART_MAIN);
+    lv_obj_set_flex_flow(weather_layout, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_size(weather_layout, LV_PCT(100), LV_PCT(70));
+    lv_obj_set_flex_align(weather_layout, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    // 边框显示
+    ctrl_obj_border(weather_layout, false);
+
+    lv_obj_t *today_lab = lv_label_create(weather_layout);
+    lv_obj_add_style(today_lab, &ui->style.default_chinese, 0);
+    lv_label_set_text(today_lab, "今天");
+    ui->rtc_lvobj.weather_info_lab[0] = lv_label_create(weather_layout);
+    lv_obj_add_style(ui->rtc_lvobj.weather_info_lab[0], &ui->style.default_chinese, 0);
+    lv_label_set_text_fmt(ui->rtc_lvobj.weather_info_lab[0], DEFAULT_WEATHER_LABFMT,
+                          dev->device_cfg.weather_info[0].tempMax, dev->device_cfg.weather_info[0].tempMin,
+                          dev->device_cfg.weather_info[0].humidity);
+
+    lv_obj_t *tomorrow_lab = lv_label_create(weather_layout);
+    lv_obj_add_style(tomorrow_lab, &ui->style.default_chinese, 0);
+    lv_label_set_text(tomorrow_lab, "明天");
+    ui->rtc_lvobj.weather_info_lab[1] = lv_label_create(weather_layout);
+    lv_obj_add_style(ui->rtc_lvobj.weather_info_lab[1], &ui->style.default_chinese, 0);
+    lv_label_set_text_fmt(ui->rtc_lvobj.weather_info_lab[1], DEFAULT_WEATHER_LABFMT,
+                          dev->device_cfg.weather_info[1].tempMax, dev->device_cfg.weather_info[1].tempMin,
+                          dev->device_cfg.weather_info[1].humidity);
+#if 0 // 不使用容器了 里面就一个label
+    lv_obj_t *sensor_layout = lv_obj_create(cont);
+    lv_obj_set_flex_flow(sensor_layout, LV_FLEX_FLOW_ROW);
+    lv_obj_set_size(sensor_layout, LV_PCT(100), LV_PCT(30));
+    lv_obj_set_flex_align(sensor_layout, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_all(sensor_layout, 0, LV_PART_MAIN);
+    ctrl_obj_border(sensor_layout, true);
+#endif
+    ui->rtc_lvobj.sensor_lab = lv_label_create(cont);
+    lv_obj_add_style(ui->rtc_lvobj.sensor_lab, &ui->style.default_chinese, 0);
+    lv_label_set_text_fmt(ui->rtc_lvobj.sensor_lab, DEFAULT_SENSOR_LABFMT, dev->sensor_data.sht30[0],
+                          dev->sensor_data.sht30[1], dev->sensor_data.gzp6816d.pressure);
+    return  cont;
+}
+
+lv_obj_t *create_tabview_layout(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent)
 {
     ui->rtc_lvobj.tabview = lv_tabview_create(parent, LV_DIR_BOTTOM, LV_DIR_ALL);
     lv_obj_set_size(ui->rtc_lvobj.tabview, LV_PCT(65), LV_PCT(100));
     lv_obj_set_style_pad_all(ui->rtc_lvobj.tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
     lv_obj_set_style_radius(ui->rtc_lvobj.tabview, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉圆角
     lv_obj_set_scrollbar_mode(ui->rtc_lvobj.tabview, LV_SCROLLBAR_MODE_OFF); // 禁用滚动条
-    lv_obj_set_style_border_width(ui->rtc_lvobj.tabview, 2, LV_PART_MAIN);
-    lv_obj_set_style_border_color(ui->rtc_lvobj.tabview, lv_color_black(), LV_PART_MAIN);
+    ctrl_obj_border(ui->rtc_lvobj.tabview, true);
 
     // 获取 TabView 的按钮容器
     lv_obj_t* tab_btns = lv_tabview_get_tab_btns(ui->rtc_lvobj.tabview);
@@ -196,7 +262,12 @@ void tabview_create(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *up, lv_obj_t* parent
     lv_obj_t* tab3 = lv_tabview_add_tab(ui->rtc_lvobj.tabview, "背景");
     // lv_obj_t* tab4 = lv_tabview_add_tab(ui->rtc_lvobj.tabview, "设置");
 
+    ctrl_obj_border(tab1, false);
+    lv_obj_set_style_pad_all(tab1, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
+    create_tabview_weather(ui, dev, up, tab1);
+
     // lv_tabview_set_act(weather_page_lvobj_st.tabview, 1, LV_ANIM_OFF); // 1 表示第二个标签页，LV_ANIM_OFF 表示无动画切换
+    return ui->rtc_lvobj.tabview;
 }
 
 static void update_rtc_labobj_cb(lv_timer_t * timer)
@@ -205,6 +276,7 @@ static void update_rtc_labobj_cb(lv_timer_t * timer)
     struct tm *tm_info = localtime(&curtime);
     char str[100] = {0};
     ele_ds_ui_t ui = (ele_ds_ui_t)timer->user_data;
+    ele_ds_t dev = g_ele_ds;
 
     if (ui->rtc_lvobj.date_lab != NULL)
     {
@@ -215,6 +287,11 @@ static void update_rtc_labobj_cb(lv_timer_t * timer)
     {
         strftime(str, sizeof(str), TIME_LABFMT, tm_info);
         lv_label_set_text(ui->rtc_lvobj.time_lab, str);
+    }
+    if (ui->rtc_lvobj.sensor_lab != NULL)
+    {
+        lv_label_set_text_fmt(ui->rtc_lvobj.sensor_lab, DEFAULT_SENSOR_LABFMT, dev->sensor_data.sht30[0],
+                      dev->sensor_data.sht30[1], dev->sensor_data.gzp6816d.pressure);
     }
 
     // 标记脏屏幕 导致全刷 不然会出现控件错位问题
@@ -240,7 +317,7 @@ static lv_obj_t *create_devinfo_layout(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *u
         cont[i] = lv_obj_create(devinfo_layout);
         lv_obj_set_size(cont[i], LV_PCT(100), LV_PCT(33));
         lv_obj_set_flex_flow(cont[i], LV_FLEX_FLOW_ROW);
-        lv_obj_set_style_pad_all(cont[i], 0, LV_PART_MAIN);
+        lv_obj_set_style_pad_all(cont[i], 2, LV_PART_MAIN);
         lv_obj_set_style_border_width(cont[i], 0, LV_PART_MAIN);
         lv_obj_set_scrollbar_mode(cont[i], LV_SCROLLBAR_MODE_OFF);
         lv_obj_set_style_bg_opa(cont[i], LV_OPA_TRANSP, LV_PART_MAIN); // 透明背景
@@ -298,7 +375,7 @@ void main_page(ele_ds_ui_t ui, ele_ds_t dev)
                           LV_FLEX_ALIGN_CENTER);
 
     create_devinfo_layout(ui, dev, NULL, screen_layout);
-    tabview_create(ui, dev, NULL, screen_layout);
+    create_tabview_layout(ui, dev, NULL, screen_layout);
 }
 
 /**

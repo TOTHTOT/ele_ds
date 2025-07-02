@@ -48,6 +48,7 @@
  */
 // 默认图标保存位置
 #define DEFATLT_WEATHER_ICON_PATH "S:/sysfile/icon/tianqi_48/tianqi-%s.bin"
+#define DEFAULT_WEATHER_LABFMT "温度:%d~%dC 湿度: %d%%"
 #define DEFAULT_SHT30_LABFMT "温度:%2.0fC 湿度:%2.0f%%"
 #define DEFAULT_GZP6816_LABFMT "气压:%2.2fhPa"
 #define DEFAULT_SENSOR_LABFMT DEFAULT_SHT30_LABFMT "\n" DEFAULT_GZP6816_LABFMT
