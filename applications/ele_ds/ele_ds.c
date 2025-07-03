@@ -435,6 +435,10 @@ int32_t devices_init(ele_ds_t ele_ds)
     
     // 初始化文件系统并加载系统配置
     mnt_init();
+
+    // 更具配置重新设置时区
+    rt_tz_set(ele_ds->device_cfg.time_zone * 3600U);
+
     ret = esp8266_device_init(ele_ds);
     if (ret != 0)
     {

@@ -52,7 +52,8 @@ typedef struct
     bool alarm_enable; // 是否启用闹钟, 默认false
 #define CFGFILE_DEFAULT_ALARM_TIME 0 // 默认闹钟时间为0
     time_t alarm_time; // 闹钟响铃时间
-
+#define CFGFILE_DEFAULT_TIMEZONE 8
+    uint32_t time_zone; // 时区
 #define CFGFILE_CHECK 0xA5A5A5A5
     uint32_t check;
 } ele_ds_cfg_t; // 掉电信息

@@ -31,7 +31,8 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
     cfg->alarm_time = CFGFILE_DEFAULT_ALARM_TIME;
     cfg->clientcfg.cityid = DEFATLT_CITYID;
 	cfg->clientcfg.version = SOFT_VERSION;
-	
+	cfg->time_zone = CFGFILE_DEFAULT_TIMEZONE;
+
     strncpy((char *)cfg->wifi_ssid, CFGFILE_DEFATLT_WIFI_SSID, sizeof(cfg->wifi_ssid) - 1);
     strncpy((char *)cfg->wifi_passwd, CFGFILE_DEFATLT_WIFI_PASS, sizeof(cfg->wifi_passwd) - 1);
     strncpy((char *)cfg->server_addr, CFGFILE_DEFATLT_SERVER_ADDR, sizeof(cfg->server_addr) - 1);
@@ -68,6 +69,7 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
     cJSON_AddNumberToObject(root, "tcp_timeout", cfg->tcp_timeout);
     cJSON_AddNumberToObject(root, "alarm_enable", cfg->alarm_enable);
     cJSON_AddNumberToObject(root, "alarm_time", cfg->alarm_time);
+    cJSON_AddNumberToObject(root, "time_zone", cfg->time_zone);
     cJSON_AddStringToObject(root, "memo", cfg->memo);
 
     cJSON *weather_array = cJSON_CreateArray();
@@ -110,6 +112,7 @@ static void json_to_ele_ds_cfg(ele_ds_cfg_t *cfg, const cJSON *json)
     cfg->tcp_timeout = cJSON_GetObjectItem(json, "tcp_timeout")->valueint;
     cfg->alarm_enable = cJSON_GetObjectItem(json, "alarm_enable")->valueint;
     cfg->alarm_time = cJSON_GetObjectItem(json, "alarm_time")->valueint;
+    cfg->time_zone = cJSON_GetObjectItem(json, "time_zone")->valueint;
     cfg->clientcfg.version = cJSON_GetObjectItem(json, "version")->valueint;
     strcpy(cfg->memo, cJSON_GetObjectItem(json, "memo")->valuestring);
 
