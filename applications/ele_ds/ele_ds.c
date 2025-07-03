@@ -435,12 +435,12 @@ int32_t devices_init(ele_ds_t ele_ds)
     
     // 初始化文件系统并加载系统配置
     mnt_init();
-    // ret = esp8266_device_init(ele_ds);
-    // if (ret != 0)
-    // {
-    //     LOG_E("esp8266 device register failed, ret = %d", ret);
-    //     return -5;
-    // }
+    ret = esp8266_device_init(ele_ds);
+    if (ret != 0)
+    {
+        LOG_E("esp8266 device register failed, ret = %d", ret);
+        return -5;
+    }
     // ele_ds->device_cfg.alarm_time = time(NULL) + 10;
     // ret = ele_ds_alarm_init(ele_ds->device_status.alarm, ele_ds->device_cfg.alarm_time, ele_ds->device_cfg.alarm_enable);
     // if (ret != 0)

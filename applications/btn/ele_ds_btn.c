@@ -172,11 +172,14 @@ void bsp_btn_value_report(mfbd_btn_code_t btn_value)
     // 只有按键松开蜂鸣器才响
     // btn_curclick_ctrbeep(btn_value);
     // rt_kprintf("%04x\n", btn_value);
-    ele_ds_ui_btn_t btn_msg = {0};
-    btn_msg.btnval = btn_value;
-    btn_msg.release_press = LV_INDEV_STATE_PR;
-    rt_mq_send(g_ele_ds->ui_btn_mq, &btn_msg, sizeof
-               (ele_ds_ui_btn_t));
+    if (g_ele_ds->init_flag == true)
+    {
+        ele_ds_ui_btn_t btn_msg = {0};
+        btn_msg.btnval = btn_value;
+        btn_msg.release_press = LV_INDEV_STATE_PR;
+        rt_mq_send(g_ele_ds->ui_btn_mq, &btn_msg, sizeof
+                   (ele_ds_ui_btn_t));
+    }
 }
 
 static void mfbd_scan(void *arg)

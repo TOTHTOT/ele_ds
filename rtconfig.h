@@ -164,6 +164,8 @@
 #define RT_USING_POSIX_DEVIO
 #define RT_USING_POSIX_STDIO
 #define RT_USING_POSIX_POLL
+#define RT_USING_POSIX_SELECT
+#define RT_USING_POSIX_SOCKET
 #define RT_USING_POSIX_TERMIOS
 
 /* Interprocess Communication (IPC) */
@@ -225,6 +227,18 @@
 
 /* CYW43439 WiFi */
 
+#define PKG_USING_NETUTILS
+#define PKG_NETUTILS_TFTP
+#define PKG_NETUTILS_NTP
+#define NTP_USING_AUTO_SYNC
+#define NTP_AUTO_SYNC_FIRST_DELAY 30
+#define NTP_AUTO_SYNC_PERIOD 3600
+#define NETUTILS_NTP_HOSTNAME "cn.ntp.org.cn"
+#define NETUTILS_NTP_HOSTNAME2 "ntp.rt-thread.org"
+#define NETUTILS_NTP_HOSTNAME3 "edu.ntp.org.cn"
+#define PKG_NETUTILS_TELNET
+#define PKG_USING_NETUTILS_LATEST_VERSION
+#define PKG_NETUTILS_VER_NUM 0x99999
 #define PKG_USING_AT_DEVICE
 #define AT_DEVICE_USING_ESP8266
 #define AT_DEVICE_ESP8266_SOCKET
@@ -253,7 +267,7 @@
 
 #define PKG_USING_LVGL
 #define PKG_LVGL_THREAD_PRIO 20
-#define PKG_LVGL_THREAD_STACK_SIZE 7096
+#define PKG_LVGL_THREAD_STACK_SIZE 4096
 #define PKG_LVGL_DISP_REFR_PERIOD 20
 #define PKG_LVGL_USING_V080311
 #define PKG_LVGL_VER_NUM 0x080311
@@ -309,7 +323,14 @@
 
 /* HC32 DDL Drivers */
 
+
 /* NXP HAL & SDK Drivers */
+
+
+/* NUVOTON Drivers */
+
+
+/* GD32 Drivers */
 
 
 /* sensors drivers */
