@@ -85,10 +85,22 @@ void alarm_sample(int argc, char **argv)
 }
 MSH_CMD_EXPORT(alarm_sample, alarm sample);
 
-
-void cmd_entry_sleep_mode(void)
+/**
+ * @brief 终端停机模式命令
+ * @param argc 参数数量
+ * @param argv 参数 停机时间, < 0 不设置闹钟直接停机模式 >= 0 设置闹钟停机模式时间
+ */
+void cmd_entry_sleep_mode(int argc, char **argv)
 {
-    alarm_sample(2, (char *[]){"alarm_sample", "10"});
+    if (argc < 2)
+    {
+        rt_kprintf("Usage: sleep_mode <interval_in_seconds>. \nUse a value less than 0 to disable the alarm.\n");
+        return;
+    }
+    int32_t alarm_time = atoi(argv[1]); // 从命令行参数获取闹钟时间间隔，单位为秒
+
+    if (alarm_time >= 0)
+        alarm_sample(argc, argv);
 
     LOG_D("Entering sleep mode...");
 
