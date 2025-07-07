@@ -1,4 +1,4 @@
-/*
+﻿/*
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-05 12:21:47
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
@@ -46,6 +46,7 @@ typedef struct
     weather_info_t weather_info[7];
 
 #define CLIENT_CHEAT_CONTENT_SIZE 256
+#define CFGFILE_DEFAULT_MEMO_CONTENT "memo is empty"
     char memo[CLIENT_CHEAT_CONTENT_SIZE]; // 备忘录消息
 
 #define CFGFILE_DEFAULT_TCP_TIMEOUT (3 * 1000) // 3s

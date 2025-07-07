@@ -32,7 +32,7 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
     cfg->clientcfg.cityid = DEFATLT_CITYID;
 	cfg->clientcfg.version = SOFT_VERSION;
 	cfg->time_zone = CFGFILE_DEFAULT_TIMEZONE;
-
+    strncpy((char *)cfg->memo, CFGFILE_DEFAULT_MEMO_CONTENT, sizeof(cfg->memo) - 1);
     strncpy((char *)cfg->wifi_ssid, CFGFILE_DEFATLT_WIFI_SSID, sizeof(cfg->wifi_ssid) - 1);
     strncpy((char *)cfg->wifi_passwd, CFGFILE_DEFATLT_WIFI_PASS, sizeof(cfg->wifi_passwd) - 1);
     strncpy((char *)cfg->server_addr, CFGFILE_DEFATLT_SERVER_ADDR, sizeof(cfg->server_addr) - 1);

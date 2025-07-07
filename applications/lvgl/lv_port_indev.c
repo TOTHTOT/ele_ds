@@ -31,7 +31,7 @@ struct real_time_change_lvobj
     lv_obj_t *tabview; // 底部导航栏
     lv_obj_t *sensor_lab; // 传感器数据标签
     lv_obj_t *memo_lab; // 备忘录标签
-    lv_obj_t *weather_icon[2]; // 天气图标
+    lv_obj_t *bgimage; // 背景图片
     lv_obj_t *weather_info_lab[2]; // 天气信息标签, 温度
     lv_obj_t *vbat; // 电池图标
     lv_obj_t *wifi; // wifi图标
@@ -281,7 +281,17 @@ lv_obj_t *create_tabview_layout(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *up, lv_o
 
     ui->rtc_lvobj.memo_lab = lv_label_create(tab2);
     lv_obj_add_style(ui->rtc_lvobj.memo_lab, &ui->style.default_chinese, 0);
-    lv_label_set_text(ui->rtc_lvobj.memo_lab, "你好");
+    lv_label_set_text(ui->rtc_lvobj.memo_lab, dev->device_cfg.memo);
+
+    ctrl_obj_border(tab3, false);
+    lv_obj_set_flex_flow(tab3, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(tab3, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_all(tab3, 0, LV_PART_MAIN | LV_STATE_DEFAULT); // 去掉内边距
+
+    ui->rtc_lvobj.bgimage = lv_img_create(tab3);
+    char iconpath[100] = {0};
+    sprintf(iconpath, "S:%s/image.bin", BGIMAGEFILE_PATH);
+    lv_img_set_src(ui->rtc_lvobj.bgimage, iconpath);
 
     return ui->rtc_lvobj.tabview;
 }
