@@ -16,7 +16,7 @@ import os
 # 固定的 LVGL 图片头（CF_INDEXED_1BIT）
 LVGL_HEADER = bytes.fromhex("07c0000603030302515151d3")
 
-def convert_png_to_bin(png_path, bin_path, threshold=128):
+def convert_png_to_birn(png_path, bin_path, threshold=128):
     # 打开图片并转为灰度图
     img = Image.open(png_path).convert("L")
 

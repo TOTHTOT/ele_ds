@@ -32,6 +32,7 @@ struct real_time_change_lvobj
     lv_obj_t *sensor_lab; // 传感器数据标签
     lv_obj_t *memo_lab; // 备忘录标签
     lv_obj_t *bgimage; // 背景图片
+    lv_obj_t *day_lab[2];   // 0: 今天 1: 明天
     lv_obj_t *weather_info_lab[2]; // 天气信息标签, 温度
     lv_obj_t *vbat; // 电池图标
     lv_obj_t *wifi; // wifi图标
@@ -188,20 +189,20 @@ static lv_obj_t *create_tabview_weather(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *
     // 边框显示
     ctrl_obj_border(weather_layout, false);
 
-    lv_obj_t *today_lab = lv_label_create(weather_layout);
-    lv_obj_add_style(today_lab, &ui->style.default_chinese, 0);
+    ui->rtc_lvobj.day_lab[0] = lv_label_create(weather_layout);
+    lv_obj_add_style(ui->rtc_lvobj.day_lab[0], &ui->style.default_chinese, 0);
     sprintf(str, "今天: %s", dev->device_cfg.weather_info[0].textDay);
-    lv_label_set_text(today_lab, str);
+    lv_label_set_text(ui->rtc_lvobj.day_lab[0], str);
     ui->rtc_lvobj.weather_info_lab[0] = lv_label_create(weather_layout);
     lv_obj_add_style(ui->rtc_lvobj.weather_info_lab[0], &ui->style.default_chinese, 0);
     lv_label_set_text_fmt(ui->rtc_lvobj.weather_info_lab[0], DEFAULT_WEATHER_LABFMT,
                           dev->device_cfg.weather_info[0].tempMax, dev->device_cfg.weather_info[0].tempMin,
                           dev->device_cfg.weather_info[0].humidity);
 
-    lv_obj_t *tomorrow_lab = lv_label_create(weather_layout);
-    lv_obj_add_style(tomorrow_lab, &ui->style.default_chinese, 0);
+    ui->rtc_lvobj.day_lab[1] = lv_label_create(weather_layout);
+    lv_obj_add_style(ui->rtc_lvobj.day_lab[1], &ui->style.default_chinese, 0);
     sprintf(str, "明天: %s", dev->device_cfg.weather_info[1].textDay);
-    lv_label_set_text(tomorrow_lab, str);
+    lv_label_set_text(ui->rtc_lvobj.day_lab[1], str);
     ui->rtc_lvobj.weather_info_lab[1] = lv_label_create(weather_layout);
     lv_obj_add_style(ui->rtc_lvobj.weather_info_lab[1], &ui->style.default_chinese, 0);
     lv_label_set_text_fmt(ui->rtc_lvobj.weather_info_lab[1], DEFAULT_WEATHER_LABFMT,
@@ -302,6 +303,7 @@ lv_obj_t *create_tabview_layout(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *up, lv_o
  */
 static void update_rtc_labobj_cb(lv_timer_t * timer)
 {
+    static uint32_t loop_times= 0; // 记录执行次数, 有些部件不是每次都要刷新数据
     time_t curtime = time(NULL);
     struct tm *tm_info = localtime(&curtime);
     char str[100] = {0};
@@ -324,6 +326,27 @@ static void update_rtc_labobj_cb(lv_timer_t * timer)
         lv_label_set_text(ui->rtc_lvobj.sensor_lab, str);
     }
 
+    // 刷新电池电量
+    set_vbat_icon(ui->rtc_lvobj.vbat, (uint8_t)dev->sensor_data.curvbat_percent);
+    // if (dev->device_status.newmsg ==  true)
+    //     lv_obj_
+    //     ui->rtc_lvobj.messag
+    // 测试时 每两次刷新一下天气数据, 实际可以每200次刷新
+    if (loop_times % 2 == 0)
+    {
+        for (uint8_t i = 0; i < sizeof(ui->rtc_lvobj.weather_info_lab) / sizeof(ui->rtc_lvobj.weather_info_lab[0]); i++)
+        {
+            sprintf(str, "%s: %s", i == 0 ? "今天" : "明天", dev->device_cfg.weather_info[i].textDay);
+            lv_label_set_text(ui->rtc_lvobj.day_lab[i], str);
+
+            lv_obj_add_style(ui->rtc_lvobj.weather_info_lab[i], &ui->style.default_chinese, 0);
+            lv_label_set_text_fmt(ui->rtc_lvobj.weather_info_lab[i], DEFAULT_WEATHER_LABFMT,
+                                  dev->device_cfg.weather_info[i].tempMax, dev->device_cfg.weather_info[i].tempMin,
+                                  dev->device_cfg.weather_info[i].humidity);
+        }
+    }
+
+    loop_times++;
     // 标记脏屏幕 导致全刷 不然会出现控件错位问题
     lv_obj_invalidate(lv_scr_act());
 }

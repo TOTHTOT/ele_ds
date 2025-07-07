@@ -118,6 +118,7 @@ struct ele_ds
     bool exit_flag;
     struct 
     {
+        bool newmsg; // 是否有新消息, 有的话显示消息图标
         bool cnt_wifi;
         time_t current_time;
         rt_alarm_t alarm;
