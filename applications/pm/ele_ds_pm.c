@@ -125,7 +125,7 @@ static void gas_detection_entey_stadnby(void)
  * @param {bool} enable 使能或禁用时钟
  * @return {*}
  */
-static void pm_clock_init_pwronoff(bool enable)
+void pm_clock_init_pwronoff(bool enable)
 {
     if (enable)
     {
@@ -142,7 +142,7 @@ static void pm_clock_init_pwronoff(bool enable)
     {
         ele_ds_gpio_deinit();
         rt_thread_mdelay(100);
-        __HAL_RCC_GPIOA_CLK_DISABLE();
+        // __HAL_RCC_GPIOA_CLK_DISABLE();
         __HAL_RCC_GPIOB_CLK_DISABLE();
         __HAL_RCC_GPIOC_CLK_DISABLE();
         __HAL_RCC_GPIOD_CLK_DISABLE();

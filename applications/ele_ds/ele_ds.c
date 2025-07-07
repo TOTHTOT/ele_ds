@@ -375,6 +375,18 @@ static int32_t ele_ds_get_curvbat(ele_ds_t dev)
     return dev->sensor_data.curvbat;
 }
 
+static void pa0_irq_callback(void *args)
+{
+    // 这里要重新初始化时钟, 可能还需要重新初始化外部设备
+    SystemClock_Config();
+    HAL_ResumeTick();
+    pm_clock_init_pwronoff(true);
+    LOG_D("exit DEEP mode");
+    rt_pm_release(PM_SLEEP_MODE_DEEP); // 退出深度睡眠模式
+    rt_pm_request(PM_SLEEP_MODE_NONE); // 退出深度睡眠模式, 进入正常运行模式
+    rt_kprintf("PB13 triggered, waking from STOP mode!\n");
+}
+
 /**
  * @brief 初始化相关gpio
  */
@@ -389,6 +401,10 @@ void ele_ds_gpio_init(void)
     rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP);
     rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
     rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP);
+
+    rt_pin_mode(GPIO_PIN_12, PIN_MODE_INPUT_PULLUP);  // 配置为输入模式
+    rt_pin_attach_irq(GPIO_PIN_12, PIN_IRQ_MODE_FALLING, pa0_irq_callback, RT_NULL);
+    rt_pin_irq_enable(GPIO_PIN_12, PIN_IRQ_ENABLE);
 }
 
 /**
