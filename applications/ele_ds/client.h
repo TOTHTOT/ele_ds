@@ -52,11 +52,16 @@ typedef enum
 
     // 消息类型区分服务器和客户端
     EMT_SERVERMSG_MEMO = 0x80,  // 服务器备忘录消息
-    EMT_SERVERMSG_WEATHER,      // 服务器天气消息
+    EMT_SERVERMSG_WEATHER, // 服务器天气消息
     EMT_SERVERMSG_CLIENTUPDATE, // 服务器客户端升级消息
-    EMT_MSG_MAX,                // 最大消息类型
-
+    EMT_SERVERMSG_BACKGROUND_IMG, // 服务器客户端屏幕背景图片
+    EMT_SERVERMSG_DEFAULT_SYSFILE, // 服务器客户端默认系统文件
+    EMT_SERVERMSG_OTHER_FILE, // 其他文件
+    EMT_SERVERMSG_MAX, // 服务器消息最大消息类型, 使用时减去
 } ele_msg_type_t; // 消息类型, 和上位机同步
+#define MAX_SERVERMSG_NUM (EMT_SERVERMSG_MAX - EMT_SERVERMSG_MEMO)
+#define MIN_SERVERMSG_NUM (EMT_SERVERMSG_MEMO)
+
 
 typedef struct
 {
@@ -111,9 +116,10 @@ typedef struct
         ele_client_cheat_t cheat;             // 客户端间聊天信息
         union
         {
-            ele_client_info_t client_info; // 客户端设备信息
-            char *client_info_str;         // 客户端设备信息
-        } client_info;
+            ele_client_info_t client_info; // 客户端信息
+            char *client_info_str;        // 客户端设备信息
+        }client_info;
+        uint32_t crc; // 文件CRC
     } data;
     uint32_t len;           // 消息长度
     uint32_t packcnt;       // 消息包序号
