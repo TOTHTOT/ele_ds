@@ -18,7 +18,9 @@
 
 #define SYSFILE_PATH "/sysfile"
 #define CONFIG_FILE_PATH SYSFILE_PATH "/config"
-#define SOFTWARE_UPDATE_FILE_PATH SYSFILE_PATH
+#define BGIMAGEFILE_PATH SYSFILE_PATH "/bgimage" // 背景图片文件位置
+#define DOWNLOADFILE_PATH SYSFILE_PATH "/download" // 下载文件位置
+#define DEF_SYSFILE_PATH "/" // 系统默认配置文件保存位置
 
 // 这段代码移植自 bootlader
 #define ROOT_DIR SYSFILE_PATH

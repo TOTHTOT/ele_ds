@@ -99,11 +99,11 @@ typedef struct
 #pragma pack(1)
 typedef struct client_software_updateinfo
 {
-    uint32_t crc;               // 升级包crc
-    uint32_t len;               // 升级包长度
-    uint32_t version;           // 升级包版本号
-    char buildinfo[32];     // 升级包编译信息, 可以不使用
-} client_software_updateinfo_t; // 客户端升级包结构体
+    uint32_t crc; // 发送的文件 crc
+    uint32_t len; // 文件长度
+    uint32_t version; // 文件版本号, 升级包用的
+    char info[32]; // 文件信息, 包含文件名称
+} send_file_info_t; // 客户端升级包结构体
 #pragma pack()
 
 typedef struct
@@ -112,7 +112,7 @@ typedef struct
     {
         char *memo;                           // 备忘录消息
         int8_t weatherdays;                   // 天气消息, 天数
-        client_software_updateinfo_t cs_info; // 客户端升级包信息
+        send_file_info_t file_info; // 客户端升级包信息
         ele_client_cheat_t cheat;             // 客户端间聊天信息
         union
         {
@@ -143,8 +143,8 @@ typedef struct ele_ds_client
         int32_t datalen;                // CRS_DATA 态时要接收的数据长度
         int32_t recv_len;               // 已经 接收数据长度
         int32_t update_file_fd;         // 升级包文件句柄
-        char update_file_name[256];     // 升级包文件名
-        uint32_t update_file_crc;       // 升级包crc, 服务器传来的
+        char file_path[256];     // 升级包文件名
+        uint32_t crc;       // 升级包crc, 服务器传来的
     } recv_info;                        // 终端线程接收数据的状态, 超时直接复位这个结构体
 #define CLIENT_RECV_PACKSIZE 1500
 #define CLIENT_RECV_BUFFSIZE (CLIENT_RECV_PACKSIZE * 10)
