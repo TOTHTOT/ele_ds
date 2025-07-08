@@ -20,6 +20,7 @@
 #include <rtdbg.h>
 
 static int32_t clear_client_info(ele_ds_client_t *client);
+static bool cur_msgtype_need_savetofile(ele_msg_type_t msgtype);
 
 /**
  * @description: tcp 超时回调函数
@@ -190,13 +191,12 @@ static int32_t parse_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
             LOG_D("recv memo: %s", msg->data.memo);
             // 收到备忘录消息后存到配置文件中
             memcpy(ele_ds->device_cfg.memo, msg->data.memo, strlen(msg->data.memo) + 1);
-            client->recv_info.recv_state = CRS_FINISH;
+            write_ele_ds_cfg(&ele_ds->device_cfg);
             ele_ds->device_status.refresh_memo = true;
             break;
         case EMT_SERVERMSG_WEATHER:
             LOG_D("recv weather days: %d", msg->data.weatherdays);
             client->recv_info.datalen = msg->len;
-            client->recv_info.recv_state = CRS_DATA;
             break;
         case EMT_SERVERMSG_OTHER_FILE:
         case EMT_SERVERMSG_CLIENTUPDATE:
@@ -205,7 +205,6 @@ static int32_t parse_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
         {
             LOG_D("recv file info: crc = %#x, len = %d, msgtype = %d", msg->data.crc, msg->len, msg->msgtype);
 
-            client->recv_info.recv_state = CRS_DATA;
             client->recv_info.crc = msg->data.file_info.crc;
             client->recv_info.datalen = msg->data.file_info.len;
             if (fill_file_name_by_info(msg->msgtype, client->recv_info.file_path, msg->data.file_info.info) < 0)
@@ -238,10 +237,10 @@ static int32_t parse_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
  * @param {ele_msg_type_t} type 消息类型
  * @return {bool} true表示需要接收数据, false表示不需要接收数据
  */
-static bool cur_parsetype_need_recvdata(ele_msg_type_t type)
+static bool cur_parsetype_need_recvdata(ele_msg_type_t msgtype)
 {
-    if (type == EMT_SERVERMSG_WEATHER ||
-        type == EMT_SERVERMSG_CLIENTUPDATE)
+    if (msgtype == EMT_SERVERMSG_WEATHER ||
+        cur_msgtype_need_savetofile(msgtype))
     {
         return true;
     }
@@ -329,8 +328,15 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                     }
                     else if (cur_parsetype_need_recvdata((ele_msg_type_t) result) == true)
                     {
+                        ele_ds->client.recv_info.recv_state = CRS_DATA;
                         LOG_D("cur parse type need recv data");
                         ret = 1; // 结束本次接收 等待服务器发数据
+                    }
+                    else
+                    {
+                        LOG_I("cur parse type not need recv data");
+                        ele_ds->client.recv_info.recv_state = CRS_FINISH;
+                        ret = 0;
                     }
                 }
                 else

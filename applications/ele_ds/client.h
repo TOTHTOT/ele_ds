@@ -36,7 +36,7 @@ typedef enum
     CRS_NONE = 0,      // 没有数据
     CRS_HEAD,          // 头部数据
     CRS_DATA,          // 数据部分
-    CRS_FINISH,        // 接收完成数据
+    CRS_FINISH,        // 接收完成数据, 接收状态机在 CRS_END 退出, CRS_FINISH 标记完成在下次循环内跑到 CRS_END 收尾接收流程
     CRS_END,           // 结束
     CSR_MAX,           // 最大数据长度
 } client_recv_state_t; // 客户端接收数据状态
