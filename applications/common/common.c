@@ -8,6 +8,7 @@
  */
 #include "common.h"
 #include "dfscfg.h"
+#include <netdev.h>
 
 /**
  * @description: 创建中间目录（递归）
@@ -304,4 +305,30 @@ char *find_json_start(char *buffer, int32_t len)
     }
     return start;
 }
+
+/**
+ * @brief 判断网络是否连接
+ * @return true: 网络已连接, false: 网络未连接
+ */
+bool net_islink(void)
+{
+    struct netdev *netdev = netdev_get_by_name("eps0"); // 替换为你的网卡名，比如 "e0"、"w0"
+
+    if (netdev)
+    {
+        if (netdev_is_link_up(netdev))
+        {
+            // rt_kprintf("net is link\n");
+            return true;
+        }
+        else
+        {
+            // rt_kprintf("net not link\n");
+            return false;
+        }
+    }
+    // rt_kprintf("not find netdev");
+    return false;
+}
+MSH_CMD_EXPORT_ALIAS(net_islink, netlink, judge net is linked);
 

@@ -183,11 +183,15 @@ static int32_t parse_msgtype(ele_ds_t ele_ds, ele_msg_t *msg)
     client->recv_info.curparse_type = msg->msgtype;
     switch (msg->msgtype)
     {
+        case EMT_CLIENTMSG_CHEAT:
+            ele_ds->device_status.newmsg = true;
+            break;
         case EMT_SERVERMSG_MEMO:
             LOG_D("recv memo: %s", msg->data.memo);
             // 收到备忘录消息后存到配置文件中
             memcpy(ele_ds->device_cfg.memo, msg->data.memo, strlen(msg->data.memo) + 1);
             client->recv_info.recv_state = CRS_FINISH;
+            ele_ds->device_status.refresh_memo = true;
             break;
         case EMT_SERVERMSG_WEATHER:
             LOG_D("recv weather days: %d", msg->data.weatherdays);

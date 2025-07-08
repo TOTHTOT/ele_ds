@@ -35,7 +35,7 @@ struct real_time_change_lvobj
     lv_obj_t *day_lab[2];   // 0: 今天 1: 明天
     lv_obj_t *weather_info_lab[2]; // 天气信息标签, 温度
     lv_obj_t *vbat; // 电池图标
-    lv_obj_t *wifi; // wifi图标
+    lv_obj_t *net; // wifi图标
     lv_obj_t *time_lab; // 时间标签
     lv_obj_t *date_lab; // 日期标签
     lv_obj_t *message; // 消息图标
@@ -328,11 +328,20 @@ static void update_rtc_labobj_cb(lv_timer_t * timer)
 
     // 刷新电池电量
     set_vbat_icon(ui->rtc_lvobj.vbat, (uint8_t)dev->sensor_data.curvbat_percent);
-    // if (dev->device_status.newmsg ==  true)
-    //     lv_obj_
-    //     ui->rtc_lvobj.messag
+
+    // 有消息时打开
+    if (dev->device_status.newmsg == true)
+        lv_obj_clear_flag(ui->rtc_lvobj.message, LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(ui->rtc_lvobj.message, LV_OBJ_FLAG_HIDDEN);
+
+    // 刷新网络图标
+    if (net_islink() == true)
+        lv_obj_clear_flag(ui->rtc_lvobj.net, LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(ui->rtc_lvobj.net, LV_OBJ_FLAG_HIDDEN);
     // 测试时 每两次刷新一下天气数据, 实际可以每200次刷新
-    if (loop_times % 2 == 0)
+    if (loop_times % 200 == 0)
     {
         for (uint8_t i = 0; i < sizeof(ui->rtc_lvobj.weather_info_lab) / sizeof(ui->rtc_lvobj.weather_info_lab[0]); i++)
         {
@@ -344,6 +353,13 @@ static void update_rtc_labobj_cb(lv_timer_t * timer)
                                   dev->device_cfg.weather_info[i].tempMin, dev->device_cfg.weather_info[i].tempMax,
                                   dev->device_cfg.weather_info[i].humidity);
         }
+    }
+
+    // 备忘录被更新后才刷新, 避免重复获取数据导致卡顿
+    if (dev->device_status.refresh_memo == true)
+    {
+        lv_label_set_text(ui->rtc_lvobj.memo_lab, dev->device_cfg.memo);
+        dev->device_status.refresh_memo = false;
     }
 
     loop_times++;
@@ -393,9 +409,9 @@ static lv_obj_t *create_devinfo_layout(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *u
     lv_obj_add_style(ui->rtc_lvobj.vbat, &ui->style.default_symbol_16, 0);
     set_vbat_icon(ui->rtc_lvobj.vbat, (uint8_t)dev->sensor_data.curvbat_percent);
 
-    ui->rtc_lvobj.wifi = lv_label_create(cont[0]);
-    lv_obj_add_style(ui->rtc_lvobj.wifi, &ui->style.custom_symbol_16, 0);
-    set_wifi_icon(ui->rtc_lvobj.wifi, dev->device_status.cnt_wifi);
+    ui->rtc_lvobj.net = lv_label_create(cont[0]);
+    lv_obj_add_style(ui->rtc_lvobj.net, &ui->style.custom_symbol_16, 0);
+    set_wifi_icon(ui->rtc_lvobj.net, dev->device_status.cnt_wifi);
 
     ui->rtc_lvobj.message = lv_label_create(cont[0]);
     lv_obj_add_style(ui->rtc_lvobj.message, &ui->style.custom_symbol_16, 0);
