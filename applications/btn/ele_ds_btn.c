@@ -171,7 +171,7 @@ void bsp_btn_value_report(mfbd_btn_code_t btn_value)
 {
     // 只有按键松开蜂鸣器才响
     // btn_curclick_ctrbeep(btn_value);
-    // rt_kprintf("%04x\n", btn_value);
+    rt_kprintf("%04x\n", btn_value);
     if (g_ele_ds->init_flag == true)
     {
         ele_ds_ui_btn_t btn_msg = {0};
@@ -203,9 +203,9 @@ static void mfbd_scan(void *arg)
 
 static void user_button_init(void)
 {
-    rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
-    rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
-    rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
+    // rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
+    // rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
+    // rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP); /* set KEY pin mode to input */
 }
 
 int mfbd_main(void)

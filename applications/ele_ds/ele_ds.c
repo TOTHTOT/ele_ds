@@ -455,6 +455,16 @@ int32_t devices_init(ele_ds_t ele_ds)
     // 更具配置重新设置时区
     rt_tz_set(ele_ds->device_cfg.time_zone * 3600U);
 
+    ele_ds->ui_btn_mq = rt_mq_create("ui_btn_mq", sizeof(ele_ds_ui_btn_t), 10, RT_IPC_FLAG_FIFO);
+
+    ele_ds->ops = ele_ds_ops;
+    // 先读一次保证屏幕刷新时有数据
+    ele_ds->ops.sensor_data[SENSOR_MAX](ele_ds);
+    ele_ds->ops.get_curvbat(ele_ds);
+    extern int lvgl_thread_init(void);
+    lvgl_thread_init();
+
+
     ret = esp8266_device_init(ele_ds);
     if (ret != 0)
     {
@@ -469,9 +479,6 @@ int32_t devices_init(ele_ds_t ele_ds)
     //     return -6;
     // }
 
-    ele_ds->ui_btn_mq = rt_mq_create("ui_btn_mq", sizeof(ele_ds_ui_btn_t), 10, RT_IPC_FLAG_FIFO);
-
-    ele_ds->ops = ele_ds_ops;
     // 初始化设备基本信息
     ele_ds->device_status.cnt_wifi = false;
     ele_ds->device_status.newmsg = false;

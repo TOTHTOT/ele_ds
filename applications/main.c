@@ -33,17 +33,15 @@ int main(void)
         LOG_E("devices_init() failed, ret = %d", ret);
         return -RT_ERROR;
     }
-    // 先读一次保证屏幕刷新时有数据
-    ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds);
-    ele_ds.ops.get_curvbat(&ele_ds);
-    extern int lvgl_thread_init(void);
-    lvgl_thread_init();
 
     rt_kprintf("ele_ds init success, date: %s, time: %s\n", __DATE__, __TIME__);
     while (1)
     {
-        ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
-        ele_ds.ops.get_curvbat(&ele_ds);           //获取当前电压
+        if (loop_times % 10 == 0)
+        {
+            ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
+            ele_ds.ops.get_curvbat(&ele_ds); //获取当前电压
+        }
         if (loop_times % 50 == 0)
         {
             rt_pin_write(LED0_PIN, !rt_pin_read(LED0_PIN));
