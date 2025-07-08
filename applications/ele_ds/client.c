@@ -331,6 +331,7 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                         ele_ds->client.recv_info.recv_state = CRS_DATA;
                         LOG_D("cur parse type need recv data");
                         ret = 1; // 结束本次接收 等待服务器发数据
+                        ele_ds->client.recv_info.recv_data_start_time = rt_tick_get();
                     }
                     else
                     {
@@ -427,7 +428,16 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                     char arg1[256] = {0};
                     char *argv[] = {arg0, arg1};
                     uint32_t target_crc = ele_ds->client.recv_info.crc;
+                    uint32_t end_time = rt_tick_get();
 
+                    if (ele_ds->client.recv_info.recv_data_start_time != 0)
+                    {
+                        const uint32_t used_time = end_time - ele_ds->client.recv_info.recv_data_start_time;
+                        const float speed = ele_ds->client.recv_info.recv_len / 1024.0 / (used_time / 1000.0);
+                        char str[100] = {0};
+                        sprintf(str, "recv data finish, used time = %dms, speed = %.2fKB/s", used_time, speed);
+                        LOG_D("%s", str);
+                    }
                     strcpy(arg1, ele_ds->client.recv_info.file_path);
 
                     // 提早清空接收相关信息, 不然crc计算需要重复打开文件, 读数据时会出问题

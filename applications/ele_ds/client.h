@@ -138,6 +138,7 @@ typedef struct ele_ds_client
     rt_sem_t rb_sem;                // 终端线程和服务器通信的信号量
     struct
     {
+        uint32_t recv_data_start_time; // 接收数据时起始时间
         client_recv_state_t recv_state; // 终端线程接收数据的状态
         ele_msg_type_t curparse_type;   // 当前解析的消息类型
         int32_t datalen;                // CRS_DATA 态时要接收的数据长度
