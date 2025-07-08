@@ -196,7 +196,7 @@ static lv_obj_t *create_tabview_weather(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *
     ui->rtc_lvobj.weather_info_lab[0] = lv_label_create(weather_layout);
     lv_obj_add_style(ui->rtc_lvobj.weather_info_lab[0], &ui->style.default_chinese, 0);
     lv_label_set_text_fmt(ui->rtc_lvobj.weather_info_lab[0], DEFAULT_WEATHER_LABFMT,
-                          dev->device_cfg.weather_info[0].tempMax, dev->device_cfg.weather_info[0].tempMin,
+                          dev->device_cfg.weather_info[0].tempMin, dev->device_cfg.weather_info[0].tempMax,
                           dev->device_cfg.weather_info[0].humidity);
 
     ui->rtc_lvobj.day_lab[1] = lv_label_create(weather_layout);
@@ -206,7 +206,7 @@ static lv_obj_t *create_tabview_weather(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *
     ui->rtc_lvobj.weather_info_lab[1] = lv_label_create(weather_layout);
     lv_obj_add_style(ui->rtc_lvobj.weather_info_lab[1], &ui->style.default_chinese, 0);
     lv_label_set_text_fmt(ui->rtc_lvobj.weather_info_lab[1], DEFAULT_WEATHER_LABFMT,
-                          dev->device_cfg.weather_info[1].tempMax, dev->device_cfg.weather_info[1].tempMin,
+                          dev->device_cfg.weather_info[1].tempMin, dev->device_cfg.weather_info[1].tempMax,
                           dev->device_cfg.weather_info[1].humidity);
 #if 0 // 不使用容器了 里面就一个label
     lv_obj_t *sensor_layout = lv_obj_create(cont);
@@ -341,7 +341,7 @@ static void update_rtc_labobj_cb(lv_timer_t * timer)
 
             lv_obj_add_style(ui->rtc_lvobj.weather_info_lab[i], &ui->style.default_chinese, 0);
             lv_label_set_text_fmt(ui->rtc_lvobj.weather_info_lab[i], DEFAULT_WEATHER_LABFMT,
-                                  dev->device_cfg.weather_info[i].tempMax, dev->device_cfg.weather_info[i].tempMin,
+                                  dev->device_cfg.weather_info[i].tempMin, dev->device_cfg.weather_info[i].tempMax,
                                   dev->device_cfg.weather_info[i].humidity);
         }
     }
