@@ -64,7 +64,8 @@ rt_err_t get_gzp6816d_data(void *para)
     }
     else
     {
-        LOG_E("Read gzp6816d data failed, %d", ret);
+        if (ret != -RT_EBUSY)
+            LOG_W("Read gzp6816d data failed, %d", ret);
         return ret;
     }
 }
@@ -164,7 +165,8 @@ rt_err_t get_all_sensor_data(void *para)
     ret = ele_ds->ops.sensor_data[SENSOR_GZP6816D_INDEX](&ele_ds->sensor_data.gzp6816d);
     if (ret != RT_EOK)
     {
-        LOG_E("get_gzp6816d_data() failed, ret = %d", ret);
+        if (ret != -RT_EBUSY)
+            LOG_E("get_gzp6816d_data() failed, ret = %d", ret);
     }
     else
     {

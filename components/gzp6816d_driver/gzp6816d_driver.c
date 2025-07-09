@@ -167,7 +167,7 @@ rt_err_t gzp6816d_readsls(gzp6816d_device_t device, uint8_t buf[])
         // 如果status的bit5是1那就是读太快了要加大延迟
         if (buf[0] & 0x20)
         {
-            LOG_E("gzp6816d busy");
+            LOG_W("gzp6816d busy");
             return -RT_EBUSY;
         }
         LOG_I("gzp6816d check result: %02x %02x %02x %02x %02x %02x", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
