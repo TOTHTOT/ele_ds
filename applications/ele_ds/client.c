@@ -603,13 +603,16 @@ static char *build_devcfg_msg(ele_ds_t ele_ds)
  */
 int32_t client_reconnect_server(ele_ds_t ele_ds)
 {
+    ele_ds = g_ele_ds;
+
     if (ele_ds->client.sock > 0)
     {
         closesocket(ele_ds->client.sock);
+        ele_ds->client.sock = 0;
     }
     return client_connect_server(ele_ds);
 }
-
+MSH_CMD_EXPORT_ALIAS(client_reconnect_server, client_reconnect, reconnect server);
 /**
  * @brief 连接服务器
  * @param ele_ds 设备
@@ -617,21 +620,24 @@ int32_t client_reconnect_server(ele_ds_t ele_ds)
  */
 int32_t client_connect_server(ele_ds_t ele_ds)
 {
-    ele_ds->client.sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (ele_ds->client.sock < 0)
+    if (ele_ds->client.sock == 0)
     {
-        LOG_E("socket create failed\n");
-        return -1;
+        ele_ds->client.sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (ele_ds->client.sock < 0)
+        {
+            LOG_E("socket create failed\n");
+            return -1;
+        }
     }
 
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(ele_ds->device_cfg.server_port);
     server_addr.sin_addr.s_addr = inet_addr((char *) ele_ds->device_cfg.server_addr);
-
-    if (connect(ele_ds->client.sock, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
+    int32_t ret = connect(ele_ds->client.sock, (struct sockaddr *) &server_addr, sizeof(server_addr));
+    if (ret < 0)
     {
-        LOG_E("connect failed\n");
+        LOG_E("connect failed, ret = %d\n", ret);
         closesocket(ele_ds->client.sock);
         return -2;
     }
