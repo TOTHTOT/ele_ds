@@ -59,7 +59,7 @@
 #define DEFAULT_DATE_LABFMT "%Y-%m-%d"
 
 #define SOFT_VERSION 0x25052801
-#define DEFATLT_CITYID 101010100
+#define DEFATLT_CITYID 101230103
 /**
  * 1: 打开epd测试, 这时不等待 EPD_BUSY_PIN, 切不刷新屏幕只串口打印显存内容, 0: 关闭epd测试
  */
