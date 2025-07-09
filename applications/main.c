@@ -37,16 +37,18 @@ int main(void)
     rt_kprintf("ele_ds init success, date: %s, time: %s\n", __DATE__, __TIME__);
     while (1)
     {
-        if (loop_times % 10 == 0)
+        if (ele_ds.device_status.entry_deepsleep == false)
         {
-            ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
-            ele_ds.ops.get_curvbat(&ele_ds); //获取当前电压
+            if (loop_times % 10 == 0)
+            {
+                ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
+                ele_ds.ops.get_curvbat(&ele_ds); //获取当前电压
+            }
+            if (loop_times % 50 == 0)
+            {
+                rt_pin_write(LED0_PIN, !rt_pin_read(LED0_PIN));
+            }
         }
-        if (loop_times % 50 == 0)
-        {
-            rt_pin_write(LED0_PIN, !rt_pin_read(LED0_PIN));
-        }
-        // LOG_D("LEFT_KEY state: %d\n MID_KEY state: %d\n RIGHT_KEY state: %d", rt_pin_read(LEFT_KEY), rt_pin_read(MID_KEY), rt_pin_read(RIGHT_KEY));
         loop_times++;
         rt_thread_mdelay(50);
     }

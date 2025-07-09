@@ -131,6 +131,7 @@ typedef struct
 
 typedef struct ele_ds_client
 {
+    int32_t sock; // tcp socket
     struct rt_timer tcp_recv_timer; // tcp接收超时定时器
     rt_thread_t recv_thread;        // 终端线程负责和服务器通信
     rt_thread_t parse_thread;       // 终端线程负责解析数据
@@ -151,5 +152,9 @@ typedef struct ele_ds_client
 #define CLIENT_RECV_BUFFSIZE (CLIENT_RECV_PACKSIZE * 10)
     uint8_t *recv_buf; // 终端线程接收数据的缓冲区
 } ele_ds_client_t;
+
+
+extern int32_t client_connect_server(ele_ds_t ele_ds);
+extern int32_t client_reconnect_server(ele_ds_t ele_ds);
 
 #endif /* __ELE_DS_CLIENT_H__ */

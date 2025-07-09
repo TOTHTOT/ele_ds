@@ -118,6 +118,8 @@ struct ele_ds
     bool exit_flag;
     struct 
     {
+        bool pwr_on_firstkey; // 上电第一次按下按键
+        bool entry_deepsleep; // 是否进入休眠, true 不再执行其他功能 关闭外设后进入低功耗
         bool refresh_memo; // 标记是否需要刷新备忘录
         bool newmsg; // 是否有新消息, 有的话显示消息图标
         bool cnt_wifi;

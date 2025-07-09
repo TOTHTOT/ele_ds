@@ -152,6 +152,20 @@ void pm_clock_init_pwronoff(bool enable)
     }
 }
 
+void pm_system_wakeup(void)
+{
+    // 这里要重新初始化时钟, 可能还需要重新初始化外部设备
+    SystemClock_Config();
+    HAL_ResumeTick();
+    pm_clock_init_pwronoff(true);
+    LOG_D("exit DEEP mode");
+
+    rt_pm_release(PM_SLEEP_MODE_DEEP); // 退出深度睡眠模式
+    rt_pm_request(PM_SLEEP_MODE_NONE); // 退出深度睡眠模式, 进入正常运行模式
+    g_ele_ds->device_status.entry_deepsleep = false;
+    g_ele_ds->device_status.pwr_on_firstkey = true;
+}
+
 static void pm_entry_func(struct rt_pm *pm, uint8_t mode)
 {
     static uint32_t entry_stop_cnt = 0; // 进入待机模式需要执行这个函数才能正常进入 不知道为什么
@@ -197,18 +211,12 @@ static void pm_entry_func(struct rt_pm *pm, uint8_t mode)
         // 进入STOP模式（主调节器保持开启）
         __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
         HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
-
+        g_ele_ds->device_status.entry_deepsleep = true;
         // 恢复SysTick定时器
         if (entry_stop_cnt >= 2)
         {
-            // 这里要重新初始化时钟, 可能还需要重新初始化外部设备
-            SystemClock_Config();
+            pm_system_wakeup();
             entry_stop_cnt = 0;
-            HAL_ResumeTick();
-            pm_clock_init_pwronoff(true);
-            LOG_D("exit DEEP mode");
-            rt_pm_release(PM_SLEEP_MODE_DEEP); // 退出深度睡眠模式
-            rt_pm_request(PM_SLEEP_MODE_NONE); // 退出深度睡眠模式, 进入正常运行模式
         }
 
         break;

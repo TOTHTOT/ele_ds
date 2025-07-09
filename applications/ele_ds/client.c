@@ -597,6 +597,49 @@ static char *build_devcfg_msg(ele_ds_t ele_ds)
 }
 
 /**
+ * @brief 重新连接服务器, 一般是断开网络后重新连接服务器
+ * @param ele_ds 设备
+ * @return 0: 成功, 其他: 失败
+ */
+int32_t client_reconnect_server(ele_ds_t ele_ds)
+{
+    if (ele_ds->client.sock > 0)
+    {
+        closesocket(ele_ds->client.sock);
+    }
+    return client_connect_server(ele_ds);
+}
+
+/**
+ * @brief 连接服务器
+ * @param ele_ds 设备
+ * @return 0: 成功, 其他: 失败
+ */
+int32_t client_connect_server(ele_ds_t ele_ds)
+{
+    ele_ds->client.sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (ele_ds->client.sock < 0)
+    {
+        LOG_E("socket create failed\n");
+        return -1;
+    }
+
+    struct sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(ele_ds->device_cfg.server_port);
+    server_addr.sin_addr.s_addr = inet_addr((char *) ele_ds->device_cfg.server_addr);
+
+    if (connect(ele_ds->client.sock, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
+    {
+        LOG_E("connect failed\n");
+        closesocket(ele_ds->client.sock);
+        return -2;
+    }
+
+    return 0;
+}
+
+/**
  * @description: 客户端线程
  * @param {void} *parameter 传入参数为ele_ds_t类型
  * @return {*}
@@ -611,24 +654,8 @@ static void thread_communicate_server(void *parameter)
     // int ret = 0;
     ele_ds_t ele_ds = (ele_ds_t) parameter;
 
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0)
-    {
-        LOG_E("socket create failed\n");
-        return;
-    }
+    client_connect_server(ele_ds);
 
-    struct sockaddr_in server_addr;
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(ele_ds->device_cfg.server_port);
-    server_addr.sin_addr.s_addr = inet_addr((char *) ele_ds->device_cfg.server_addr);
-
-    if (connect(sock, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
-    {
-        LOG_E("connect failed\n");
-        closesocket(sock);
-        return;
-    }
     // 连接成功发送模拟数据
 #if ENABLE_POWERON_SEND_DEVINFO
     // const char *msg = "{\"type\":2,\"sensor_data\":{\"temperature\":25,\"humidity\":60,\"pressure\":101325,\"tvoc\":50,\"co2\":400},\"cfg\":{\"username\":\"test_user\",\"passwd\":\"123456\",\"cityname\":\"Beijing\",\"cityid\":101010100,\"cntserver_interval\":30,\"version\":20240328,\"battery\":85}}";
@@ -637,7 +664,7 @@ static void thread_communicate_server(void *parameter)
     {
         LOG_W("build devcfg msg failed");
     }
-    int32_t ret = send(sock, msg, strlen(msg), 0);
+    int32_t ret = send(ele_ds->client.sock, msg, strlen(msg), 0);
     if (ret < 0)
     {
         LOG_E("send failed, ret = %d", ret);
@@ -652,7 +679,7 @@ static void thread_communicate_server(void *parameter)
     }
     while (ele_ds->exit_flag == false)
     {
-        int len = recv(sock, recvbuf, CLIENT_RECV_PACKSIZE, 0);
+        int len = recv(ele_ds->client.sock, recvbuf, CLIENT_RECV_PACKSIZE, 0);
         if (len > 0)
         {
             // recvbuf[len++] = '\0';
@@ -676,7 +703,7 @@ static void thread_communicate_server(void *parameter)
         }
         rt_thread_mdelay(20);
     }
-    closesocket(sock);
+    closesocket(ele_ds->client.sock);
     LOG_D("client thread exit");
 }
 
