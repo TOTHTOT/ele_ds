@@ -76,7 +76,7 @@ int main(void)
         if (ele_ds.device_status.pwrdown_time > 0)
         {
             ele_ds.device_status.pwrdown_time -= 50;
-            LOG_D("pwrdown_time: %d", ele_ds.device_status.pwrdown_time);
+            // LOG_D("pwrdown_time: %d", ele_ds.device_status.pwrdown_time);
         }
         loop_times++;
         rt_thread_mdelay(50);

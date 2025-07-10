@@ -333,6 +333,7 @@ void ele_ds_gpio_deinit(void)
     // led 关闭
     rt_pin_write(LED0_PIN, PIN_HIGH);
 
+    rt_pin_write(ESP8266_EN, PIN_LOW);
     // rt_pin_mode(LED0_PIN, PIN_MODE_INPUT);
     // rt_pin_mode(V3_3_PIN, PIN_MODE_INPUT);
 
@@ -399,6 +400,9 @@ void ele_ds_gpio_init(void)
     rt_pin_write(V3_3_PIN, PIN_HIGH);
     rt_pin_write(LED0_PIN, PIN_LOW);
 
+    rt_pin_mode(ESP8266_EN, PIN_MODE_OUTPUT);
+    // rt_pin_write(ESP8266_EN, PIN_HIGH);
+
     // 按键初始化
     rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP);
     rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
@@ -419,6 +423,7 @@ int32_t devices_init(ele_ds_t ele_ds)
     int32_t ret = 0;
 
     ele_ds_gpio_init();
+    rt_pin_write(ESP8266_EN, PIN_HIGH);
 
     ele_ds_pm_init();
 	

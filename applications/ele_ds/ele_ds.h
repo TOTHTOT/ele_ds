@@ -39,6 +39,7 @@
 #define LEFT_KEY GET_PIN(A, 0)
 #define MID_KEY GET_PIN(B, 13)
 #define RIGHT_KEY GET_PIN(B, 12)
+#define ESP8266_EN GET_PIN(C, 9)
 
 #define BAT_ADC_CH 9 // 电池电压adc通道
 #define MAX_VBAT 4.2f
