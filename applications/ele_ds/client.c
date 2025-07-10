@@ -607,6 +607,7 @@ int32_t client_reconnect_server(ele_ds_t ele_ds)
 
     if (ele_ds->client.sock > 0)
     {
+        LOG_D("close client sock %d", ele_ds->client.sock);
         closesocket(ele_ds->client.sock);
         ele_ds->client.sock = 0;
     }

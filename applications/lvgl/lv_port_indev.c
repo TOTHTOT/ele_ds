@@ -16,6 +16,10 @@
 #include "custom_symbol_16.h"
 #include "applications/btn/ele_ds_btn.h"
 
+#define DBG_TAG "ui_indev"
+#define DBG_LVL DBG_LOG
+#include <rtdbg.h>
+
 struct ele_ds_uistyle
 {
     lv_style_t time; // 时间样式
@@ -146,7 +150,7 @@ static void set_wifi_icon(lv_obj_t *wifi, bool is_connected)
 void switch_tabview_cmd(const int argc,char *argv[])
 {
     if (ele_ds_ui.rtc_lvobj.tabview == NULL) {
-        rt_kprintf("tabview is NULL\n");
+        LOG_D("tabview is NULL\n");
         return;
     }
     if (argc < 2) {
@@ -297,18 +301,14 @@ lv_obj_t *create_tabview_layout(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *up, lv_o
     return ui->rtc_lvobj.tabview;
 }
 
-/**
- * @brief 定时器回调函数, 用于更新界面内容
- * @param timer 定时器
- */
-static void update_rtc_labobj_cb(lv_timer_t * timer)
+static void update_rtcobj(ele_ds_ui_t ui, ele_ds_t dev, uint32_t loop_times)
 {
-    static uint32_t loop_times= 0; // 记录执行次数, 有些部件不是每次都要刷新数据
     time_t curtime = time(NULL);
     struct tm *tm_info = localtime(&curtime);
     char str[100] = {0};
-    ele_ds_ui_t ui = (ele_ds_ui_t)timer->user_data;
-    ele_ds_t dev = g_ele_ds;
+
+    if (ui == NULL || dev == NULL)
+        return;
 
     if (ui->rtc_lvobj.date_lab != NULL)
     {
@@ -322,12 +322,13 @@ static void update_rtc_labobj_cb(lv_timer_t * timer)
     }
     if (ui->rtc_lvobj.sensor_lab != NULL)
     {
-        sprintf(str, DEFAULT_SENSOR_LABFMT, dev->sensor_data.sht30[0], dev->sensor_data.sht30[1], dev->sensor_data.gzp6816d.pressure);
+        sprintf(str, DEFAULT_SENSOR_LABFMT, dev->sensor_data.sht30[0], dev->sensor_data.sht30[1],
+                dev->sensor_data.gzp6816d.pressure);
         lv_label_set_text(ui->rtc_lvobj.sensor_lab, str);
     }
 
     // 刷新电池电量
-    set_vbat_icon(ui->rtc_lvobj.vbat, (uint8_t)dev->sensor_data.curvbat_percent);
+    set_vbat_icon(ui->rtc_lvobj.vbat, (uint8_t) dev->sensor_data.curvbat_percent);
 
     // 有消息时打开
     if (dev->device_status.newmsg == true)
@@ -362,9 +363,34 @@ static void update_rtc_labobj_cb(lv_timer_t * timer)
         dev->device_status.refresh_memo = false;
     }
 
-    loop_times++;
     // 标记脏屏幕 导致全刷 不然会出现控件错位问题
     lv_obj_invalidate(lv_scr_act());
+}
+
+/**
+ * @brief 更新界面线程
+ * @param para ui
+ */
+void thread_update_scr(void *para)
+{
+    uint32_t loop_times = 0, event_recved = 0; // 记录执行次数, 有些部件不是每次都要刷新数据
+    ele_ds_ui_t ui = para;
+    ele_ds_t dev = g_ele_ds;
+    int32_t ret = 0;
+
+    while (dev->exit_flag == false)
+    {
+        ret = rt_event_recv(dev->event, ELE_EVENT_ALARM, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, &event_recved);
+        if (ret == RT_EOK && event_recved == ELE_EVENT_ALARM)
+        {
+            // LOG_D("event_recved: 0x%x", event_recved);
+            update_rtcobj(ui, dev, loop_times);
+            loop_times++;
+        }
+        // LOG_D("event_recved: %#x", event_recved);
+    }
+    LOG_D("exit thread_update_scr");
+    // return NULL;
 }
 
 /**
@@ -431,7 +457,6 @@ static lv_obj_t *create_devinfo_layout(ele_ds_ui_t ui, ele_ds_t dev, lv_obj_t *u
     strftime(str, sizeof(str), DEFAULT_TIME_LABFMT, tm_info);
     lv_label_set_text(ui->rtc_lvobj.time_lab, str);
 
-    lv_timer_create(update_rtc_labobj_cb, 20 * 1000, ui);
     return devinfo_layout;
 }
 
@@ -491,10 +516,10 @@ static void style_init(ele_ds_uistyle_t style)
  */
 static uint32_t get_keypad_from_map(uint32_t key, const ui_btnval_map_t map[], uint32_t maplen)
 {
-    // rt_kprintf("get_keypad_key_from_map: key=%#x, maplen=%u\n", key, maplen);
+    // LOG_D("get_keypad_key_from_map: key=%#x, maplen=%u\n", key, maplen);
     for (uint32_t i = 0; i < maplen; i++)
     {
-        // rt_kprintf("get_keypad_key_from_map: key=%#x, map[%d].raw_btnval=%#x, map[%d].ui_btnval=%#x\n", key,
+        // LOG_D("get_keypad_key_from_map: key=%#x, map[%d].raw_btnval=%#x, map[%d].ui_btnval=%#x\n", key,
         //            i, map[i].raw_btnval, i, map[i].ui_btnval);
         if (key == map[i].raw_btnval)
         {
@@ -519,7 +544,7 @@ static void keypad_read_cb(struct _lv_indev_drv_t *indev_drv, lv_indev_data_t *d
     {
         data->state = (lv_indev_state_t) btnmsg.release_press;
         data->key = key;
-        rt_kprintf("keypad_read_cb: btnval=%#x, release_press=%#x, data->key = %#x\n",
+        LOG_D("keypad_read_cb: btnval=%#x, release_press=%#x, data->key = %#x\n",
                    btnmsg.btnval, btnmsg.release_press, data->key);
     }
     else
@@ -536,7 +561,7 @@ static void key_cb(lv_event_t *e)
     const uint32_t key =  lv_event_get_key(e);
     lv_obj_t *tab_content = lv_tabview_get_content(ele_ds_ui.rtc_lvobj.tabview);
     const uint32_t N = lv_obj_get_child_cnt(tab_content);
-    rt_kprintf("code = %d, key = %d\n", code, key);
+    LOG_D("code = %d, key = %d\n", code, key);
     if (code == LV_EVENT_KEY)
     {
         if (key == LV_KEY_LEFT)
@@ -581,5 +606,13 @@ void lv_user_gui_init(void)
     style_init(&ele_ds_ui.style);
 
     main_page(&ele_ds_ui, g_ele_ds);
+
+    rt_thread_t thread = rt_thread_create("update_scr", thread_update_scr, &ele_ds_ui, 2048, PKG_LVGL_THREAD_PRIO - 1, 10);
+    if (thread != RT_NULL)
+    {
+        rt_thread_startup(thread);
+    }
+    else
+        LOG_E("create thread failed\n");
 }
 

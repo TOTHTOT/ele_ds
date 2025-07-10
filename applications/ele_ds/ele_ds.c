@@ -458,6 +458,7 @@ int32_t devices_init(ele_ds_t ele_ds)
     rt_tz_set(ele_ds->device_cfg.time_zone * 3600U);
 
     ele_ds->ui_btn_mq = rt_mq_create("ui_btn_mq", sizeof(ele_ds_ui_btn_t), 10, RT_IPC_FLAG_FIFO);
+    ele_ds->event = rt_event_create("ele_ds_event", RT_IPC_FLAG_FIFO);
 
     ele_ds->ops = ele_ds_ops;
     // 先读一次保证屏幕刷新时有数据

@@ -177,6 +177,7 @@ void bsp_btn_value_report(mfbd_btn_code_t btn_value)
         // 屏蔽退出低功耗后第一次按键, 不然中断唤醒的情况下会切换页面
         if (g_ele_ds->device_status.pwr_on_firstkey == false)
         {
+            g_ele_ds->device_status.pwrdown_time = CFGFILE_DEFAULT_PWRDOWN_TIME;
             ele_ds_ui_btn_t btn_msg = {0};
             btn_msg.btnval = btn_value;
             btn_msg.release_press = LV_INDEV_STATE_PR;

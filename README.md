@@ -62,6 +62,10 @@ lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 ## 备注
 
 - sht30 中`sht3x_read_singleshot()`发完命令后延迟要加大到50ms.
+- 进入低功耗逻辑
+  1. 常规下刷新完时间后进入;
+  
+  2. 当按键唤醒设备后可能会进行一些切屏操作, 这时也会发送`ELE_EVENT_SCRFINISH`事件, 此时增加`pwrdown_time`变量, 每次有按键按下或者插电时都会刷新这个变量, 当`== 0`时就可以进入低功耗, 没插电没按下按键这个值都是0;
 
 ## 存在问题
 
@@ -122,7 +126,7 @@ static int32_t clear_client_info(ele_ds_client_t *client)
         }
     ...
     }
-    
+  
     // 修复方法
     static rt_err_t stm32_rtc_set_alarm(struct rt_rtc_wkalarm *alarm)
     {

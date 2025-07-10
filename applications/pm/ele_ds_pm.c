@@ -14,36 +14,55 @@
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
-static rt_alarm_t myalarm = RT_NULL;
-
 void user_alarm_callback(rt_alarm_t myalarm, time_t timestamp)
 {
     struct tm p_tm;
-    time_t now = timestamp;
-	
-    localtime_r(&now, &p_tm); // 时间戳转换 
+    const time_t now = timestamp;
+
+    localtime_r(&now, &p_tm); // 时间戳转换
     LOG_D("user alarm callback function.");
-    LOG_D("curr time: %04d-%02d-%02d %02d:%02d:%02d", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour, p_tm.tm_min, p_tm.tm_sec);  // 打印闹钟中断产生时的时间，和设定的闹钟时间比对，以确定得到的是否是想要的结果
+    LOG_D("curr time: %04d-%02d-%02d %02d:%02d:%02d", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour,
+          p_tm.tm_min, p_tm.tm_sec); // 打印闹钟中断产生时的时间，和设定的闹钟时间比对，以确定得到的是否是想要的结果
+    // LOG_D("myalarm = %p %p, g_ele_ds->scr_alarm = %p %p", myalarm, &myalarm, g_ele_ds->scr_alarm, &g_ele_ds->scr_alarm);
+    // 屏幕刷新闹钟
+    if (myalarm == g_ele_ds->scr_alarm)
+    {
+        if (g_ele_ds->init_flag == true)
+        {
+            rt_event_send(g_ele_ds->event, ELE_EVENT_ALARM);
+        }
+        else
+        {
+            LOG_W("ele_ds not init, alarm callback exit");
+        }
+    }
+    else if (myalarm == g_ele_ds->day_alarm)
+    {
+        LOG_W("not support now");
+    }
+    else
+        LOG_E("unknow alarm");
 }
-void alarm_sample(int argc, char **argv)
+
+/**
+ * @brief 开启屏幕刷新闹钟
+ * @param alarm_time 闹钟时间间隔, 单位秒
+ * @return 0: 成功, -1; 失败
+ */
+int32_t scr_alarm_start(rt_alarm_t *myalarm, uint32_t alarm_time)
 {
     time_t curr_time;
     struct tm p_tm, alarm_tm;
     struct rt_alarm_setup setup;
-    
-    if (argc < 2)
-    {
-        rt_kprintf("Usage: alarm_sample <interval_in_seconds>\n");
-        return;
-    }
 
-    uint32_t alarm_time = atoi(argv[1]); // 从命令行参数获取闹钟时间间隔，单位为秒
+    if (alarm_time == 0)
+        return -1;
 
-    curr_time = time(NULL);         // 将闹钟的时间设置为当前时间的往后的 5 秒
+    curr_time = time(NULL); // 将闹钟的时间设置为当前时间的往后的 5 秒
     gmtime_r(&curr_time, &p_tm); // 将时间戳转换为本地时间，localtime_r 是线程安全的
     LOG_D("now time: %04d-%02d-%02d %02d:%02d:%02d", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour,
           p_tm.tm_min, p_tm.tm_sec); // 打印当前时间
-    
+
     // 当前时间+上报时间间隔，设置闹钟时间, 减去本次启动用时, 确保每次定时都一样
     curr_time += 1 * alarm_time /* - (time(NULL) - g_gas_detection_dev->system_starttime) */;
     gmtime_r(&curr_time, &alarm_tm);
@@ -61,16 +80,17 @@ void alarm_sample(int argc, char **argv)
     setup.wktime.tm_min = alarm_tm.tm_min;
     setup.wktime.tm_sec = alarm_tm.tm_sec;
     // 避免重复创建alarm, 不能放在回调函数执行, 不然 alarm_update() 会卡死
-    if (myalarm != NULL)
+    if (*myalarm != NULL)
     {
-        rt_alarm_delete(myalarm);
-        myalarm = RT_NULL;
+        rt_alarm_delete(*myalarm);
+        *myalarm = RT_NULL;
     }
 
-    myalarm = rt_alarm_create(user_alarm_callback, &setup); // 创建一个闹钟并设置回调函数
-    if (RT_NULL != myalarm)
+    *myalarm = rt_alarm_create(user_alarm_callback, &setup); // 创建一个闹钟并设置回调函数
+    if (RT_NULL != *myalarm)
     {
-        rt_err_t ret = rt_alarm_start(myalarm); // 启动闹钟
+        (*myalarm)->user_data = g_ele_ds;
+        rt_err_t ret = rt_alarm_start(*myalarm); // 启动闹钟
         if (ret != RT_EOK)
         {
             LOG_E("rtc alarm start failed");
@@ -82,8 +102,27 @@ void alarm_sample(int argc, char **argv)
     }
     extern void rt_alarm_dump(void);
     rt_alarm_dump(); // 打印闹钟的信息
+
+    return 0;
 }
-MSH_CMD_EXPORT(alarm_sample, alarm sample);
+
+/**
+ * @brief 屏幕刷新闹钟命令
+ * @param argc 参数数量
+ * @param argv 参数值
+ */
+void scr_alarm_cmd(int argc, char **argv)
+{
+    if (argc < 2)
+    {
+        rt_kprintf("Usage: alarm_sample <interval_in_seconds>\n");
+        return;
+    }
+
+    uint32_t alarm_time = atoi(argv[1]); // 从命令行参数获取闹钟时间间隔，单位为秒
+    scr_alarm_start(&g_ele_ds->scr_alarm, alarm_time);
+}
+MSH_CMD_EXPORT(scr_alarm_cmd, alarm sample);
 
 /**
  * @brief 终端停机模式命令
@@ -100,7 +139,7 @@ void cmd_entry_sleep_mode(int argc, char **argv)
     int32_t alarm_time = atoi(argv[1]); // 从命令行参数获取闹钟时间间隔，单位为秒
 
     if (alarm_time >= 0)
-        alarm_sample(argc, argv);
+        scr_alarm_cmd(argc, argv);
 
     LOG_D("Entering sleep mode...");
 
@@ -141,7 +180,6 @@ void pm_clock_init_pwronoff(bool enable)
     else
     {
         ele_ds_gpio_deinit();
-        rt_thread_mdelay(100);
         // __HAL_RCC_GPIOA_CLK_DISABLE();
         __HAL_RCC_GPIOB_CLK_DISABLE();
         __HAL_RCC_GPIOC_CLK_DISABLE();
@@ -198,7 +236,7 @@ static void pm_entry_func(struct rt_pm *pm, uint8_t mode)
         LOG_D("Enter DEEP mode");
 
         pm_clock_init_pwronoff(false);
-        
+        rt_thread_mdelay(500);
         // 使能PWR时钟
         __HAL_RCC_PWR_CLK_ENABLE();
 

@@ -89,6 +89,15 @@ struct ele_ds_ops
 };
 typedef struct ele_ds_ops ele_ds_ops_t;
 
+/**
+ * @brief 事件标志
+ */
+typedef enum
+{
+    ELE_EVENT_ALARM = 0x01, // 闹钟事件
+    ELE_EVENT_SCRFINISH, // 屏幕刷新完成
+    // ELE_EVENT_NOKEY_PRESS_CNT, // 没有按键按下计时时间
+}ele_ds_event_t;
 
 struct ele_ds
 {
@@ -119,19 +128,23 @@ struct ele_ds
     struct 
     {
         bool pwr_on_firstkey; // 上电第一次按下按键
-        bool entry_deepsleep; // 是否进入休眠, true 不再执行其他功能 关闭外设后进入低功耗
+        bool entry_deepsleep; // 是否进入休眠, true 不再执行其他功能 关闭外设后进入低功耗, false: 正常工作模式
         bool refresh_memo; // 标记是否需要刷新备忘录
         bool newmsg; // 是否有新消息, 有的话显示消息图标
         bool cnt_wifi;
         time_t current_time;
         rt_alarm_t alarm;
         bool alarm_stop_beep; // 闹钟启动后退出蜂鸣器循环标志
+        int32_t pwrdown_time; // 进入低功耗倒计时, 单位ms, 每次按下按键都会刷下这个时间, 插电时也会刷新这个时间, 为0时会进入低功耗
     }device_status;
 
     ele_ds_cfg_t device_cfg; // 设备配置
     ele_ds_client_t client; // 终端相关内容
 
     rt_mq_t ui_btn_mq; // 物理按钮事件消息队列, 按下的键值转为lvgl的键值通道
+    rt_event_t event; // 事件, 设备被闹钟唤醒或者插电时让ui刷新屏幕
+    rt_alarm_t day_alarm; // 每日闹钟
+    rt_alarm_t scr_alarm; // 刷新屏幕闹钟
 
     struct ele_ds_ops ops;
 };
