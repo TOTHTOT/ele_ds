@@ -494,7 +494,11 @@ int32_t devices_init(ele_ds_t ele_ds)
     ele_ds->device_status.cnt_wifi = false;
     ele_ds->device_status.newmsg = false;
     ele_ds->device_status.current_time = 0;
+    ele_ds->device_status.refresh_scr_act = true;
     ele_ds->exit_flag = false;
     ele_ds->init_flag = true;
+    // 上电第一次初始化时设置这个值让设备不要在刷新完屏幕后立马进入低功耗, 而是等待所有流程跑完后再进入
+    ele_ds->device_status.pwrdown_time = CFGFILE_DEFAULT_PWRDOWN_TIME;
+
     return 0;
 }

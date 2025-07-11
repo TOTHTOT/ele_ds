@@ -180,6 +180,8 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     lv_disp_flush_ready(disp_drv);
     // 屏幕刷新完成通知上层准备进入低功耗
     rt_event_send(g_ele_ds->event, ELE_EVENT_SCRFINISH);
+    g_ele_ds->device_status.refresh_scr_act = false;
+
     LOG_D("disp_flush done");
 }
 #else

@@ -387,8 +387,11 @@ void thread_update_scr(void *para)
             update_rtcobj(ui, dev, loop_times);
             loop_times++;
         }
+        else
+        {
+            LOG_D("event_recved: %#x, ret = %d", event_recved, ret);
+        }
         rt_thread_mdelay(50);
-        // LOG_D("event_recved: %#x", event_recved);
     }
     LOG_D("exit thread_update_scr");
     // return NULL;
@@ -608,7 +611,7 @@ void lv_user_gui_init(void)
 
     main_page(&ele_ds_ui, g_ele_ds);
 
-    rt_thread_t thread = rt_thread_create("update_scr", thread_update_scr, &ele_ds_ui, 2048, PKG_LVGL_THREAD_PRIO - 1, 10);
+    rt_thread_t thread = rt_thread_create("update_scr", thread_update_scr, &ele_ds_ui, 2048, PKG_LVGL_THREAD_PRIO + 1, 10);
     if (thread != RT_NULL)
     {
         rt_thread_startup(thread);

@@ -58,7 +58,7 @@ typedef struct
 #define CFGFILE_DEFAULT_TIMEZONE 8
     uint32_t time_zone; // 时区
 
-#define CFGFILE_DEFAULT_PWRDOWN_TIME (5 * 1000)
+#define CFGFILE_DEFAULT_PWRDOWN_TIME (60 * 1000)
     uint32_t pwrdown_time; // 按下按键后断电时间
 
 #define CFGFILE_CHECK 0xA5A5A5A5

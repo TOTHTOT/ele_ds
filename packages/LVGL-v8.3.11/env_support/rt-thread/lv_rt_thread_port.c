@@ -45,7 +45,7 @@ rt_align(RT_ALIGN_SIZE)
 #else
 ALIGN(RT_ALIGN_SIZE)
 #endif
-static rt_uint8_t lvgl_thread_stack[PKG_LVGL_THREAD_STACK_SIZE];
+static rt_uint8_t lvgl_thread_stack[PKG_LVGL_THREAD_STACK_SIZE * 2];
 
 #if LV_USE_LOG
 static void lv_rt_log(const char *buf)
