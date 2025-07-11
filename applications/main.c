@@ -21,6 +21,27 @@
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
+/**
+ * @brief 根据tp4056状态判断是否需要进入低功耗
+ * @return true: 需要进入低功耗, false: 不需要进入低功耗
+ */
+static bool need_entry_pwrdown(void)
+{
+    if (g_ele_ds->device_status.pwrdown_time <= 0)
+    {
+#if 0
+        if (rt_pin_read(TP4056_STDBY_PIN) == PIN_HIGH && rt_pin_read(TP4056_CHARGE_PIN) == PIN_HIGH)
+            return true;
+        else
+            return false;
+#else
+        return true;
+#endif
+    }
+    else
+        return false;
+}
+
 int main(void)
 {
     uint32_t loop_times = 0, event_recved = 0;
@@ -41,8 +62,7 @@ int main(void)
         if (ele_ds.device_status.entry_deepsleep == false)
         {
             // 在插电时不进入低功耗
-            if (ele_ds.device_status.pwrdown_time <= 0 && (
-                    rt_pin_read(TP4056_STDBY_PIN) == PIN_HIGH && rt_pin_read(TP4056_CHARGE_PIN) == PIN_HIGH))
+            if (need_entry_pwrdown())
             {
                 ret = rt_event_recv(ele_ds.event, ELE_EVENT_SCRFINISH, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
                                     RT_WAITING_NO, &event_recved);
