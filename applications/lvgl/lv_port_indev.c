@@ -387,6 +387,7 @@ void thread_update_scr(void *para)
             update_rtcobj(ui, dev, loop_times);
             loop_times++;
         }
+        rt_thread_mdelay(50);
         // LOG_D("event_recved: %#x", event_recved);
     }
     LOG_D("exit thread_update_scr");

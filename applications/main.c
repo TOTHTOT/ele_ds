@@ -40,7 +40,9 @@ int main(void)
     {
         if (ele_ds.device_status.entry_deepsleep == false)
         {
-            if (ele_ds.device_status.pwrdown_time <= 0)
+            // 在插电时不进入低功耗
+            if (ele_ds.device_status.pwrdown_time <= 0 && (
+                    rt_pin_read(TP4056_STDBY_PIN) == PIN_HIGH && rt_pin_read(TP4056_CHARGE_PIN) == PIN_HIGH))
             {
                 ret = rt_event_recv(ele_ds.event, ELE_EVENT_SCRFINISH, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
                                     RT_WAITING_NO, &event_recved);
@@ -62,6 +64,8 @@ int main(void)
                     rt_pm_release(PM_SLEEP_MODE_NONE); //释放运行模式
                 }
             }
+            // else
+            //     LOG_D("in charge or stdby");
             if (loop_times % 100 == 0)
             {
                 ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据

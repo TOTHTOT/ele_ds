@@ -40,6 +40,8 @@
 #define MID_KEY GET_PIN(B, 13)
 #define RIGHT_KEY GET_PIN(B, 12)
 #define ESP8266_EN GET_PIN(C, 9)
+#define TP4056_CHARGE_PIN GET_PIN(B, 4)
+#define TP4056_STDBY_PIN GET_PIN(B, 5)
 
 #define BAT_ADC_CH 9 // 电池电压adc通道
 #define MAX_VBAT 4.2f

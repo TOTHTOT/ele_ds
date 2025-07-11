@@ -403,6 +403,9 @@ void ele_ds_gpio_init(void)
     rt_pin_mode(ESP8266_EN, PIN_MODE_OUTPUT);
     // rt_pin_write(ESP8266_EN, PIN_HIGH);
 
+    rt_pin_mode(TP4056_CHARGE_PIN, PIN_MODE_INPUT);
+    rt_pin_mode(TP4056_STDBY_PIN, PIN_MODE_INPUT);
+
     // 按键初始化
     rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP);
     rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
