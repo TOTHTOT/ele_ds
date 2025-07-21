@@ -574,7 +574,7 @@ static char *build_devcfg_msg(ele_ds_t ele_ds)
     cJSON_AddStringToObject(cfg, "username", ele_ds->device_cfg.clientcfg.username);
     cJSON_AddStringToObject(cfg, "passwd", ele_ds->device_cfg.clientcfg.passwd);
     cJSON_AddStringToObject(cfg, "cityname", ele_ds->device_cfg.clientcfg.cityname);
-    cJSON_AddNumberToObject(cfg, "cityid", ele_ds->device_cfg.clientcfg.cityid);
+    cJSON_AddStringToObject(cfg, "location", ele_ds->device_cfg.clientcfg.location);
     cJSON_AddNumberToObject(cfg, "cntserver_interval", ele_ds->device_cfg.clientcfg.cntserver_interval);
     cJSON_AddNumberToObject(cfg, "version", ele_ds->device_cfg.clientcfg.version);
     cJSON_AddNumberToObject(cfg, "battery", ele_ds->device_cfg.clientcfg.battery);

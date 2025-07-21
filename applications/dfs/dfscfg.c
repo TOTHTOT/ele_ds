@@ -9,6 +9,7 @@
 #include "dfscfg.h"
 #include "ele_ds.h"
 #include "cJSON.h"
+#include <stdio.h>
 
 #define DBG_TAG "ele_ds"
 #define DBG_LVL DBG_LOG
@@ -29,9 +30,9 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
     cfg->tcp_timeout = CFGFILE_DEFAULT_TCP_TIMEOUT;
     cfg->alarm_enable = false;
     cfg->alarm_time = CFGFILE_DEFAULT_ALARM_TIME;
-    cfg->clientcfg.cityid = DEFATLT_CITYID;
 	cfg->clientcfg.version = SOFT_VERSION;
 	cfg->time_zone = CFGFILE_DEFAULT_TIMEZONE;
+    strncpy((char *)cfg->clientcfg.location, CFGFILE_DEFAULT_CITY_LOCATION, sizeof(cfg->memo) - 1);
     strncpy((char *)cfg->memo, CFGFILE_DEFAULT_MEMO_CONTENT, sizeof(cfg->memo) - 1);
     strncpy((char *)cfg->wifi_ssid, CFGFILE_DEFATLT_WIFI_SSID, sizeof(cfg->wifi_ssid) - 1);
     strncpy((char *)cfg->wifi_passwd, CFGFILE_DEFATLT_WIFI_PASS, sizeof(cfg->wifi_passwd) - 1);
@@ -56,15 +57,15 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
     cJSON_AddStringToObject(clientcfg, "username", (const char *)cfg->clientcfg.username);
     cJSON_AddStringToObject(clientcfg, "passwd", (const char *)cfg->clientcfg.passwd);
     cJSON_AddStringToObject(clientcfg, "cityname", (const char *)cfg->clientcfg.cityname);
-    cJSON_AddNumberToObject(clientcfg, "cityid", cfg->clientcfg.cityid);
     cJSON_AddNumberToObject(clientcfg, "cntserver_interval", cfg->clientcfg.cntserver_interval);
     cJSON_AddNumberToObject(clientcfg, "version", cfg->clientcfg.version);
     cJSON_AddNumberToObject(clientcfg, "battery", cfg->clientcfg.battery);
     cJSON_AddItemToObject(root, "clientcfg", clientcfg);
 
-    cJSON_AddStringToObject(root, "wifi_ssid", (const char *)cfg->wifi_ssid);
-    cJSON_AddStringToObject(root, "wifi_passwd", (const char *)cfg->wifi_passwd);
-    cJSON_AddStringToObject(root, "server_addr", (const char *)cfg->server_addr);
+    cJSON_AddStringToObject(clientcfg, "location", cfg->clientcfg.location);
+    cJSON_AddStringToObject(root, "wifi_ssid", cfg->wifi_ssid);
+    cJSON_AddStringToObject(root, "wifi_passwd", cfg->wifi_passwd);
+    cJSON_AddStringToObject(root, "server_addr", cfg->server_addr);
     cJSON_AddNumberToObject(root, "server_port", cfg->server_port);
     cJSON_AddNumberToObject(root, "tcp_timeout", cfg->tcp_timeout);
     cJSON_AddNumberToObject(root, "alarm_enable", cfg->alarm_enable);
@@ -100,7 +101,7 @@ static void json_to_ele_ds_cfg(ele_ds_cfg_t *cfg, const cJSON *json)
     strcpy((char *)cfg->clientcfg.username, cJSON_GetObjectItem(clientcfg, "username")->valuestring);
     strcpy((char *)cfg->clientcfg.passwd, cJSON_GetObjectItem(clientcfg, "passwd")->valuestring);
     strcpy((char *)cfg->clientcfg.cityname, cJSON_GetObjectItem(clientcfg, "cityname")->valuestring);
-    cfg->clientcfg.cityid = cJSON_GetObjectItem(clientcfg, "cityid")->valueint;
+    strcpy((char *)cfg->clientcfg.location, cJSON_GetObjectItem(clientcfg, "location")->valuestring);
     cfg->clientcfg.cntserver_interval = cJSON_GetObjectItem(clientcfg, "cntserver_interval")->valueint;
     cfg->clientcfg.version = cJSON_GetObjectItem(clientcfg, "version")->valueint;
     cfg->clientcfg.battery = cJSON_GetObjectItem(clientcfg, "battery")->valueint;
@@ -211,7 +212,7 @@ void ele_ds_cfg_print(ele_ds_cfg_t *cfg)
 #if 1 
     rt_kprintf("config file info:\n");
     rt_kprintf("version: %08u\n", cfg->clientcfg.version);
-    rt_kprintf("cityid: %d\n", cfg->clientcfg.cityid);
+    rt_kprintf("location: %d\n", cfg->clientcfg.location);
     rt_kprintf("wifi_ssid: %s\n", cfg->wifi_ssid);
     rt_kprintf("wifi_passwd: %s\n", cfg->wifi_passwd);
     rt_kprintf("server_addr: %s\n", cfg->server_addr);
