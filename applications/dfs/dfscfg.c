@@ -32,7 +32,10 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
     cfg->alarm_time = CFGFILE_DEFAULT_ALARM_TIME;
 	cfg->clientcfg.version = SOFT_VERSION;
 	cfg->time_zone = CFGFILE_DEFAULT_TIMEZONE;
-    strncpy((char *)cfg->clientcfg.location, CFGFILE_DEFAULT_CITY_LOCATION, sizeof(cfg->memo) - 1);
+
+    strncpy((char *)cfg->clientcfg.username, CFGFILE_DEFAULT_USERNAME, sizeof(cfg->clientcfg.passwd) - 1);
+    strncpy((char *)cfg->clientcfg.passwd, CFGFILE_DEFAULT_PASSWORD, sizeof(cfg->clientcfg.passwd) - 1);
+    strncpy((char *)cfg->clientcfg.location, CFGFILE_DEFAULT_CITY_LOCATION, sizeof(cfg->clientcfg.location) - 1);
     strncpy((char *)cfg->memo, CFGFILE_DEFAULT_MEMO_CONTENT, sizeof(cfg->memo) - 1);
     strncpy((char *)cfg->wifi_ssid, CFGFILE_DEFATLT_WIFI_SSID, sizeof(cfg->wifi_ssid) - 1);
     strncpy((char *)cfg->wifi_passwd, CFGFILE_DEFATLT_WIFI_PASS, sizeof(cfg->wifi_passwd) - 1);
