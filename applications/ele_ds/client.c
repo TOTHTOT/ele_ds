@@ -871,3 +871,15 @@ int32_t net_dev_ctrl(ele_ds_t dev, const bool onoff)
         return 0;
     }
 }
+
+void cmd_net_dev_ctrl(int argc, char *argv[])
+{
+    if (argc != 2)
+    {
+        rt_kprintf("Usage: net_dev_ctrl <1: on|0: off>\n");
+        return;
+    }
+    const bool onoff = atoi(argv[1]);
+    net_dev_ctrl(g_ele_ds, onoff);
+}
+MSH_CMD_EXPORT_ALIAS(net_dev_ctrl, cmd_net_dev_ctrl, "net_dev_ctrl open or close netdev.");

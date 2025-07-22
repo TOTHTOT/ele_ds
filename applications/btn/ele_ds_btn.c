@@ -144,7 +144,7 @@ static bool btn_click_isup(mfbd_btn_code_t btn_value)
         return false;
 }
 
-static void btn_curclick_ctrbeepre'a(mfbd_btn_code_t btn_value)
+static void btn_curclick_ctrbeep(mfbd_btn_code_t btn_value)
 {
     static mfbd_btn_code_t pre_value = 0; // 保存上一次的按键值, 避免长按时多次触发
 
