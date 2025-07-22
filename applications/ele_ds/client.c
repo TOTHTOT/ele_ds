@@ -276,7 +276,7 @@ static bool cur_msgtype_need_savetofile(ele_msg_type_t msgtype)
 static int32_t parse_servermsg_end_handle(const ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
 {
     int32_t ret = 0;
-    (void *) buffer;
+    (void) buffer;
     (void) len;
     // 如果当前数据需要保存到文件, 在接收完成后需要关闭文件并校验crc
     if (cur_msgtype_need_savetofile(ele_ds->client.recv_info.curparse_type))
@@ -529,9 +529,9 @@ static void thread_parse_recv_data(void *parameter)
         return;
     }
     int32_t ret = 0;
-    while (ele_ds->exit_flag == false)
+    while (ele_ds->client.exit_flag == false)
     {
-        ret = rt_sem_take(ele_ds->client.rb_sem, 500);
+        ret = rt_sem_take(ele_ds->client.rb_sem, 50);
         if (ret == RT_EOK)
         {
             rt_size_t len = rt_ringbuffer_get(&ele_ds->client.rb, buffer, CLIENT_RECV_PACKSIZE);
@@ -712,9 +712,9 @@ static void thread_communicate_server(void *parameter)
         LOG_E("recvbuf rt_calloc failed");
         return;
     }
-    while (ele_ds->exit_flag == false)
+    while (ele_ds->client.exit_flag == false)
     {
-        int len = recv(ele_ds->client.sock, recvbuf, CLIENT_RECV_PACKSIZE, 0);
+        const int len = recv(ele_ds->client.sock, recvbuf, CLIENT_RECV_PACKSIZE, 0);
         if (len > 0)
         {
             // recvbuf[len++] = '\0';
@@ -747,58 +747,64 @@ static void thread_communicate_server(void *parameter)
  * @param {ele_ds_t} *ele_ds 配置参数
  * @return {int32_t} 函数执行结果, 0表示成功
  */
-int32_t esp8266_device_init(ele_ds_t ele_ds)
+static int32_t esp8266_device_init(ele_ds_t dev)
 {
     int32_t ret = 0;
-    if (ele_ds == RT_NULL)
+    static bool init_flag = false;
+
+    if (dev == RT_NULL)
     {
         LOG_E("ele_ds is NULL");
         return -1;
     }
-    struct at_device_esp8266 esp0 = {
-        "eps0",
-        "uart3",
-        (char *) ele_ds->device_cfg.wifi_ssid,
-        (char *) ele_ds->device_cfg.wifi_passwd,
-        3 * 1024,
-    };
-    memcpy(&ele_ds->devices.esp8266, &esp0, sizeof(struct at_device_esp8266));
-    rt_thread_mdelay(1000);
-    ret = at_device_register(&(ele_ds->devices.esp8266.device),
-                             ele_ds->devices.esp8266.device_name,
-                             ele_ds->devices.esp8266.client_name,
-                             AT_DEVICE_CLASS_ESP8266,
-                             (void *) &ele_ds->devices.esp8266);
+    if (init_flag == false)
+    {
+        struct at_device_esp8266 esp0 = {
+            "eps0",
+            "uart3",
+            (char *) dev->device_cfg.wifi_ssid,
+            (char *) dev->device_cfg.wifi_passwd,
+            3 * 1024,
+        };
+        memcpy(&dev->devices.esp8266, &esp0, sizeof(struct at_device_esp8266));
+        rt_thread_mdelay(1000);
+        ret = at_device_register(&(dev->devices.esp8266.device),
+                                 dev->devices.esp8266.device_name,
+                                 dev->devices.esp8266.client_name,
+                                 AT_DEVICE_CLASS_ESP8266,
+                                 (void *) &dev->devices.esp8266);
+        init_flag = true;
+    }
 
     if (ret == 0)
     {
-        ele_ds->client.recv_buf = rt_calloc(1, CLIENT_RECV_BUFFSIZE);
-        if (ele_ds->client.recv_buf == RT_NULL)
+        dev->client.exit_flag = false;
+        dev->client.recv_buf = rt_calloc(1, CLIENT_RECV_BUFFSIZE);
+        if (dev->client.recv_buf == RT_NULL)
         {
             LOG_E("recv_buf rt_calloc failed\n");
             return -4;
         }
-        rt_ringbuffer_init(&ele_ds->client.rb, ele_ds->client.recv_buf, CLIENT_RECV_BUFFSIZE);
+        rt_ringbuffer_init(&dev->client.rb, dev->client.recv_buf, CLIENT_RECV_BUFFSIZE);
         // 初始化tcp接收超时定时器
-        rt_timer_init(&ele_ds->client.tcp_recv_timer,
-                      "tcp_tim", tcp_timeout_cb,
-                      &ele_ds->client,
-                      ele_ds->device_cfg.tcp_timeout,
-                      RT_TIMER_FLAG_ONE_SHOT);
+        dev->client.tcp_recv_timer = rt_timer_create("tcp_tim", tcp_timeout_cb,
+                                                        &dev->client,
+                                                        dev->device_cfg.tcp_timeout,
+                                                        RT_TIMER_FLAG_ONE_SHOT);
 
         // 初始化信号量, 用于接收线程和解析线程之间的同步
-        ele_ds->client.rb_sem = rt_sem_create("rb_sem", 0, RT_IPC_FLAG_FIFO);
-        if (ele_ds->client.rb_sem == RT_NULL)
+        dev->client.rb_sem = rt_sem_create("rb_sem", 0, RT_IPC_FLAG_FIFO);
+        if (dev->client.rb_sem == RT_NULL)
         {
             LOG_E("rb_sem create failed\n");
             return -4;
         }
 
-        ele_ds->client.recv_thread = rt_thread_create("th_client", thread_communicate_server, (void *) ele_ds,
+        dev->client.recv_thread = rt_thread_create("th_client", thread_communicate_server, (void *) dev,
                                                       2048, RT_MAIN_THREAD_PRIORITY - 2, 20);
-        if (ele_ds->client.recv_thread != RT_NULL)
+        if (dev->client.recv_thread != RT_NULL)
         {
-            rt_thread_startup(ele_ds->client.recv_thread);
+            rt_thread_startup(dev->client.recv_thread);
         }
         else
         {
@@ -806,11 +812,11 @@ int32_t esp8266_device_init(ele_ds_t ele_ds)
             return -2;
         }
 
-        ele_ds->client.parse_thread = rt_thread_create("th_recv_parse", thread_parse_recv_data, (void *) ele_ds,
+        dev->client.parse_thread = rt_thread_create("th_recv_parse", thread_parse_recv_data, (void *) dev,
                                                        2048, RT_MAIN_THREAD_PRIORITY - 3, 20);
-        if (ele_ds->client.parse_thread != RT_NULL)
+        if (dev->client.parse_thread != RT_NULL)
         {
-            rt_thread_startup(ele_ds->client.parse_thread);
+            rt_thread_startup(dev->client.parse_thread);
         }
         else
         {
@@ -823,5 +829,45 @@ int32_t esp8266_device_init(ele_ds_t ele_ds)
     {
         LOG_E("esp8266 device register failed, ret = %d", ret);
         return -1;
+    }
+}
+
+/**
+ * @brief 解除eso8266的初始化
+ * @param dev 设备
+ * @return
+ */
+static void esp8266_device_deinit(const ele_ds_t dev)
+{
+    dev->client.exit_flag = true;
+    rt_thread_mdelay(200); // 设置完退出标志后等待线程结束
+
+    rt_thread_delete(dev->client.parse_thread);
+    rt_thread_delete(dev->client.recv_thread);
+    rt_timer_delete(dev->client.tcp_recv_timer);
+    rt_memset(&dev->client.rb, 0, sizeof(dev->client.rb));
+    rt_sem_delete(dev->client.rb_sem);
+    closesocket(dev->client.sock);
+    dev->client.sock = 0;
+}
+
+/**
+ * @brief 网卡初始化
+ * @param dev 设备
+ * @param onoff true: 开启, false: 关闭
+ * @return 参考 esp8266_device_init()和esp8266_device_deinit()
+ */
+int32_t net_dev_ctrl(ele_ds_t dev, const bool onoff)
+{
+    if (onoff)
+    {
+        rt_pin_write(ESP8266_EN, PIN_HIGH);
+        return esp8266_device_init(dev);
+    }
+    else
+    {
+        rt_pin_write(ESP8266_EN, PIN_LOW);
+        esp8266_device_deinit(dev);
+        return 0;
     }
 }

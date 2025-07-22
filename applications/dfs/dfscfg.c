@@ -65,16 +65,16 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
     cJSON_AddNumberToObject(clientcfg, "battery", cfg->clientcfg.battery);
     cJSON_AddItemToObject(root, "clientcfg", clientcfg);
 
-    cJSON_AddStringToObject(clientcfg, "location", cfg->clientcfg.location);
-    cJSON_AddStringToObject(root, "wifi_ssid", cfg->wifi_ssid);
-    cJSON_AddStringToObject(root, "wifi_passwd", cfg->wifi_passwd);
-    cJSON_AddStringToObject(root, "server_addr", cfg->server_addr);
+    cJSON_AddStringToObject(clientcfg, "location",  (const char *)cfg->clientcfg.location);
+    cJSON_AddStringToObject(root, "wifi_ssid",  (const char *)cfg->wifi_ssid);
+    cJSON_AddStringToObject(root, "wifi_passwd",  (const char *)cfg->wifi_passwd);
+    cJSON_AddStringToObject(root, "server_addr",  (const char *)cfg->server_addr);
     cJSON_AddNumberToObject(root, "server_port", cfg->server_port);
     cJSON_AddNumberToObject(root, "tcp_timeout", cfg->tcp_timeout);
     cJSON_AddNumberToObject(root, "alarm_enable", cfg->alarm_enable);
     cJSON_AddNumberToObject(root, "alarm_time", cfg->alarm_time);
     cJSON_AddNumberToObject(root, "time_zone", cfg->time_zone);
-    cJSON_AddStringToObject(root, "memo", cfg->memo);
+    cJSON_AddStringToObject(root, "memo",  (const char *)cfg->memo);
 
     cJSON *weather_array = cJSON_CreateArray();
     for (int i = 0; i < 7; i++)

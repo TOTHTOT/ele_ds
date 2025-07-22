@@ -29,7 +29,6 @@
 #define ENABLE_POWERON_SEND_DEVINFO 1 // 是否开机发送设备信息给服务器, 默认开启, 暂时关闭
 
 typedef struct ele_ds *ele_ds_t;
-extern int32_t esp8266_device_init(ele_ds_t ele_ds);
 
 typedef enum
 {
@@ -132,11 +131,13 @@ typedef struct
 typedef struct ele_ds_client
 {
     int32_t sock; // tcp socket
-    struct rt_timer tcp_recv_timer; // tcp接收超时定时器
+    rt_timer_t tcp_recv_timer; // tcp接收超时定时器
     rt_thread_t recv_thread;        // 终端线程负责和服务器通信
     rt_thread_t parse_thread;       // 终端线程负责解析数据
     struct rt_ringbuffer rb;        // 终端线程和服务器通信的环形缓冲区
     rt_sem_t rb_sem;                // 终端线程和服务器通信的信号量
+    bool exit_flag; // 终端线程退出标志, true: deinit时设置, 此时退出线程并删除 rb_sem rb recv_thread等变量
+
     struct
     {
         uint32_t recv_data_start_time; // 接收数据时起始时间
@@ -156,5 +157,6 @@ typedef struct ele_ds_client
 
 extern int32_t client_connect_server(ele_ds_t ele_ds);
 extern int32_t client_reconnect_server(ele_ds_t ele_ds);
+extern int32_t net_dev_ctrl(ele_ds_t ele_ds, bool onoff);
 
 #endif /* __ELE_DS_CLIENT_H__ */

@@ -144,7 +144,7 @@ static bool btn_click_isup(mfbd_btn_code_t btn_value)
         return false;
 }
 
-static void btn_curclick_ctrbeep(mfbd_btn_code_t btn_value)
+static void btn_curclick_ctrbeepre'a(mfbd_btn_code_t btn_value)
 {
     static mfbd_btn_code_t pre_value = 0; // 保存上一次的按键值, 避免长按时多次触发
 
@@ -170,7 +170,7 @@ static void btn_curclick_ctrbeep(mfbd_btn_code_t btn_value)
 void bsp_btn_value_report(mfbd_btn_code_t btn_value)
 {
     // 只有按键松开蜂鸣器才响
-    // btn_curclick_ctrbeep(btn_value);
+    btn_curclick_ctrbeep(btn_value);
     rt_kprintf("%04x\n", btn_value);
     if (g_ele_ds->init_flag == true)
     {

@@ -22,15 +22,16 @@
 #include <rtdbg.h>
 
 /**
- * @brief 根据tp4056状态判断是否需要进入低功耗
+ * @brief 根据tp4056状态以及电量判断是否需要进入低功耗
  * @return true: 需要进入低功耗, false: 不需要进入低功耗
  */
-static bool need_entry_pwrdown(void)
+static bool need_entry_pwrdown(const ele_ds_t dev)
 {
-    if (g_ele_ds->device_status.pwrdown_time <= 0)
+    if (dev->device_status.pwrdown_time <= 0)
     {
-#if 0
-        if (rt_pin_read(TP4056_STDBY_PIN) == PIN_HIGH && rt_pin_read(TP4056_CHARGE_PIN) == PIN_HIGH)
+#if 1
+        // 不处于插电状态且电量低于设定值就要进入低功耗
+        if (dev_is_charging() == false && dev->sensor_data.curvbat_percent < CFGFILE_DEFAULT_PWRDOWN_VBAT_PERCENT)
             return true;
         else
             return false;
@@ -85,8 +86,8 @@ int main(void)
     {
         if (ele_ds.device_status.entry_deepsleep == false)
         {
-            // 在插电时不进入低功耗
-            if (need_entry_pwrdown())
+            // 判断是否进入低功耗
+            if (need_entry_pwrdown(&ele_ds))
             {
                 ret = rt_event_recv(ele_ds.event, ELE_EVENT_SCRFINISH, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
                                     RT_WAITING_NO, &event_recved);
@@ -101,9 +102,31 @@ int main(void)
                     rt_pm_request(PM_SLEEP_MODE_DEEP); // 进入深度睡眠模式
                     rt_pm_release(PM_SLEEP_MODE_NONE); //释放运行模式
                 }
+                else
+                    LOG_E("event recv failed, ret = %d");
             }
             else
             {
+#if 0 // 好像用不上
+                // 避免在需要进入低功耗但是, 手动按按键唤醒了设备 need_entry_pwrdown() 返回了 false 错误开启网卡使能问题
+                if (dev_is_charging() == true || ele_ds.sensor_data.curvbat_percent >
+                    CFGFILE_DEFAULT_PWRDOWN_VBAT_PERCENT)
+                    net_dev_ctrl(&ele_ds, true);
+                else
+                    net_dev_ctrl(&ele_ds, false);
+#else
+                ret = rt_event_recv(ele_ds.event, ELE_EVENT_CHARGING, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
+                                    RT_WAITING_NO, &event_recved);
+                if (ret == RT_EOK &&
+                    /**
+                     * 1. 退出标志被置起说明已经被解除初始化了, 这时候可以重新初始化,
+                     * 避免在不需要进入低功耗时的插电导致重复初始化网卡
+                     */
+                    ele_ds.client.exit_flag == true)
+                {
+                    net_dev_ctrl(&ele_ds, true);
+                }
+#endif
                 // 允许在活动时实时刷新屏幕
                 if (ele_ds.device_status.refresh_scr_act == false)
                 {
@@ -122,14 +145,9 @@ int main(void)
                 ele_ds.ops.get_curvbat(&ele_ds); //获取当前电压
             }
             if (loop_times % 50 == 0)
-            {
                 rt_pin_write(LED0_PIN, !rt_pin_read(LED0_PIN));
-            }
             if (ele_ds.device_status.pwrdown_time > 0)
-            {
                 ele_ds.device_status.pwrdown_time -= 50;
-                // LOG_D("pwrdown_time: %d", ele_ds.device_status.pwrdown_time);
-            }
             loop_times++;
             rt_thread_mdelay(50);
         }

@@ -40,6 +40,6 @@ extern bool is_json(const char *data, size_t len);
 extern uint32_t crcfile(int argc, char **argv);
 extern char *find_json_start(char *buffer, int32_t len);
 extern bool net_islink(void);
-
+extern bool dev_is_charging(void);
 #endif /* __COMMON_H__ */
 

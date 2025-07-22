@@ -9,6 +9,7 @@
 #include "common.h"
 #include "dfscfg.h"
 #include <netdev.h>
+#include "ele_ds.h"
 
 /**
  * @description: 创建中间目录（递归）
@@ -331,4 +332,17 @@ bool net_islink(void)
     return false;
 }
 MSH_CMD_EXPORT_ALIAS(net_islink, netlink, judge net is linked);
+
+/**
+ * @brief 判断设备是否在充电
+ * @return true: 在充电, false: 不在充电
+ */
+bool dev_is_charging(void)
+{
+    if (rt_pin_read(TP4056_STDBY_PIN) == PIN_HIGH &&
+        rt_pin_read(TP4056_CHARGE_PIN) == PIN_HIGH)
+        return true;
+    else
+        return false;
+}
 

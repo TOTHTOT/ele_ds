@@ -18,19 +18,8 @@ void user_alarm_callback(rt_alarm_t myalarm, time_t timestamp)
 {
     struct tm p_tm;
     const time_t now = timestamp;
-    static uint8_t old_hour= 0;
     localtime_r(&now, &p_tm); // 时间戳转换
 
-    // 每小时一个周期开启esp连接服务器
-    if (old_hour != p_tm.tm_hour)
-    {
-        old_hour = p_tm.tm_hour;
-        rt_pin_write(ESP8266_EN, PIN_HIGH);
-    }
-    else
-        rt_pin_write(ESP8266_EN, PIN_LOW);
-
-    LOG_D("user alarm callback function.");
     LOG_D("curr time: %04d-%02d-%02d %02d:%02d:%02d", p_tm.tm_year + 1900, p_tm.tm_mon + 1, p_tm.tm_mday, p_tm.tm_hour,
           p_tm.tm_min, p_tm.tm_sec); // 打印闹钟中断产生时的时间，和设定的闹钟时间比对，以确定得到的是否是想要的结果
     // LOG_D("myalarm = %p %p, g_ele_ds->scr_alarm = %p %p", myalarm, &myalarm, g_ele_ds->scr_alarm, &g_ele_ds->scr_alarm);
@@ -246,6 +235,9 @@ static void pm_entry_func(struct rt_pm *pm, uint8_t mode)
         LOG_D("Enter DEEP mode");
 
         pm_clock_init_pwronoff(false);
+        // 关闭网络和esp
+        net_dev_ctrl(g_ele_ds, false);
+
         rt_thread_mdelay(500);
         // 使能PWR时钟
         __HAL_RCC_PWR_CLK_ENABLE();

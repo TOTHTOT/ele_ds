@@ -378,16 +378,29 @@ static int32_t ele_ds_get_curvbat(ele_ds_t dev)
     return dev->sensor_data.curvbat;
 }
 
-static void pa0_irq_callback(void *args)
+static void wakeup_irq_callback(void *args)
 {
-    // 这里要重新初始化时钟, 可能还需要重新初始化外部设备
-    SystemClock_Config();
-    HAL_ResumeTick();
-    pm_clock_init_pwronoff(true);
-    LOG_D("exit DEEP mode");
-    rt_pm_release(PM_SLEEP_MODE_DEEP); // 退出深度睡眠模式
-    rt_pm_request(PM_SLEEP_MODE_NONE); // 退出深度睡眠模式, 进入正常运行模式
-    rt_kprintf("PB13 triggered, waking from STOP mode!\n");
+    uint8_t cur_sleep_mode = rt_pm_get_sleep_mode();
+    if (PM_SLEEP_MODE_DEEP == cur_sleep_mode)
+    {
+        LOG_D("wakeup from DEEP mode");
+        rt_pm_release(PM_SLEEP_MODE_DEEP); // 退出深度睡眠模式    // 这里要重新初始化时钟, 可能还需要重新初始化外部设备
+        SystemClock_Config();
+        HAL_ResumeTick();
+        pm_clock_init_pwronoff(true);
+        rt_pm_release(PM_SLEEP_MODE_DEEP); // 退出深度睡眠模式
+        rt_pm_request(PM_SLEEP_MODE_NONE); // 退出深度睡眠模式, 进入正常运行模式
+        rt_kprintf("triggered, waking from DEEP mode!\n");
+    }
+}
+
+static void charging_irq_callback(void *args)
+{
+    const ele_ds_t dev = args;
+    // 如果是进入低功耗状态的插入充电插头那就要唤醒设备并重新配置时钟
+    wakeup_irq_callback(NULL);
+    // 发送事件, 重启网卡
+    rt_event_send(dev->event, ELE_EVENT_CHARGING);
 }
 
 /**
@@ -404,15 +417,15 @@ void ele_ds_gpio_init(void)
     // rt_pin_write(ESP8266_EN, PIN_HIGH);
 
     rt_pin_mode(TP4056_CHARGE_PIN, PIN_MODE_INPUT);
+    rt_pin_attach_irq(GPIO_PIN_4, PIN_IRQ_MODE_FALLING, charging_irq_callback, g_ele_ds);
     rt_pin_mode(TP4056_STDBY_PIN, PIN_MODE_INPUT);
-
     // 按键初始化
     rt_pin_mode(LEFT_KEY, PIN_MODE_INPUT_PULLUP);
     rt_pin_mode(MID_KEY, PIN_MODE_INPUT_PULLUP);
     rt_pin_mode(RIGHT_KEY, PIN_MODE_INPUT_PULLUP);
 
-    rt_pin_mode(GPIO_PIN_12, PIN_MODE_INPUT_PULLUP);  // 配置为输入模式
-    rt_pin_attach_irq(GPIO_PIN_12, PIN_IRQ_MODE_FALLING, pa0_irq_callback, RT_NULL);
+    rt_pin_mode(GPIO_PIN_12, PIN_MODE_INPUT_PULLUP);
+    rt_pin_attach_irq(GPIO_PIN_12, PIN_IRQ_MODE_FALLING, wakeup_irq_callback, RT_NULL);
     rt_pin_irq_enable(GPIO_PIN_12, PIN_IRQ_ENABLE);
 }
 
@@ -476,7 +489,7 @@ int32_t devices_init(ele_ds_t ele_ds)
     lvgl_thread_init();
 
 
-    ret = esp8266_device_init(ele_ds);
+    ret = net_dev_ctrl(ele_ds, true);
     if (ret != 0)
     {
         LOG_E("esp8266 device register failed, ret = %d", ret);

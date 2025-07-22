@@ -25,6 +25,7 @@
 #define CFGFILE_DEFAULT_CITY_LOCATION "151.21,-33.87" // 默认是悉尼的
 #define CFGFILE_DEFAULT_USERNAME "root" // 默认登录用户名
 #define CFGFILE_DEFAULT_PASSWORD "root" // 默认登录密码
+#define CFGFILE_DEFAULT_PWRDOWN_VBAT_PERCENT 40 // 默认进入低功耗的电池电量
 
 
 // 这段代码移植自 bootlader

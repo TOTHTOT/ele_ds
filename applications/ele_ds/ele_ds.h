@@ -99,8 +99,9 @@ typedef enum
 {
     ELE_EVENT_ENABLE_REFRESH_SCR = 0x01, // 闹钟事件
     ELE_EVENT_SCRFINISH, // 屏幕刷新完成
+    ELE_EVENT_CHARGING, // 充电事件
     // ELE_EVENT_NOKEY_PRESS_CNT, // 没有按键按下计时时间
-}ele_ds_event_t;
+} ele_ds_event_t;
 
 struct ele_ds
 {
