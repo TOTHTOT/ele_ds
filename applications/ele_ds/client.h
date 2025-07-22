@@ -77,7 +77,6 @@ typedef struct
     char username[USER_NAME_SIZE];
     char passwd[USER_PASSWD_SIZE];
     char cityname[CITY_NAME_SIZE];
-#define CFGFILE_DEFAULT_CITY_LOCATION "116.40,39.90"
     char location[CITY_NAME_SIZE];             // 城市ID 和 cityname 对应, 查询天气使用
     uint16_t cntserver_interval; // 连接服务器间隔时间
     uint32_t version;            // 客户端版本号
