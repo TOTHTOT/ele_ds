@@ -117,7 +117,7 @@ int main(void)
 #else
                 ret = rt_event_recv(ele_ds.event, ELE_EVENT_CHARGING, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
                                     RT_WAITING_NO, &event_recved);
-                if (ret == RT_EOK &&
+                if (ret == RT_EOK && event_recved == ELE_EVENT_CHARGING &&
                     /**
                      * 1. 退出标志被置起说明已经被解除初始化了, 这时候可以重新初始化,
                      * 避免在不需要进入低功耗时的插电导致重复初始化网卡
@@ -141,7 +141,7 @@ int main(void)
             //     LOG_D("in charge or stdby");
             if (loop_times % 100 == 0)
             {
-                ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
+                // ele_ds.ops.sensor_data[SENSOR_MAX](&ele_ds); //获取所有开启的传感器数据
                 ele_ds.ops.get_curvbat(&ele_ds); //获取当前电压
             }
             if (loop_times % 50 == 0)

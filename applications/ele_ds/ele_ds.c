@@ -408,13 +408,14 @@ static void charging_irq_callback(void *args)
  */
 void ele_ds_gpio_init(void)
 {
+    rt_pin_mode(ESP8266_EN, PIN_MODE_OUTPUT);
+    rt_pin_write(ESP8266_EN, PIN_LOW);
+
     rt_pin_mode(LED0_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(V3_3_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(V3_3_PIN, PIN_HIGH);
     rt_pin_write(LED0_PIN, PIN_LOW);
 
-    rt_pin_mode(ESP8266_EN, PIN_MODE_OUTPUT);
-    // rt_pin_write(ESP8266_EN, PIN_HIGH);
 
     rt_pin_mode(TP4056_CHARGE_PIN, PIN_MODE_INPUT);
     rt_pin_attach_irq(GPIO_PIN_4, PIN_IRQ_MODE_FALLING, charging_irq_callback, g_ele_ds);

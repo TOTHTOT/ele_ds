@@ -750,7 +750,7 @@ static void thread_communicate_server(void *parameter)
 static int32_t esp8266_device_init(ele_ds_t dev)
 {
     int32_t ret = 0;
-    static bool init_flag = false;
+    static bool init_flag = false; // 上电时的初始化需要注册, 其他时间的初始化只需要复位esp就好了
 
     if (dev == RT_NULL)
     {
@@ -775,15 +775,22 @@ static int32_t esp8266_device_init(ele_ds_t dev)
                                  (void *) &dev->devices.esp8266);
         init_flag = true;
     }
+    else
+    {
+        at_device_control(&(dev->devices.esp8266.device), AT_DEVICE_CTRL_RESET, NULL);
+    }
 
     if (ret == 0)
     {
         dev->client.exit_flag = false;
-        dev->client.recv_buf = rt_calloc(1, CLIENT_RECV_BUFFSIZE);
         if (dev->client.recv_buf == RT_NULL)
         {
-            LOG_E("recv_buf rt_calloc failed\n");
-            return -4;
+            dev->client.recv_buf = rt_calloc(1, CLIENT_RECV_BUFFSIZE);
+            if (dev->client.recv_buf == RT_NULL)
+            {
+                LOG_E("recv_buf rt_calloc failed\n");
+                return -4;
+            }
         }
         rt_ringbuffer_init(&dev->client.rb, dev->client.recv_buf, CLIENT_RECV_BUFFSIZE);
         // 初始化tcp接收超时定时器
@@ -839,16 +846,17 @@ static int32_t esp8266_device_init(ele_ds_t dev)
  */
 static void esp8266_device_deinit(const ele_ds_t dev)
 {
-    dev->client.exit_flag = true;
-    rt_thread_mdelay(200); // 设置完退出标志后等待线程结束
+    if (dev->client.exit_flag == false)
+    {
+        dev->client.exit_flag = true;
+        rt_thread_mdelay(200); // 设置完退出标志后等待线程结束
 
-    rt_thread_delete(dev->client.parse_thread);
-    rt_thread_delete(dev->client.recv_thread);
-    rt_timer_delete(dev->client.tcp_recv_timer);
-    rt_memset(&dev->client.rb, 0, sizeof(dev->client.rb));
-    rt_sem_delete(dev->client.rb_sem);
-    closesocket(dev->client.sock);
-    dev->client.sock = 0;
+        rt_timer_delete(dev->client.tcp_recv_timer);
+        rt_memset(&dev->client.rb, 0, sizeof(dev->client.rb));
+        rt_sem_delete(dev->client.rb_sem);
+        closesocket(dev->client.sock);
+        dev->client.sock = 0;
+    }
 }
 
 /**
@@ -882,4 +890,4 @@ void cmd_net_dev_ctrl(int argc, char *argv[])
     const bool onoff = atoi(argv[1]);
     net_dev_ctrl(g_ele_ds, onoff);
 }
-MSH_CMD_EXPORT_ALIAS(net_dev_ctrl, cmd_net_dev_ctrl, "net_dev_ctrl open or close netdev.");
+MSH_CMD_EXPORT_ALIAS(cmd_net_dev_ctrl, net_dev_ctrl, "net_dev_ctrl open or close netdev.");

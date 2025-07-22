@@ -374,14 +374,15 @@ static void update_rtcobj(ele_ds_ui_t ui, ele_ds_t dev, uint32_t loop_times)
 void thread_update_scr(void *para)
 {
     uint32_t loop_times = 0, event_recved = 0; // 记录执行次数, 有些部件不是每次都要刷新数据
-    ele_ds_ui_t ui = para;
-    ele_ds_t dev = g_ele_ds;
+    const ele_ds_ui_t ui = para;
+    const ele_ds_t dev = g_ele_ds;
     int32_t ret = 0;
 
     while (dev->exit_flag == false)
     {
-        ret = rt_event_recv(dev->event, ELE_EVENT_ENABLE_REFRESH_SCR, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, &event_recved);
-        if (ret == RT_EOK)
+        ret = rt_event_recv(dev->event, ELE_EVENT_ENABLE_REFRESH_SCR, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
+                            RT_WAITING_FOREVER, &event_recved);
+        if (ret == RT_EOK && event_recved == ELE_EVENT_ENABLE_REFRESH_SCR)
         {
             // LOG_D("event_recved: 0x%x", event_recved);
             update_rtcobj(ui, dev, loop_times);
