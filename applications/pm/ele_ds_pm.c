@@ -39,7 +39,7 @@ void user_alarm_callback(rt_alarm_t myalarm, time_t timestamp)
     {
         if (g_ele_ds->init_flag == true)
         {
-            rt_event_send(g_ele_ds->event, ELE_EVENT_ALARM);
+            rt_event_send(g_ele_ds->event, ELE_EVENT_ENABLE_REFRESH_SCR);
         }
         else
         {

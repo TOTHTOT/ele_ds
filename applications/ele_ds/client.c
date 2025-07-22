@@ -267,6 +267,113 @@ static bool cur_msgtype_need_savetofile(ele_msg_type_t msgtype)
 }
 
 /**
+ * @brief 解析服务器数据, end态功能
+ * @param ele_ds 设备
+ * @param buffer 收到数据缓存, 没用到
+ * @param len 数据长度, 没用到
+ * @return = 0: 成功, < 0: 失败
+ */
+static int32_t parse_servermsg_end_handle(const ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
+{
+    int32_t ret = 0;
+    (void *) buffer;
+    (void) len;
+    // 如果当前数据需要保存到文件, 在接收完成后需要关闭文件并校验crc
+    if (cur_msgtype_need_savetofile(ele_ds->client.recv_info.curparse_type))
+    {
+#if ENABLE_SAVE_FILE
+        char *arg0 = "crcfile";
+        char arg1[256] = {0};
+        char *argv[] = {arg0, arg1};
+        const uint32_t target_crc = ele_ds->client.recv_info.crc;
+        const uint32_t end_time = rt_tick_get();
+
+        if (ele_ds->client.recv_info.recv_data_start_time != 0)
+        {
+            const uint32_t used_time = end_time - ele_ds->client.recv_info.recv_data_start_time;
+            const float speed = ele_ds->client.recv_info.recv_len / 1024.0 / (used_time / 1000.0);
+            char str[100] = {0};
+            sprintf(str, "recv data finish, used time = %dms, speed = %.2fKB/s", used_time, speed);
+            LOG_D("%s", str);
+        }
+        strcpy(arg1, ele_ds->client.recv_info.file_path);
+
+        // 提早清空接收相关信息, 不然crc计算需要重复打开文件, 读数据时会出问题
+        clear_client_info(&ele_ds->client);
+
+        // rt_thread_mdelay(500);
+        const uint32_t crc_result = crcfile(2, argv);
+        if (crc_result == target_crc)
+        {
+            LOG_D("crc check success, crc = %#x, expect crc = %#x", crc_result, target_crc);
+            ret = 0; // CRC 校验成功
+        }
+        else
+        {
+            LOG_E("crc check failed, crc = %#x, expect crc = %#x", crc_result, target_crc);
+            ret = -1;
+        }
+#endif /* ENABLE_SAVE_FILE */
+    }
+    return ret;
+}
+
+/**
+ * @brief 解析服务器数据, data 态功能
+ * @param ele_ds 设备
+ * @param buffer 接收缓存
+ * @param len 数据长度
+ * @return 0: 成功, != 失败
+ */
+static int32_t parse_servermsg_data_handle(const ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
+{
+    int32_t ret = 0;
+
+    if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_WEATHER) // 天气数据写入到配置信息
+    {
+        memcpy((char *) ele_ds->device_cfg.weather_info + ele_ds->client.recv_info.recv_len, buffer,
+               len);
+        ret = write_ele_ds_cfg(&ele_ds->device_cfg); // 写入配置文件
+        if (ret < 0)
+        {
+            LOG_E("save weather info failed, ret = %d", ret);
+        }
+    }
+    else if (cur_msgtype_need_savetofile((ele_msg_type_t) ele_ds->client.recv_info.curparse_type)) // 升级数据写入到文件
+    {
+#if ENABLE_SAVE_FILE
+        // 测试时buffer是字符串, 实际应用中是二进制数据, 长度不准的
+        LOG_D("write file, len = %d, fd = %d, bufferlen = %d",
+              len, ele_ds->client.recv_info.update_file_fd, strlen((char *)buffer));
+        if (ele_ds->client.recv_info.update_file_fd <= 0)
+        {
+            ele_ds->client.recv_info.update_file_fd = open(
+                ele_ds->client.recv_info.file_path, O_WRONLY | O_CREAT | O_TRUNC);
+            if (ele_ds->client.recv_info.update_file_fd < 0)
+            {
+                LOG_E("open file failed, ret = %d, file = %s",
+                      ele_ds->client.recv_info.update_file_fd, ele_ds->client.recv_info.file_path);
+                ret = -3; // 打开文件失败
+            }
+        }
+        int32_t write_len = write(ele_ds->client.recv_info.update_file_fd, buffer, len);
+        if (write_len < 0)
+        {
+            LOG_E("write file failed, ret = %d", write_len);
+            ret = -3; // 写文件失败
+        }
+        // close(fd);
+#endif /* ENABLE_SAVE_FILE */
+    }
+    else
+    {
+        LOG_E("unknown curparse_type: %d", ele_ds->client.recv_info.curparse_type);
+        ret = -3; // 未知类型
+    }
+    return ret;
+}
+
+/**
  * @description: 解析接收到的数据
  * @param {ele_ds_t} ele_ds 设备指针
  * @param {uint8_t} *buffer 接收数据缓冲区
@@ -358,50 +465,8 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
                       ele_ds->client.recv_info.datalen, ele_ds->client.recv_info.recv_len, len);
                 if (ele_ds->client.recv_info.datalen > 0)
                 {
-                    if (ele_ds->client.recv_info.curparse_type == EMT_SERVERMSG_WEATHER) // 天气数据写入到配置信息
-                    {
-                        memcpy((char *) ele_ds->device_cfg.weather_info + ele_ds->client.recv_info.recv_len, buffer,
-                               len);
-                        ret = write_ele_ds_cfg(&ele_ds->device_cfg); // 写入配置文件
-                        if (ret < 0)
-                        {
-                            LOG_E("save weather info failed, ret = %d", ret);
-                        }
-                    }
-                    else if (cur_msgtype_need_savetofile((ele_msg_type_t) ele_ds->client.recv_info.curparse_type)) // 升级数据写入到文件
-                    {
-#if ENABLE_SAVE_FILE
-                        // 测试时buffer是字符串, 实际应用中是二进制数据, 长度不准的
-                        LOG_D("write file, len = %d, fd = %d, bufferlen = %d",
-                              len, ele_ds->client.recv_info.update_file_fd, strlen((char *)buffer));
-                        if (ele_ds->client.recv_info.update_file_fd <= 0)
-                        {
-                            ele_ds->client.recv_info.update_file_fd = open(
-                                ele_ds->client.recv_info.file_path, O_WRONLY | O_CREAT | O_TRUNC);
-                            if (ele_ds->client.recv_info.update_file_fd < 0)
-                            {
-                                LOG_E("open file failed, ret = %d, file = %s",
-                                      ele_ds->client.recv_info.update_file_fd, ele_ds->client.recv_info.file_path);
-                                ret = -3; // 打开文件失败
-                                break;
-                            }
-                        }
-                        int32_t write_len = write(ele_ds->client.recv_info.update_file_fd, buffer, len);
-                        if (write_len < 0)
-                        {
-                            LOG_E("write file failed, ret = %d", write_len);
-                            ret = -3; // 写文件失败
-                            break;
-                        }
-                        // close(fd);
-#endif /* ENABLE_SAVE_FILE */
-                    }
-                    else
-                    {
-                        LOG_E("unknown curparse_type: %d", ele_ds->client.recv_info.curparse_type);
-                        ret = -3; // 未知类型
-                        break;
-                    }
+                    // 解析数据
+                    parse_servermsg_data_handle(ele_ds, buffer, len);
                     //rt_timer_start(&ele_ds->client.tcp_recv_timer);
                     ele_ds->client.recv_info.recv_len += len; // 累加已接收的数据长度
                     ele_ds->client.recv_info.datalen -= len; // 减去已接收的数据长度
@@ -420,44 +485,7 @@ static int32_t parse_recv_data(ele_ds_t ele_ds, uint8_t *buffer, int32_t len)
             case CRS_END:
                 LOG_D("recv end");
                 //rt_timer_stop(&ele_ds->client.tcp_recv_timer);
-                // 如果当前数据需要保存到文件, 在接收完成后需要关闭文件并校验crc
-                if (cur_msgtype_need_savetofile((ele_msg_type_t) ele_ds->client.recv_info.curparse_type))
-                {
-#if ENABLE_SAVE_FILE
-                    char *arg0 = "crcfile";
-                    char arg1[256] = {0};
-                    char *argv[] = {arg0, arg1};
-                    uint32_t target_crc = ele_ds->client.recv_info.crc;
-                    uint32_t end_time = rt_tick_get();
-
-                    if (ele_ds->client.recv_info.recv_data_start_time != 0)
-                    {
-                        const uint32_t used_time = end_time - ele_ds->client.recv_info.recv_data_start_time;
-                        const float speed = ele_ds->client.recv_info.recv_len / 1024.0 / (used_time / 1000.0);
-                        char str[100] = {0};
-                        sprintf(str, "recv data finish, used time = %dms, speed = %.2fKB/s", used_time, speed);
-                        LOG_D("%s", str);
-                    }
-                    strcpy(arg1, ele_ds->client.recv_info.file_path);
-
-                    // 提早清空接收相关信息, 不然crc计算需要重复打开文件, 读数据时会出问题
-                    clear_client_info(&ele_ds->client);
-
-                    // rt_thread_mdelay(500);
-                    uint32_t crc_result = crcfile(2, argv);
-                    if (crc_result == target_crc)
-                    {
-                        LOG_D("crc check success, crc = %#x, expect crc = %#x", crc_result, target_crc);
-                        ret = 1; // CRC 校验成功
-                    }
-                    else
-                    {
-                        LOG_E("crc check failed, crc = %#x, expect crc = %#x", crc_result, target_crc);
-                        ret = -4;
-                    }
-#endif /* ENABLE_SAVE_FILE */
-                }
-                else
+                if (parse_servermsg_end_handle(ele_ds, buffer, len) < 0)
                     clear_client_info(&ele_ds->client);
                 return 0;
             default:

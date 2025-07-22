@@ -97,7 +97,7 @@ typedef struct ele_ds_ops ele_ds_ops_t;
  */
 typedef enum
 {
-    ELE_EVENT_ALARM = 0x01, // 闹钟事件
+    ELE_EVENT_ENABLE_REFRESH_SCR = 0x01, // 闹钟事件
     ELE_EVENT_SCRFINISH, // 屏幕刷新完成
     // ELE_EVENT_NOKEY_PRESS_CNT, // 没有按键按下计时时间
 }ele_ds_event_t;

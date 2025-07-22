@@ -380,8 +380,8 @@ void thread_update_scr(void *para)
 
     while (dev->exit_flag == false)
     {
-        ret = rt_event_recv(dev->event, ELE_EVENT_ALARM, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, &event_recved);
-        if (ret == RT_EOK && event_recved == ELE_EVENT_ALARM)
+        ret = rt_event_recv(dev->event, ELE_EVENT_ENABLE_REFRESH_SCR, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, &event_recved);
+        if (ret == RT_EOK)
         {
             // LOG_D("event_recved: 0x%x", event_recved);
             update_rtcobj(ui, dev, loop_times);
