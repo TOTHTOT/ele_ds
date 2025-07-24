@@ -477,7 +477,7 @@ int32_t devices_init(ele_ds_t ele_ds)
     mnt_init();
 
     // 更具配置重新设置时区
-    rt_tz_set(ele_ds->device_cfg.time_zone * 3600U);
+    rt_tz_set(ele_ds->device_cfg.setting.time_zone * 3600U);
 
     ele_ds->ui_btn_mq = rt_mq_create("ui_btn_mq", sizeof(ele_ds_ui_btn_t), 10, RT_IPC_FLAG_FIFO);
     ele_ds->event = rt_event_create("ele_ds_event", RT_IPC_FLAG_FIFO);
@@ -496,8 +496,8 @@ int32_t devices_init(ele_ds_t ele_ds)
         LOG_E("esp8266 device register failed, ret = %d", ret);
         return -5;
     }
-    // ele_ds->device_cfg.alarm_time = time(NULL) + 10;
-    // ret = ele_ds_alarm_init(ele_ds->device_status.alarm, ele_ds->device_cfg.alarm_time, ele_ds->device_cfg.alarm_enable);
+    // ele_ds->device_cfg.setting.alarm_time = time(NULL) + 10;
+    // ret = ele_ds_alarm_init(ele_ds->device_status.alarm, ele_ds->device_cfg.setting.alarm_time, ele_ds->device_cfg.setting.alarm_enable);
     // if (ret != 0)
     // {
     //     LOG_E("alarm init failed, ret = %d", ret);
@@ -512,7 +512,7 @@ int32_t devices_init(ele_ds_t ele_ds)
     ele_ds->exit_flag = false;
     ele_ds->init_flag = true;
     // 上电第一次初始化时设置这个值让设备不要在刷新完屏幕后立马进入低功耗, 而是等待所有流程跑完后再进入
-    ele_ds->device_status.pwrdown_time = CFGFILE_DEFAULT_PWRDOWN_TIME;
+    ele_ds->device_status.pwrdown_time = ele_ds->device_cfg.setting.pwrdown_time;
 
     return 0;
 }

@@ -27,12 +27,14 @@ void init_ele_ds_cfg(ele_ds_cfg_t *cfg)
     memset(cfg->weather_info, 0, sizeof(cfg->weather_info));
     cfg->check = CFGFILE_CHECK;
     cfg->server_port = CFGFILE_DEFATLT_SERVER_PORT;
-    cfg->tcp_timeout = CFGFILE_DEFAULT_TCP_TIMEOUT;
-    cfg->alarm_enable = false;
-    cfg->alarm_time = CFGFILE_DEFAULT_ALARM_TIME;
-	cfg->clientcfg.version = SOFT_VERSION;
-	cfg->time_zone = CFGFILE_DEFAULT_TIMEZONE;
+    cfg->setting.tcp_timeout = CFGFILE_DEFAULT_TCP_TIMEOUT;
+    cfg->setting.alarm_enable = false;
+    cfg->setting.alarm_time = CFGFILE_DEFAULT_ALARM_TIME;
+	cfg->setting.time_zone = CFGFILE_DEFAULT_TIMEZONE;
+	cfg->setting.pwrdown_time = CFGFILE_DEFAULT_PWRDOWN_TIME;
+	cfg->setting.cntserver_interval = CFGFILE_DEFAULT_CNTSERVER_INTERVAL;
 
+	cfg->clientcfg.version = SOFT_VERSION;
     strncpy((char *)cfg->clientcfg.username, CFGFILE_DEFAULT_USERNAME, sizeof(cfg->clientcfg.passwd) - 1);
     strncpy((char *)cfg->clientcfg.passwd, CFGFILE_DEFAULT_PASSWORD, sizeof(cfg->clientcfg.passwd) - 1);
     strncpy((char *)cfg->clientcfg.location, CFGFILE_DEFAULT_CITY_LOCATION, sizeof(cfg->clientcfg.location) - 1);
@@ -50,6 +52,13 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
         LOG_E("cJSON_CreateObject failed");
         return NULL;
     }
+
+    cJSON_AddStringToObject(root, "wifi_ssid",  (const char *)cfg->wifi_ssid);
+    cJSON_AddStringToObject(root, "wifi_passwd",  (const char *)cfg->wifi_passwd);
+    cJSON_AddStringToObject(root, "server_addr",  (const char *)cfg->server_addr);
+    cJSON_AddNumberToObject(root, "server_port", cfg->server_port);
+    cJSON_AddStringToObject(root, "memo",  (const char *)cfg->memo);
+
     cJSON *clientcfg = cJSON_CreateObject();
     if (clientcfg == NULL)
     {
@@ -60,21 +69,26 @@ static cJSON *ele_ds_cfg_to_json(const ele_ds_cfg_t *cfg)
     cJSON_AddStringToObject(clientcfg, "username", (const char *)cfg->clientcfg.username);
     cJSON_AddStringToObject(clientcfg, "passwd", (const char *)cfg->clientcfg.passwd);
     cJSON_AddStringToObject(clientcfg, "cityname", (const char *)cfg->clientcfg.cityname);
-    cJSON_AddNumberToObject(clientcfg, "cntserver_interval", cfg->clientcfg.cntserver_interval);
     cJSON_AddNumberToObject(clientcfg, "version", cfg->clientcfg.version);
     cJSON_AddNumberToObject(clientcfg, "battery", cfg->clientcfg.battery);
+    cJSON_AddStringToObject(clientcfg, "location",  (const char *)cfg->clientcfg.location);
     cJSON_AddItemToObject(root, "clientcfg", clientcfg);
 
-    cJSON_AddStringToObject(clientcfg, "location",  (const char *)cfg->clientcfg.location);
-    cJSON_AddStringToObject(root, "wifi_ssid",  (const char *)cfg->wifi_ssid);
-    cJSON_AddStringToObject(root, "wifi_passwd",  (const char *)cfg->wifi_passwd);
-    cJSON_AddStringToObject(root, "server_addr",  (const char *)cfg->server_addr);
-    cJSON_AddNumberToObject(root, "server_port", cfg->server_port);
-    cJSON_AddNumberToObject(root, "tcp_timeout", cfg->tcp_timeout);
-    cJSON_AddNumberToObject(root, "alarm_enable", cfg->alarm_enable);
-    cJSON_AddNumberToObject(root, "alarm_time", cfg->alarm_time);
-    cJSON_AddNumberToObject(root, "time_zone", cfg->time_zone);
-    cJSON_AddStringToObject(root, "memo",  (const char *)cfg->memo);
+
+    cJSON *setting = cJSON_CreateObject();
+    if (setting == NULL)
+    {
+        LOG_E("cJSON_CreateObject for setting failed");
+        cJSON_Delete(root);
+        return NULL;
+    }
+    cJSON_AddNumberToObject(setting, "tcp_timeout", cfg->setting.tcp_timeout);
+    cJSON_AddNumberToObject(setting, "alarm_enable", cfg->setting.alarm_enable);
+    cJSON_AddNumberToObject(setting, "setting.alarm_time", cfg->setting.alarm_time);
+    cJSON_AddNumberToObject(setting, "time_zone", cfg->setting.time_zone);
+    cJSON_AddNumberToObject(setting, "pwrdown_time", cfg->setting.pwrdown_time);
+    cJSON_AddNumberToObject(setting, "cntserver_interval", cfg->setting.cntserver_interval);
+    cJSON_AddItemToObject(root, "setting", setting);
 
     cJSON *weather_array = cJSON_CreateArray();
     for (int i = 0; i < 7; i++)
@@ -105,22 +119,30 @@ static void json_to_ele_ds_cfg(ele_ds_cfg_t *cfg, const cJSON *json)
     strcpy((char *)cfg->clientcfg.passwd, cJSON_GetObjectItem(clientcfg, "passwd")->valuestring);
     strcpy((char *)cfg->clientcfg.cityname, cJSON_GetObjectItem(clientcfg, "cityname")->valuestring);
     strcpy((char *)cfg->clientcfg.location, cJSON_GetObjectItem(clientcfg, "location")->valuestring);
-    cfg->clientcfg.cntserver_interval = cJSON_GetObjectItem(clientcfg, "cntserver_interval")->valueint;
     cfg->clientcfg.version = cJSON_GetObjectItem(clientcfg, "version")->valueint;
     cfg->clientcfg.battery = cJSON_GetObjectItem(clientcfg, "battery")->valueint;
+    cfg->clientcfg.version = cJSON_GetObjectItem(clientcfg, "version")->valueint;
 
     strcpy((char *)cfg->wifi_ssid, cJSON_GetObjectItem(json, "wifi_ssid")->valuestring);
     strcpy((char *)cfg->wifi_passwd, cJSON_GetObjectItem(json, "wifi_passwd")->valuestring);
     strcpy((char *)cfg->server_addr, cJSON_GetObjectItem(json, "server_addr")->valuestring);
-    cfg->server_port = cJSON_GetObjectItem(json, "server_port")->valueint;
-    cfg->tcp_timeout = cJSON_GetObjectItem(json, "tcp_timeout")->valueint;
-    cfg->alarm_enable = cJSON_GetObjectItem(json, "alarm_enable")->valueint;
-    cfg->alarm_time = cJSON_GetObjectItem(json, "alarm_time")->valueint;
-    cfg->time_zone = cJSON_GetObjectItem(json, "time_zone")->valueint;
-    cfg->clientcfg.version = cJSON_GetObjectItem(json, "version")->valueint;
     strcpy(cfg->memo, cJSON_GetObjectItem(json, "memo")->valuestring);
+    cfg->server_port = cJSON_GetObjectItem(json, "server_port")->valueint;
 
-    cJSON *weather_array = cJSON_GetObjectItem(json, "weather_info");
+    const cJSON *setting = cJSON_GetObjectItem(json, "setting");
+    if (setting == NULL)
+    {
+        LOG_E("setting not found in json");
+        return;
+    }
+    cfg->setting.tcp_timeout = cJSON_GetObjectItem(setting, "tcp_timeout")->valueint;
+    cfg->setting.alarm_enable = cJSON_GetObjectItem(setting, "alarm_enable")->valueint;
+    cfg->setting.alarm_time = cJSON_GetObjectItem(setting, "alarm_time")->valueint;
+    cfg->setting.time_zone = cJSON_GetObjectItem(setting, "time_zone")->valueint;
+    cfg->setting.pwrdown_time = cJSON_GetObjectItem(setting, "pwrdown_time")->valueint;
+    cfg->setting.cntserver_interval = cJSON_GetObjectItem(setting, "cntserver_interval")->valueint;
+
+    const cJSON *weather_array = cJSON_GetObjectItem(json, "weather_info");
     for (int i = 0; i < cJSON_GetArraySize(weather_array) && i < 7; i++)
     {
         cJSON *item = cJSON_GetArrayItem(weather_array, i);

@@ -23,7 +23,7 @@ static void alarm_cb(rt_alarm_t myalarm, time_t timestamp)
     (void)myalarm;
 
     // 没开启闹钟的话直接退出, 正常在 设置 里面修改了状态会关闭闹钟, 直接修改配置文件是不会关闭的
-    if (g_ele_ds->device_cfg.alarm_enable == false)
+    if (g_ele_ds->device_cfg.setting.alarm_enable == false)
     {
         LOG_D("alarm is disable, exit alarm callback function.");
         return;

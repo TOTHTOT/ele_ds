@@ -1,4 +1,4 @@
-﻿/*
+/*
  * @Author: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
  * @Date: 2025-04-05 12:21:47
  * @LastEditors: TOTHTOT 37585883+TOTHTOT@users.noreply.github.com
@@ -37,7 +37,25 @@
 
 typedef struct
 {
-    ele_client_cfg_t clientcfg; // 设备登录到服务器的配置信息
+#define CFGFILE_DEFAULT_TCP_TIMEOUT (3 * 1000) // 3s
+    uint32_t tcp_timeout; // tcp传输数据软件定时器超时时间
+
+    bool alarm_enable; // 是否启用闹钟, 默认false
+#define CFGFILE_DEFAULT_ALARM_TIME 0 // 默认闹钟时间为0
+    time_t alarm_time; // 闹钟响铃时间
+#define CFGFILE_DEFAULT_TIMEZONE 8
+    uint32_t time_zone; // 时区
+
+#define CFGFILE_DEFAULT_PWRDOWN_TIME (60 * 1000)
+    uint32_t pwrdown_time; // 按下按键后断电时间
+
+#define CFGFILE_DEFAULT_CNTSERVER_INTERVAL (CFGFILE_DEFAULT_PWRDOWN_TIME * 10)
+    uint32_t cntserver_interval; // 连接服务器间隔时间
+}ele_ds_setting_t;
+
+typedef struct
+{
+    ele_client_devinfo_t clientcfg; // 设备登录到服务器的配置信息
 #define CFGFILE_DEFATLT_WIFI_SSID "esp32-2.4G"
 #define CFGFILE_DEFATLT_WIFI_PASS "12345678.."
     uint8_t wifi_ssid[32];   // wifi ssid
@@ -55,17 +73,7 @@ typedef struct
 #define CFGFILE_DEFAULT_MEMO_CONTENT "memo is empty"
     char memo[CLIENT_CHEAT_CONTENT_SIZE]; // 备忘录消息
 
-#define CFGFILE_DEFAULT_TCP_TIMEOUT (3 * 1000) // 3s
-    uint32_t tcp_timeout; // tcp传输数据软件定时器超时时间
-
-    bool alarm_enable; // 是否启用闹钟, 默认false
-#define CFGFILE_DEFAULT_ALARM_TIME 0 // 默认闹钟时间为0
-    time_t alarm_time; // 闹钟响铃时间
-#define CFGFILE_DEFAULT_TIMEZONE 8
-    uint32_t time_zone; // 时区
-
-#define CFGFILE_DEFAULT_PWRDOWN_TIME (60 * 1000)
-    uint32_t pwrdown_time; // 按下按键后断电时间
+    ele_ds_setting_t setting; // 设备设置
 
 #define CFGFILE_CHECK 0xA5A5A5A5
     uint32_t check;

@@ -603,7 +603,6 @@ static char *build_devcfg_msg(ele_ds_t ele_ds)
     cJSON_AddStringToObject(cfg, "passwd", ele_ds->device_cfg.clientcfg.passwd);
     cJSON_AddStringToObject(cfg, "cityname", ele_ds->device_cfg.clientcfg.cityname);
     cJSON_AddStringToObject(cfg, "location", ele_ds->device_cfg.clientcfg.location);
-    cJSON_AddNumberToObject(cfg, "cntserver_interval", ele_ds->device_cfg.clientcfg.cntserver_interval);
     cJSON_AddNumberToObject(cfg, "version", ele_ds->device_cfg.clientcfg.version);
     cJSON_AddNumberToObject(cfg, "battery", ele_ds->device_cfg.clientcfg.battery);
 
@@ -796,7 +795,7 @@ static int32_t esp8266_device_init(ele_ds_t dev)
         // 初始化tcp接收超时定时器
         dev->client.tcp_recv_timer = rt_timer_create("tcp_tim", tcp_timeout_cb,
                                                         &dev->client,
-                                                        dev->device_cfg.tcp_timeout,
+                                                        dev->device_cfg.setting.tcp_timeout,
                                                         RT_TIMER_FLAG_ONE_SHOT);
 
         // 初始化信号量, 用于接收线程和解析线程之间的同步
